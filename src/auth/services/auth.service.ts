@@ -1,42 +1,39 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from 'src/users/entities/user.entity';
-import { UsersService } from 'src/users/services/users/users.service';
+import { UsersService } from '../../users/services/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { UserModel } from '../../users/interfaces/user';
 
 @Injectable()
 export class AuthService {
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly jwtService: JwtService,
+  ) {}
 
-    constructor(
-        private readonly usersService: UsersService,
-        private readonly jwtService: JwtService,
-        // @InjectRepository(User) private userRepo: Repository<User>
-    ) { }
+  async validateUser(email: string, password: string) {
+    const user = await this.usersService.findByEmail(email);
 
-    async validateUser(email: string, password: string) {
-        const user: User = await this.usersService.findByEmail(email);
-
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            throw new UnauthorizedException('Invalid credentials');
-        }
-
-        const { password: _, ...result } = user;
-        return result;
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      throw new UnauthorizedException('Invalid credentials');
     }
 
-    async login(user: UserModel) {
-        const payload = {
-            sub: user.id,
-            email: user.email,
-        };
+    const { password: _, ...result } = user;
+    return result;
+  }
 
-        return {
-            access_token: this.jwtService.sign(payload),
-            user: {
-                id: user.id,
-                email: user.email,
-            },
-        };
-    }
+  async login(user: UserModel) {
+    const payload = {
+      sub: user.id,
+      email: user.email,
+    };
+
+    return {
+      access_token: this.jwtService.sign(payload),
+      user: {
+        id: user.id,
+        email: user.email,
+      },
+    };
+  }
 }

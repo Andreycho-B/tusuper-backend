@@ -1,41 +1,45 @@
-import { Role } from 'src/roles/entities/role.entity';
-import { 
-    Column, 
-    Entity, 
-    JoinTable, 
-    ManyToMany, 
-    PrimaryGeneratedColumn, 
+import { Exclude } from 'class-transformer';
+import { Role } from '../../roles/entities/role.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinTable,
+  ManyToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
 } from 'typeorm';
 
-@Entity()
+@Entity('users')
 export class User {
-    @PrimaryGeneratedColumn()
-    id: number;
+  @PrimaryGeneratedColumn()
+  id: number;
 
-    @Column({ type: 'varchar', length: 255 })
-    name;
+  @Column({ type: 'varchar', length: 255 })
+  firstName: string;
 
-    @Column({ type: 'varchar', length: 255 })
-    lastName;
+  @Column({ type: 'varchar', length: 255 })
+  lastName: string;
 
-    @Column({ type: 'varchar', length: 255 })
-    docType;
+  @Column({ type: 'varchar', length: 255, unique: true })
+  email: string;
 
-    @Column({ type: 'varchar', length: 255 })
-    docNumber;
+  @Exclude()
+  @Column({ type: 'varchar', length: 255, select: false })
+  password: string;
 
-    @Column({ unique: true })
-    email: string;
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
 
-    @Column()
-    password: string;
+  @CreateDateColumn({ type: 'timestamp' })
+  createdAt: Date;
 
-    @Column({ default: true })
-    isActive: boolean;
+  @UpdateDateColumn({ type: 'timestamp' })
+  updatedAt: Date;
 
-    @ManyToMany(() => Role, role => role.users)
-    @JoinTable({
-        name: 'user_roles'
-    })
-    roles: Role[];
+  @ManyToMany(() => Role, (role) => role.users)
+  @JoinTable({
+    name: 'user_roles',
+  })
+  roles: Role[];
 }

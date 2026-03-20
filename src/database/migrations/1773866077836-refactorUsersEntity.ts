@@ -20,13 +20,13 @@ export class RefactorUsersEntity1773866077836 implements MigrationInterface {
 
         // 5. Update user_roles foreign key to reference "users" instead of "user"
         await queryRunner.query(`ALTER TABLE "user_roles" DROP CONSTRAINT IF EXISTS "FK_99b019339f52c63ae6153587380"`);
-        await queryRunner.query(`ALTER TABLE "user_roles" ADD CONSTRAINT "FK_99b019339f52c63ae6153587380" FOREIGN KEY ("usersId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE "user_roles" ADD CONSTRAINT "FK_99b019339f52c63ae6153587380" FOREIGN KEY ("userId") REFERENCES "users"("id") ON DELETE CASCADE ON UPDATE CASCADE`);
     }
 
     public async down(queryRunner: QueryRunner): Promise<void> {
         // 5. Revert user_roles foreign key
         await queryRunner.query(`ALTER TABLE "user_roles" DROP CONSTRAINT IF EXISTS "FK_99b019339f52c63ae6153587380"`);
-        await queryRunner.query(`ALTER TABLE "user_roles" ADD CONSTRAINT "FK_99b019339f52c63ae6153587380" FOREIGN KEY ("usersId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE`);
+        await queryRunner.query(`ALTER TABLE "user_roles" ADD CONSTRAINT "FK_99b019339f52c63ae6153587380" FOREIGN KEY ("userId") REFERENCES "user"("id") ON DELETE CASCADE ON UPDATE CASCADE`);
 
         // 4. Drop timestamp columns
         await queryRunner.query(`ALTER TABLE "users" DROP COLUMN "updatedAt"`);
@@ -42,5 +42,4 @@ export class RefactorUsersEntity1773866077836 implements MigrationInterface {
         // 1. Rename table back to "user"
         await queryRunner.query(`ALTER TABLE "users" RENAME TO "user"`);
     }
-
 }

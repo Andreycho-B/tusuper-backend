@@ -1,43 +1,74 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  ParseIntPipe,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { Modules } from '../../../auth/decorators/modules.decorator';
 import { ModulesGuard } from '../../../auth/guards/modules.guard.guard';
-import { CreateUserDto, UpdateUserDto } from 'src/users/dtos/user.dto';
-import { UsersService } from '../../../users/services/users/users.service';
 import { JwtAuthGuard } from '../../../auth/guards/auth.guard';
+import { CreateUserDto, UpdateUserDto } from '../../dtos/user.dto';
+import { UsersService } from '../../services/users/users.service';
 
 @ApiBearerAuth()
+@ApiTags('Users')
 @Modules('users')
 @UseGuards(JwtAuthGuard, ModulesGuard)
 @Controller('users')
 export class UsersController {
+  constructor(private readonly usersService: UsersService) {}
 
-    constructor(private usersService: UsersService){}
+  @Get()
+  @ApiOperation({ summary: 'Obtener todos los usuarios' })
+  @ApiResponse({ status: 200, description: 'Lista de usuarios retornada exitosamente' })
+  findAll() {
+    return this.usersService.findAll();
+  }
 
-    @Get()
-    getUsers() {
-        return this.usersService.findAll();
-    }
+  @Get(':userId')
+  @ApiOperation({ summary: 'Obtener un usuario por ID' })
+  @ApiResponse({ status: 200, description: 'Usuario encontrado exitosamente' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  findOne(@Param('userId', ParseIntPipe) userId: number) {
+    return this.usersService.findOne(userId);
+  }
 
-    @Get(':userId')
-    getOne(@Param('userId', ParseIntPipe) userId: number){
-        return this.usersService.findOne(userId);
-    }
+  @Post()
+  @ApiOperation({ summary: 'Crear un nuevo usuario' })
+  @ApiResponse({ status: 201, description: 'Usuario creado exitosamente' })
+  @ApiResponse({ status: 409, description: 'El email ya está registrado' })
+  create(@Body() createUserDto: CreateUserDto) {
+    return this.usersService.create(createUserDto);
+  }
 
-    @Post()
-    createUser(@Body() payload: CreateUserDto){
-        return this.usersService.create(payload);
-    }
+  @Put(':userId')
+  @ApiOperation({ summary: 'Actualizar un usuario existente' })
+  @ApiResponse({ status: 200, description: 'Usuario actualizado exitosamente' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  @ApiResponse({ status: 409, description: 'El email ya está registrado por otro usuario' })
+  update(
+    @Param('userId', ParseIntPipe) userId: number,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    return this.usersService.update(userId, updateUserDto);
+  }
 
-    @Put(':userId')
-    updateUser(@Param('userId', ParseIntPipe) userId: number, @Body() payloadUpdated: UpdateUserDto){
-        return this.usersService.updateUser(userId, payloadUpdated);
-    }
-
-    @Delete(':userId')
-    deleteUser(@Param('userId', ParseIntPipe) userId: number){
-        this.usersService.deleteUser(userId);
-    }
-
+  @Delete(':userId')
+  @ApiOperation({ summary: 'Desactivar un usuario (eliminación lógica)' })
+  @ApiResponse({ status: 200, description: 'Usuario desactivado exitosamente' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  remove(@Param('userId', ParseIntPipe) userId: number) {
+    return this.usersService.remove(userId);
+  }
 }

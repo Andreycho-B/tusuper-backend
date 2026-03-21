@@ -12,14 +12,14 @@ export class OrdersController {
   @Post()
   @ApiOperation({ summary: 'Create a new order' })
   @ApiResponse({ status: 201, description: 'The order has been successfully created.', type: Order })
-  create(@Body() createOrderDto: CreateOrderDto) {
+  create(@Body() createOrderDto: CreateOrderDto): Promise<Order> {
     return this.ordersService.create(createOrderDto);
   }
 
   @Get()
   @ApiOperation({ summary: 'Retrieve all orders' })
   @ApiResponse({ status: 200, description: 'Successfully retrieved all orders.', type: [Order] })
-  findAll() {
+  findAll(): Promise<Order[]> {
     return this.ordersService.findAll();
   }
 
@@ -27,7 +27,7 @@ export class OrdersController {
   @ApiOperation({ summary: 'Retrieve a specific order by ID' })
   @ApiResponse({ status: 200, description: 'Successfully retrieved the order.', type: Order })
   @ApiResponse({ status: 404, description: 'Order not found.' })
-  findOne(@Param('id', ParseIntPipe) id: number) {
+  findOne(@Param('id', ParseIntPipe) id: number): Promise<Order> {
     return this.ordersService.findOne(id);
   }
 
@@ -35,7 +35,7 @@ export class OrdersController {
   @ApiOperation({ summary: 'Delete a specific order by ID' })
   @ApiResponse({ status: 200, description: 'The order has been successfully deleted.' })
   @ApiResponse({ status: 404, description: 'Order not found.' })
-  remove(@Param('id', ParseIntPipe) id: number) {
+  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.ordersService.remove(id);
   }
 }

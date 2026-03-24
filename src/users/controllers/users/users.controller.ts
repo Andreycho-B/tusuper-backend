@@ -20,6 +20,7 @@ import { ModulesGuard } from '../../../auth/guards/modules.guard.guard';
 import { JwtAuthGuard } from '../../../auth/guards/auth.guard';
 import { CreateUserDto, UpdateUserDto } from '../../dtos/user.dto';
 import { UsersService } from '../../services/users/users.service';
+import { User } from '../../entities/user.entity';
 
 @ApiBearerAuth()
 @ApiTags('Users')
@@ -32,7 +33,7 @@ export class UsersController {
   @Get()
   @ApiOperation({ summary: 'Obtener todos los usuarios' })
   @ApiResponse({ status: 200, description: 'Lista de usuarios retornada exitosamente' })
-  findAll() {
+  findAll(): Promise<User[]> {
     return this.usersService.findAll();
   }
 
@@ -40,7 +41,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Obtener un usuario por ID' })
   @ApiResponse({ status: 200, description: 'Usuario encontrado exitosamente' })
   @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
-  findOne(@Param('userId', ParseIntPipe) userId: number) {
+  findOne(@Param('userId', ParseIntPipe) userId: number): Promise<User> {
     return this.usersService.findOne(userId);
   }
 
@@ -48,7 +49,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Crear un nuevo usuario' })
   @ApiResponse({ status: 201, description: 'Usuario creado exitosamente' })
   @ApiResponse({ status: 409, description: 'El email ya está registrado' })
-  create(@Body() createUserDto: CreateUserDto) {
+  create(@Body() createUserDto: CreateUserDto): Promise<User> {
     return this.usersService.create(createUserDto);
   }
 
@@ -60,7 +61,7 @@ export class UsersController {
   update(
     @Param('userId', ParseIntPipe) userId: number,
     @Body() updateUserDto: UpdateUserDto,
-  ) {
+  ): Promise<User> {
     return this.usersService.update(userId, updateUserDto);
   }
 
@@ -68,7 +69,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Desactivar un usuario (eliminación lógica)' })
   @ApiResponse({ status: 200, description: 'Usuario desactivado exitosamente' })
   @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
-  remove(@Param('userId', ParseIntPipe) userId: number) {
+  remove(@Param('userId', ParseIntPipe) userId: number): Promise<User> {
     return this.usersService.remove(userId);
   }
 }

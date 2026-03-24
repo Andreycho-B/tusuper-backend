@@ -8,6 +8,8 @@ import {
   Post,
   Put,
   UseGuards,
+  UseInterceptors,
+  ClassSerializerInterceptor,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -26,6 +28,7 @@ import { User } from '../../entities/user.entity';
 @ApiTags('Users')
 @Modules('users')
 @UseGuards(JwtAuthGuard, ModulesGuard)
+@UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}

@@ -9,7 +9,7 @@ export class ProvidersService {
   constructor(
     @InjectRepository(Provider)
     private readonly providerRepo: Repository<Provider>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Provider[]> {
     return this.providerRepo.find({ relations: ['products'] });
@@ -42,6 +42,7 @@ export class ProvidersService {
 
   async remove(id: number): Promise<Provider> {
     const provider = await this.findOne(id);
-    return this.providerRepo.remove(provider);
+    provider.isActive = false;
+    return this.providerRepo.save(provider);
   }
 }

@@ -27,4 +27,7 @@ export class Category {
 
   @OneToMany(() => Product, (product) => product.category)
   products: Product[];
+
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
 }

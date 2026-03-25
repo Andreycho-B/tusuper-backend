@@ -15,7 +15,7 @@ export class ProductsService {
     private readonly categoryRepo: Repository<Category>,
     @InjectRepository(Provider)
     private readonly providerRepo: Repository<Provider>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Product[]> {
     return this.productRepo.find({
@@ -92,6 +92,7 @@ export class ProductsService {
 
   async remove(id: number): Promise<Product> {
     const product = await this.findOne(id);
-    return this.productRepo.remove(product);
+    product.isActive = false;
+    return this.productRepo.save(product);
   }
 }

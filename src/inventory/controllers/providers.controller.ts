@@ -16,6 +16,7 @@ import { CreateProviderDto, UpdateProviderDto } from '../dtos/provider.dto';
 import { JwtAuthGuard } from '../../auth/guards/auth.guard';
 import { ModulesGuard } from '../../auth/guards/modules.guard.guard';
 import { Modules } from '../../auth/decorators/modules.decorator';
+import { Provider } from '../entities/provider.entity';
 
 @ApiBearerAuth()
 @Modules('inventory')
@@ -23,12 +24,12 @@ import { Modules } from '../../auth/decorators/modules.decorator';
 @ApiTags('Inventory - Providers')
 @Controller('inventory/providers')
 export class ProvidersController {
-  constructor(private readonly providersService: ProvidersService) {}
+  constructor(private readonly providersService: ProvidersService) { }
 
   @Get()
   @ApiOperation({ summary: 'Get all providers' })
   @ApiResponse({ status: 200, description: 'List of providers' })
-  async findAll() {
+  async findAll(): Promise<Provider[]> {
     return this.providersService.findAll();
   }
 
@@ -36,14 +37,14 @@ export class ProvidersController {
   @ApiOperation({ summary: 'Get provider by ID' })
   @ApiResponse({ status: 200, description: 'Provider found' })
   @ApiResponse({ status: 404, description: 'Provider not found' })
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Provider> {
     return this.providersService.findOne(id);
   }
 
   @Post()
   @ApiOperation({ summary: 'Create a new provider' })
   @ApiResponse({ status: 201, description: 'Provider created successfully' })
-  async create(@Body() createProviderDto: CreateProviderDto) {
+  async create(@Body() createProviderDto: CreateProviderDto): Promise<Provider> {
     return this.providersService.create(createProviderDto);
   }
 
@@ -54,7 +55,7 @@ export class ProvidersController {
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateProviderDto: UpdateProviderDto,
-  ) {
+  ): Promise<Provider> {
     return this.providersService.update(id, updateProviderDto);
   }
 
@@ -63,7 +64,7 @@ export class ProvidersController {
   @ApiOperation({ summary: 'Delete a provider by ID' })
   @ApiResponse({ status: 204, description: 'Provider deleted successfully' })
   @ApiResponse({ status: 404, description: 'Provider not found' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<Provider {
     return this.providersService.remove(id);
   }
 }

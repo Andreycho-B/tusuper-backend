@@ -33,4 +33,7 @@ export class Provider {
 
   @OneToMany(() => Product, (product) => product.provider)
   products: Product[];
+
+  @Column({ type: 'boolean', default: true })
+  isActive: boolean;
 }

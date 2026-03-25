@@ -9,7 +9,7 @@ export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepo: Repository<Category>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Category[]> {
     return this.categoryRepo.find({ relations: ['products'] });
@@ -42,6 +42,7 @@ export class CategoriesService {
 
   async remove(id: number): Promise<Category> {
     const category = await this.findOne(id);
-    return this.categoryRepo.remove(category);
+    category.isActive = false;
+    return this.categoryRepo.save(category);
   }
 }

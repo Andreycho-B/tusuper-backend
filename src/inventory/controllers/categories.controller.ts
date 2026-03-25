@@ -16,6 +16,7 @@ import { CreateCategoryDto, UpdateCategoryDto } from '../dtos/category.dto';
 import { JwtAuthGuard } from '../../auth/guards/auth.guard';
 import { ModulesGuard } from '../../auth/guards/modules.guard.guard';
 import { Modules } from '../../auth/decorators/modules.decorator';
+import { Category } from '../entities/category.entity';
 
 @ApiBearerAuth()
 @Modules('inventory')
@@ -23,38 +24,38 @@ import { Modules } from '../../auth/decorators/modules.decorator';
 @ApiTags('Inventory - Categories')
 @Controller('inventory/categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) {}
+  constructor(private readonly categoriesService: CategoriesService) { }
 
   @Get()
   @ApiOperation({ summary: 'Get all categories' })
-  @ApiResponse({ status: 200, description: 'List of categories' })
-  async findAll() {
+  @ApiResponse({ status: 200, description: 'List of categories', type: [Category] })
+  async findAll(): Promise<Category[]> {
     return this.categoriesService.findAll();
   }
 
   @Get(':id')
   @ApiOperation({ summary: 'Get category by ID' })
-  @ApiResponse({ status: 200, description: 'Category found' })
+  @ApiResponse({ status: 200, description: 'Category found', type: Category })
   @ApiResponse({ status: 404, description: 'Category not found' })
-  async findOne(@Param('id', ParseIntPipe) id: number) {
+  async findOne(@Param('id', ParseIntPipe) id: number): Promise<Category> {
     return this.categoriesService.findOne(id);
   }
 
   @Post()
   @ApiOperation({ summary: 'Create a new category' })
-  @ApiResponse({ status: 201, description: 'Category created successfully' })
-  async create(@Body() createCategoryDto: CreateCategoryDto) {
+  @ApiResponse({ status: 201, description: 'Category created successfully', type: Category })
+  async create(@Body() createCategoryDto: CreateCategoryDto): Promise<Category> {
     return this.categoriesService.create(createCategoryDto);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a category by ID' })
-  @ApiResponse({ status: 200, description: 'Category updated successfully' })
+  @ApiResponse({ status: 200, description: 'Category updated successfully', type: Category })
   @ApiResponse({ status: 404, description: 'Category not found' })
   async update(
     @Param('id', ParseIntPipe) id: number,
     @Body() updateCategoryDto: UpdateCategoryDto,
-  ) {
+  ): Promise<Category> {
     return this.categoriesService.update(id, updateCategoryDto);
   }
 
@@ -63,7 +64,7 @@ export class CategoriesController {
   @ApiOperation({ summary: 'Delete a category by ID' })
   @ApiResponse({ status: 204, description: 'Category deleted successfully' })
   @ApiResponse({ status: 404, description: 'Category not found' })
-  async remove(@Param('id', ParseIntPipe) id: number) {
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<Category> {
     return this.categoriesService.remove(id);
   }
 }

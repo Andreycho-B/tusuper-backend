@@ -27,7 +27,7 @@ import { User } from '../../entities/user.entity';
 @ApiBearerAuth()
 @ApiTags('Users')
 @Modules('users')
-@UseGuards(JwtAuthGuard, ModulesGuard)
+// @UseGuards(JwtAuthGuard, ModulesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
 export class UsersController {

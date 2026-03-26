@@ -27,11 +27,11 @@ import { User } from '../../entities/user.entity';
 @ApiBearerAuth()
 @ApiTags('Users')
 @Modules('users')
-// @UseGuards(JwtAuthGuard, ModulesGuard)
+@UseGuards(JwtAuthGuard, ModulesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(private readonly usersService: UsersService) { }
 
   @Get()
   @ApiOperation({ summary: 'Obtener todos los usuarios' })

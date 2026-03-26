@@ -64,7 +64,7 @@ export class ProvidersController {
   @ApiOperation({ summary: 'Delete a provider by ID' })
   @ApiResponse({ status: 204, description: 'Provider deleted successfully' })
   @ApiResponse({ status: 404, description: 'Provider not found' })
-  async remove(@Param('id', ParseIntPipe) id: number): Promise<Provider {
+  async remove(@Param('id', ParseIntPipe) id: number): Promise<Provider> {
     return this.providersService.remove(id);
   }
 }

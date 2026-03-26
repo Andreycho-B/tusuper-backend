@@ -13,6 +13,7 @@ import { AuthModule } from './auth/auth.module';
 import { ModulesModule } from './modules/modules.module';
 import config from './config';
 import { OrdersModule } from './orders/orders.module';
+import { InventoryModule } from './inventory/inventory.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { OrdersModule } from './orders/orders.module';
     PermissionsModule,
     ModulesModule,
     OrdersModule,
+    InventoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

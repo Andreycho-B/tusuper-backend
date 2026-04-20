@@ -12,7 +12,7 @@ export class Order {
   @Column({ name: 'customer_id', type: 'int' })
   customerId: number;
 
-  @ManyToOne(() => User, { onDelete: 'RESTRICT' })
+  @ManyToOne(() => User, (user) => user.orders, { onDelete: 'RESTRICT' })
   @JoinColumn({ name: 'customer_id' })
   customer: User;
 

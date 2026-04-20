@@ -4,7 +4,10 @@ import { Repository, DataSource } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { OrderItem } from './entities/order-item.entity';
 import { Order } from './entities/order.entity';
+import { Product } from '../inventory/entities/product.entity';
 import { OrderStatus } from './domain/enums/order-status.enum';
+import { PaginationDto } from '../common/dtos/pagination.dto';
+import { PaginatedResult } from '../common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class OrdersService {
@@ -13,12 +16,12 @@ export class OrdersService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
-    // Inyección obligatoria para el control transaccional ACID
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
     private readonly dataSource: DataSource,
   ) { }
 
   async create(customerId: number, createOrderDto: CreateOrderDto): Promise<Order> {
-    // 1. Inicialización de la Transacción
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -27,48 +30,45 @@ export class OrdersService {
       let totalAmount = 0;
       const orderItems: OrderItem[] = [];
 
-      // 2. Iteración y Validación de Inventario (Zero Trust)
       for (const itemDto of createOrderDto.items) {
-        // Consultar producto con bloqueo para concurrencia (evita que otro pedido robe el stock simultáneamente)
-        const products = await queryRunner.manager.query(
-          `SELECT id, price, stock FROM product WHERE id = $1 FOR UPDATE`,
-          [itemDto.productId]
-        );
+        const product = await queryRunner.manager
+          .createQueryBuilder(Product, 'product')
+          .setLock('pessimistic_write')
+          .where('product.id = :id', { id: itemDto.productId })
+          .getOne();
 
-        if (!products || products.length === 0) {
-          throw new NotFoundException(`El producto con ID ${itemDto.productId} no existe en el inventario.`);
-        }
-
-        const currentProduct = products[0];
-
-        if (currentProduct.stock < itemDto.quantity) {
-          throw new BadRequestException(
-            `Stock insuficiente para el producto ID ${itemDto.productId}. Solicitado: ${itemDto.quantity}, Disponible: ${currentProduct.stock}`
+        if (!product) {
+          throw new NotFoundException(
+            `El producto con ID ${itemDto.productId} no existe en el inventario.`,
           );
         }
 
-        // 3. Cálculos matemáticos en el servidor
-        const unitPrice = Number(currentProduct.price);
+        if (product.stock < itemDto.quantity) {
+          throw new BadRequestException(
+            `Stock insuficiente para el producto ID ${itemDto.productId}. Solicitado: ${itemDto.quantity}, Disponible: ${product.stock}`,
+          );
+        }
+
+        const unitPrice = Number(product.price);
         const subTotal = unitPrice * itemDto.quantity;
         totalAmount += subTotal;
 
-        // 4. Descuento de inventario dentro de la transacción
-        await queryRunner.manager.query(
-          `UPDATE product SET stock = stock - $1 WHERE id = $2`,
-          [itemDto.quantity, itemDto.productId]
-        );
+        await queryRunner.manager
+          .createQueryBuilder()
+          .update(Product)
+          .set({ stock: () => `stock - ${itemDto.quantity}` })
+          .where('id = :id', { id: itemDto.productId })
+          .execute();
 
-        // 5. Construcción en memoria del OrderItem
         const orderItem = this.orderItemRepository.create({
           productId: itemDto.productId,
           quantity: itemDto.quantity,
-          unitPrice: unitPrice,
-          subTotal: subTotal,
+          unitPrice,
+          subTotal,
         });
         orderItems.push(orderItem);
       }
 
-      // 6. Construcción y persistencia del Pedido
       const order = this.orderRepository.create({
         customerId,
         paymentMethod: createOrderDto.paymentMethod,
@@ -82,24 +82,26 @@ export class OrdersService {
       });
 
       const savedOrder = await queryRunner.manager.save(Order, order);
-
-      // 7. Confirmación de la Transacción (Commit)
       await queryRunner.commitTransaction();
       return savedOrder;
 
-    } catch (error) {
-      // 8. Reversión de la Transacción (Rollback)
-      // Si falla la creación del pedido o cualquier descuento de stock, se deshace todo.
+    } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
-      // 9. Liberación de la conexión
       await queryRunner.release();
     }
   }
 
-  async findAll(): Promise<Order[]> {
-    return await this.orderRepository.find({ relations: ['items'] });
+  async findAll(pagination: PaginationDto): Promise<PaginatedResult<Order>> {
+    const { limit = 10, offset = 0 } = pagination;
+    const [data, total] = await this.orderRepository.findAndCount({
+      relations: ['items'],
+      take: limit,
+      skip: offset,
+      order: { createdAt: 'DESC' },
+    });
+    return { data, total, limit, offset };
   }
 
   async findOne(id: number): Promise<Order> {
@@ -116,14 +118,50 @@ export class OrdersService {
   }
 
   async remove(id: number): Promise<void> {
-    const order = await this.findOne(id);
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
 
-    if (order.status === OrderStatus.CANCELLED) {
-      throw new BadRequestException('El pedido ya se encuentra cancelado.');
+    try {
+      const order = await queryRunner.manager.findOne(Order, {
+        where: { id },
+        relations: ['items'],
+      });
+
+      if (!order) {
+        throw new NotFoundException(`Order with ID ${id} not found`);
+      }
+
+      if (order.status === OrderStatus.CANCELLED) {
+        throw new BadRequestException('El pedido ya se encuentra cancelado.');
+      }
+
+      for (const item of order.items) {
+        const product = await queryRunner.manager
+          .createQueryBuilder(Product, 'product')
+          .setLock('pessimistic_write')
+          .where('product.id = :id', { id: item.productId })
+          .getOne();
+
+        if (product) {
+          await queryRunner.manager
+            .createQueryBuilder()
+            .update(Product)
+            .set({ stock: () => `stock + ${item.quantity}` })
+            .where('id = :id', { id: item.productId })
+            .execute();
+        }
+      }
+
+      order.status = OrderStatus.CANCELLED;
+      await queryRunner.manager.save(Order, order);
+      await queryRunner.commitTransaction();
+
+    } catch (error: unknown) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
     }
-
-    // Eliminación lógica (Soft Cancel)
-    order.status = OrderStatus.CANCELLED;
-    await this.orderRepository.save(order);
   }
 }

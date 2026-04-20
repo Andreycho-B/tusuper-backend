@@ -6,6 +6,7 @@ import {
   Delete,
   Param,
   Body,
+  Query,
   ParseIntPipe,
   HttpCode,
   UseGuards,
@@ -17,6 +18,8 @@ import { JwtAuthGuard } from '../../auth/guards/auth.guard';
 import { ModulesGuard } from '../../auth/guards/modules.guard.guard';
 import { Modules } from '../../auth/decorators/modules.decorator';
 import { Category } from '../entities/category.entity';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
 @ApiBearerAuth()
 @Modules('inventory')
@@ -29,8 +32,8 @@ export class CategoriesController {
   @Get()
   @ApiOperation({ summary: 'Get all categories' })
   @ApiResponse({ status: 200, description: 'List of categories', type: [Category] })
-  async findAll(): Promise<Category[]> {
-    return this.categoriesService.findAll();
+  async findAll(@Query() pagination: PaginationDto): Promise<PaginatedResult<Category>> {
+    return this.categoriesService.findAll(pagination);
   }
 
   @Get(':id')

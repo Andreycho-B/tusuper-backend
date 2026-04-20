@@ -5,6 +5,8 @@ import { Product } from '../entities/product.entity';
 import { CreateProductDto, UpdateProductDto } from '../dtos/product.dto';
 import { Category } from '../entities/category.entity';
 import { Provider } from '../entities/provider.entity';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class ProductsService {
@@ -17,10 +19,14 @@ export class ProductsService {
     private readonly providerRepo: Repository<Provider>,
   ) { }
 
-  async findAll(): Promise<Product[]> {
-    return this.productRepo.find({
+  async findAll(pagination: PaginationDto): Promise<PaginatedResult<Product>> {
+    const { limit = 10, offset = 0 } = pagination;
+    const [data, total] = await this.productRepo.findAndCount({
       relations: ['category', 'provider'],
+      take: limit,
+      skip: offset,
     });
+    return { data, total, limit, offset };
   }
 
   async findOne(id: number): Promise<Product> {

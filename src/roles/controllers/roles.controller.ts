@@ -6,6 +6,7 @@ import {
     Delete,
     Param,
     Body,
+    Query,
     ParseIntPipe,
     HttpCode,
     NotFoundException,
@@ -20,6 +21,9 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { Modules } from '../../auth/decorators/modules.decorator';
 import { ModulesGuard } from '../../auth/guards/modules.guard.guard';
+import { Role } from '../entities/role.entity';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
 @ApiBearerAuth()
 @Modules('roles')
@@ -33,7 +37,7 @@ export class RolesController {
     @Post()
     @ApiOperation({ summary: 'Create a new role' })
     @ApiResponse({ status: 201, description: 'Role created successfully' })
-    async create(@Body() createRoleDto: CreateRoleDto) {
+    async create(@Body() createRoleDto: CreateRoleDto): Promise<Role> {
         return this.rolesService.create(createRoleDto);
     }
 
@@ -41,14 +45,14 @@ export class RolesController {
     // @UseGuards(JwtAuthGuard)
     @Get()
     @ApiOperation({ summary: 'Get all roles' })
-    async findAll() {
-        return this.rolesService.findAll();
+    async findAll(@Query() pagination: PaginationDto): Promise<PaginatedResult<Role>> {
+        return this.rolesService.findAll(pagination);
     }
 
     // Obtener un rol por id
     @Get(':id')
     @ApiOperation({ summary: 'Get role by id' })
-    async findOne(@Param('id', ParseIntPipe) id: number) {
+    async findOne(@Param('id', ParseIntPipe) id: number): Promise<Role> {
         return this.rolesService.findOne(id);
     }
 
@@ -58,7 +62,7 @@ export class RolesController {
     async update(
         @Param('id', ParseIntPipe) id: number,
         @Body() updateRoleDto: UpdateRoleDto,
-    ) {
+    ): Promise<Role> {
         return this.rolesService.update(id, updateRoleDto);
     }
 
@@ -66,8 +70,7 @@ export class RolesController {
     @Delete(':id')
     @HttpCode(204)
     @ApiOperation({ summary: 'Delete a role by id' })
-    async remove(@Param('id', ParseIntPipe) id: number) {
-        //opcional: validar si el rol tiene usuarios asignados antes de eliminar
-        return this.rolesService.remove(id);
+    async remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+        await this.rolesService.remove(id);
     }
 }

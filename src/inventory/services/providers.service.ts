@@ -3,6 +3,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Provider } from '../entities/provider.entity';
 import { CreateProviderDto, UpdateProviderDto } from '../dtos/provider.dto';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class ProvidersService {
@@ -11,8 +13,14 @@ export class ProvidersService {
     private readonly providerRepo: Repository<Provider>,
   ) { }
 
-  async findAll(): Promise<Provider[]> {
-    return this.providerRepo.find({ relations: ['products'] });
+  async findAll(pagination: PaginationDto): Promise<PaginatedResult<Provider>> {
+    const { limit = 10, offset = 0 } = pagination;
+    const [data, total] = await this.providerRepo.findAndCount({
+      relations: ['products'],
+      take: limit,
+      skip: offset,
+    });
+    return { data, total, limit, offset };
   }
 
   async findOne(id: number): Promise<Provider> {

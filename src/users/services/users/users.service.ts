@@ -8,6 +8,8 @@ import { Repository } from 'typeorm';
 import { User } from '../../entities/user.entity';
 import { CreateUserDto, UpdateUserDto } from '../../dtos/user.dto';
 import { RolesService } from '../../../roles/services/roles.service';
+import { PaginationDto } from '../../../common/dtos/pagination.dto';
+import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -17,8 +19,14 @@ export class UsersService {
     private readonly rolesService: RolesService,
   ) {}
 
-  async findAll(): Promise<User[]> {
-    return this.userRepo.find({ relations: ['roles'] });
+  async findAll(pagination: PaginationDto): Promise<PaginatedResult<User>> {
+    const { limit = 10, offset = 0 } = pagination;
+    const [data, total] = await this.userRepo.findAndCount({
+      relations: ['roles'],
+      take: limit,
+      skip: offset,
+    });
+    return { data, total, limit, offset };
   }
 
   async findByEmail(email: string): Promise<User> {

@@ -1,11 +1,11 @@
 import { DataSource } from 'typeorm';
 import config from '../config';
 import * as dotenv from 'dotenv';
-import { enviroments } from '../enviroments';
+import { environments } from '../environments';
 
 import { join } from 'path';
 
-const envFile = enviroments[process.env.NODE_ENV as keyof typeof enviroments] || enviroments.dev;
+const envFile = environments[process.env.NODE_ENV as keyof typeof environments] || environments.dev;
 dotenv.config({ path: envFile });
 const configuration = config();
 

@@ -14,10 +14,10 @@ export class Role {
     id: number;
 
     @Column({ type: 'varchar', length: 255, unique: true })
-    name;
+    name: string;
 
     @Column({ type: 'varchar', length: 255 })
-    description;
+    description: string;
 
     @ManyToMany(() => User, user => user.roles)
     users: User[];

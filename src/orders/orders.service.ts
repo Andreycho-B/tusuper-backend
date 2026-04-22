@@ -2,10 +2,13 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { CheckoutDto } from './dto/checkout.dto';
 import { OrderItem } from './entities/order-item.entity';
 import { Order } from './entities/order.entity';
 import { Product } from '../inventory/entities/product.entity';
+import { ProductsService } from '../inventory/services/products.service';
 import { OrderStatus } from './domain/enums/order-status.enum';
+import { PaymentStatus } from './domain/enums/payment-status.enum';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { PaginatedResult } from '../common/interfaces/paginated-result.interface';
 
@@ -19,7 +22,73 @@ export class OrdersService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
     private readonly dataSource: DataSource,
+    private readonly productsService: ProductsService,
   ) { }
+
+  async checkout(customerId: number, dto: CheckoutDto): Promise<Order> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // Phase 1: Decrease stock with pessimistic write lock
+      const product = await queryRunner.manager
+        .createQueryBuilder(Product, 'product')
+        .setLock('pessimistic_write')
+        .where('product.id = :id', { id: dto.productId })
+        .getOne();
+
+      if (!product) {
+        throw new NotFoundException(`Product with ID ${dto.productId} not found.`);
+      }
+
+      if (product.stock < dto.quantity) {
+        throw new BadRequestException(
+          `Insufficient stock for product ID ${dto.productId}. Requested: ${dto.quantity}, Available: ${product.stock}`,
+        );
+      }
+
+      await queryRunner.manager
+        .createQueryBuilder()
+        .update(Product)
+        .set({ stock: () => `stock - ${dto.quantity}` })
+        .where('id = :id', { id: dto.productId })
+        .execute();
+
+      // Phase 2: Create order within the same transaction
+      const unitPrice = Number(product.price);
+      const subTotal = unitPrice * dto.quantity;
+
+      const orderItem = this.orderItemRepository.create({
+        productId: dto.productId,
+        quantity: dto.quantity,
+        unitPrice,
+        subTotal,
+      });
+
+      const order = this.orderRepository.create({
+        customerId,
+        status: OrderStatus.PENDING,
+        paymentStatus: PaymentStatus.PAID,
+        paymentMethod: 'CASH',
+        deliveryAddress: 'Simulated Address MVP',
+        contactPhone: '000000000',
+        totalAmount: subTotal,
+        deliveryFee: 0,
+        items: [orderItem],
+      });
+
+      const savedOrder = await queryRunner.manager.save(Order, order);
+      await queryRunner.commitTransaction();
+      
+      return savedOrder;
+    } catch (error: unknown) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
+  }
 
   async create(customerId: number, createOrderDto: CreateOrderDto): Promise<Order> {
     const queryRunner = this.dataSource.createQueryRunner();

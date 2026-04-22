@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { CheckoutDto } from './dto/checkout.dto';
 import { OrdersService } from './orders.service';
 import { Order } from './entities/order.entity';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
@@ -20,8 +21,16 @@ export class OrdersController {
   @ApiOperation({ summary: 'Create a new order' })
   @ApiResponse({ status: 201, description: 'The order has been successfully created.', type: Order })
   create(@Req() req: express.Request, @Body() createOrderDto: CreateOrderDto): Promise<Order> {
-    const customerId: number = (req as unknown as AuthenticatedRequest).user.sub;
+    const customerId: number = (req as unknown as AuthenticatedRequest).user.userId;
     return this.ordersService.create(customerId, createOrderDto);
+  }
+
+  @Post('checkout')
+  @ApiOperation({ summary: 'Simulate MVP Checkout' })
+  @ApiResponse({ status: 201, description: 'Simulates checkout, applies pessimistic lock, and returns PAID order.', type: Order })
+  checkout(@Req() req: express.Request, @Body() checkoutDto: CheckoutDto): Promise<Order> {
+    const customerId: number = (req as unknown as AuthenticatedRequest).user.userId;
+    return this.ordersService.checkout(customerId, checkoutDto);
   }
 
   @Get()

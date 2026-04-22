@@ -12,6 +12,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { ProductsService } from '../services/products.service';
 import { CreateProductDto, UpdateProductDto } from '../dtos/product.dto';
 import { JwtAuthGuard } from '../../auth/guards/auth.guard';
@@ -29,6 +30,7 @@ import { PaginatedResult } from '../../common/interfaces/paginated-result.interf
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
 
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @Get()
   @ApiOperation({ summary: 'Get all products' })
   @ApiResponse({ status: 200, description: 'List of products', type: [Product] })

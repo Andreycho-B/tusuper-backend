@@ -12,6 +12,8 @@ import { PermissionsModule } from './permissions/permissions.module';
 import { AuthModule } from './auth/auth.module';
 import { ModulesModule } from './modules/modules.module';
 import config from './config';
+import { OrdersModule } from './orders/orders.module';
+import { InventoryModule } from './inventory/inventory.module';
 
 @Module({
   imports: [
@@ -35,6 +37,8 @@ import config from './config';
     RolesModule,
     PermissionsModule,
     ModulesModule,
+    OrdersModule,
+    InventoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

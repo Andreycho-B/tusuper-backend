@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -22,75 +26,13 @@ export class OrdersService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
     private readonly dataSource: DataSource,
-    private readonly productsService: ProductsService,
-  ) { }
+  ) {}
 
-  async checkout(customerId: number, dto: CheckoutDto): Promise<Order> {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      // Phase 1: Decrease stock with pessimistic write lock
-      const product = await queryRunner.manager
-        .createQueryBuilder(Product, 'product')
-        .setLock('pessimistic_write')
-        .where('product.id = :id', { id: dto.productId })
-        .getOne();
-
-      if (!product) {
-        throw new NotFoundException(`Product with ID ${dto.productId} not found.`);
-      }
-
-      if (product.stock < dto.quantity) {
-        throw new BadRequestException(
-          `Insufficient stock for product ID ${dto.productId}. Requested: ${dto.quantity}, Available: ${product.stock}`,
-        );
-      }
-
-      await queryRunner.manager
-        .createQueryBuilder()
-        .update(Product)
-        .set({ stock: () => `stock - ${dto.quantity}` })
-        .where('id = :id', { id: dto.productId })
-        .execute();
-
-      // Phase 2: Create order within the same transaction
-      const unitPrice = Number(product.price);
-      const subTotal = unitPrice * dto.quantity;
-
-      const orderItem = this.orderItemRepository.create({
-        productId: dto.productId,
-        quantity: dto.quantity,
-        unitPrice,
-        subTotal,
-      });
-
-      const order = this.orderRepository.create({
-        customerId,
-        status: OrderStatus.PENDING,
-        paymentStatus: PaymentStatus.PAID,
-        paymentMethod: 'CASH',
-        deliveryAddress: 'Simulated Address MVP',
-        contactPhone: '000000000',
-        totalAmount: subTotal,
-        deliveryFee: 0,
-        items: [orderItem],
-      });
-
-      const savedOrder = await queryRunner.manager.save(Order, order);
-      await queryRunner.commitTransaction();
-      
-      return savedOrder;
-    } catch (error: unknown) {
-      await queryRunner.rollbackTransaction();
-      throw error;
-    } finally {
-      await queryRunner.release();
-    }
-  }
-
-  async create(customerId: number, createOrderDto: CreateOrderDto): Promise<Order> {
+  async create(
+    customerId: number,
+    createOrderDto: CreateOrderDto,
+  ): Promise<Order> {
+    // 1. Inicialización de la Transacción
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -100,13 +42,13 @@ export class OrdersService {
       const orderItems: OrderItem[] = [];
 
       for (const itemDto of createOrderDto.items) {
-        const product = await queryRunner.manager
-          .createQueryBuilder(Product, 'product')
-          .setLock('pessimistic_write')
-          .where('product.id = :id', { id: itemDto.productId })
-          .getOne();
+        // Consultar producto con bloqueo para concurrencia (evita que otro pedido robe el stock simultáneamente)
+        const products = await queryRunner.manager.query(
+          `SELECT id, price, stock FROM product WHERE id = $1 FOR UPDATE`,
+          [itemDto.productId],
+        );
 
-        if (!product) {
+        if (!products || products.length === 0) {
           throw new NotFoundException(
             `El producto con ID ${itemDto.productId} no existe en el inventario.`,
           );
@@ -114,7 +56,7 @@ export class OrdersService {
 
         if (product.stock < itemDto.quantity) {
           throw new BadRequestException(
-            `Stock insuficiente para el producto ID ${itemDto.productId}. Solicitado: ${itemDto.quantity}, Disponible: ${product.stock}`,
+            `Stock insuficiente para el producto ID ${itemDto.productId}. Solicitado: ${itemDto.quantity}, Disponible: ${currentProduct.stock}`,
           );
         }
 
@@ -122,12 +64,11 @@ export class OrdersService {
         const subTotal = unitPrice * itemDto.quantity;
         totalAmount += subTotal;
 
-        await queryRunner.manager
-          .createQueryBuilder()
-          .update(Product)
-          .set({ stock: () => `stock - ${itemDto.quantity}` })
-          .where('id = :id', { id: itemDto.productId })
-          .execute();
+        // 4. Descuento de inventario dentro de la transacción
+        await queryRunner.manager.query(
+          `UPDATE product SET stock = stock - $1 WHERE id = $2`,
+          [itemDto.quantity, itemDto.productId],
+        );
 
         const orderItem = this.orderItemRepository.create({
           productId: itemDto.productId,
@@ -153,8 +94,9 @@ export class OrdersService {
       const savedOrder = await queryRunner.manager.save(Order, order);
       await queryRunner.commitTransaction();
       return savedOrder;
-
-    } catch (error: unknown) {
+    } catch (error) {
+      // 8. Reversión de la Transacción (Rollback)
+      // Si falla la creación del pedido o cualquier descuento de stock, se deshace todo.
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
@@ -192,44 +134,60 @@ export class OrdersService {
     await queryRunner.startTransaction();
 
     try {
-      const order = await queryRunner.manager.findOne(Order, {
-        where: { id },
-        relations: ['items'],
-      });
-
-      if (!order) {
-        throw new NotFoundException(`Order with ID ${id} not found`);
-      }
+      // 1. Obtener la orden con sus items
+      const order = await this.findOne(id);
 
       if (order.status === OrderStatus.CANCELLED) {
         throw new BadRequestException('El pedido ya se encuentra cancelado.');
       }
 
+      // 2. Extraer cantidades por productId
+      const productQuantities = new Map<number, number>();
       for (const item of order.items) {
-        const product = await queryRunner.manager
-          .createQueryBuilder(Product, 'product')
-          .setLock('pessimistic_write')
-          .where('product.id = :id', { id: item.productId })
-          .getOne();
-
-        if (product) {
-          await queryRunner.manager
-            .createQueryBuilder()
-            .update(Product)
-            .set({ stock: () => `stock + ${item.quantity}` })
-            .where('id = :id', { id: item.productId })
-            .execute();
-        }
+        const currentQuantity = productQuantities.get(item.productId) || 0;
+        productQuantities.set(item.productId, currentQuantity + item.quantity);
       }
 
+      // 3. Obtener productIds únicos y ordenarlos ascendentemente (prevención de deadlocks)
+      const productIds = Array.from(productQuantities.keys()).sort(
+        (a, b) => a - b,
+      );
+
+      // 4. Ejecutar bloqueos y actualizaciones en orden estricto
+      for (const productId of productIds) {
+        const quantity = productQuantities.get(productId);
+
+        // Bloquear el producto para actualización
+        const productResult = await queryRunner.manager.query(
+          `SELECT id, stock FROM product WHERE id = $1 FOR UPDATE`,
+          [productId],
+        );
+
+        if (!productResult || productResult.length === 0) {
+          throw new NotFoundException(
+            `Producto con ID ${productId} no encontrado`,
+          );
+        }
+
+        // Restaurar el stock (reversión)
+        await queryRunner.manager.query(
+          `UPDATE product SET stock = stock + $1 WHERE id = $2`,
+          [quantity, productId],
+        );
+      }
+
+      // 5. Actualizar estado de la orden a CANCELLED
       order.status = OrderStatus.CANCELLED;
       await queryRunner.manager.save(Order, order);
-      await queryRunner.commitTransaction();
 
-    } catch (error: unknown) {
+      // 6. Confirmar transacción
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      // 7. Revertir transacción en caso de error
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
+      // 8. Liberar conexión
       await queryRunner.release();
     }
   }

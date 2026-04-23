@@ -6,9 +6,15 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
+import { CheckoutDto } from './dto/checkout.dto';
 import { OrderItem } from './entities/order-item.entity';
 import { Order } from './entities/order.entity';
+import { Product } from '../inventory/entities/product.entity';
+import { ProductsService } from '../inventory/services/products.service';
 import { OrderStatus } from './domain/enums/order-status.enum';
+import { PaymentStatus } from './domain/enums/payment-status.enum';
+import { PaginationDto } from '../common/dtos/pagination.dto';
+import { PaginatedResult } from '../common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class OrdersService {
@@ -17,7 +23,8 @@ export class OrdersService {
     private readonly orderRepository: Repository<Order>,
     @InjectRepository(OrderItem)
     private readonly orderItemRepository: Repository<OrderItem>,
-    // Inyección obligatoria para el control transaccional ACID
+    @InjectRepository(Product)
+    private readonly productRepository: Repository<Product>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -34,7 +41,6 @@ export class OrdersService {
       let totalAmount = 0;
       const orderItems: OrderItem[] = [];
 
-      // 2. Iteración y Validación de Inventario (Zero Trust)
       for (const itemDto of createOrderDto.items) {
         // Consultar producto con bloqueo para concurrencia (evita que otro pedido robe el stock simultáneamente)
         const products = await queryRunner.manager.query(
@@ -48,16 +54,13 @@ export class OrdersService {
           );
         }
 
-        const currentProduct = products[0];
-
-        if (currentProduct.stock < itemDto.quantity) {
+        if (product.stock < itemDto.quantity) {
           throw new BadRequestException(
             `Stock insuficiente para el producto ID ${itemDto.productId}. Solicitado: ${itemDto.quantity}, Disponible: ${currentProduct.stock}`,
           );
         }
 
-        // 3. Cálculos matemáticos en el servidor
-        const unitPrice = Number(currentProduct.price);
+        const unitPrice = Number(product.price);
         const subTotal = unitPrice * itemDto.quantity;
         totalAmount += subTotal;
 
@@ -67,17 +70,15 @@ export class OrdersService {
           [itemDto.quantity, itemDto.productId],
         );
 
-        // 5. Construcción en memoria del OrderItem
         const orderItem = this.orderItemRepository.create({
           productId: itemDto.productId,
           quantity: itemDto.quantity,
-          unitPrice: unitPrice,
-          subTotal: subTotal,
+          unitPrice,
+          subTotal,
         });
         orderItems.push(orderItem);
       }
 
-      // 6. Construcción y persistencia del Pedido
       const order = this.orderRepository.create({
         customerId,
         paymentMethod: createOrderDto.paymentMethod,
@@ -91,8 +92,6 @@ export class OrdersService {
       });
 
       const savedOrder = await queryRunner.manager.save(Order, order);
-
-      // 7. Confirmación de la Transacción (Commit)
       await queryRunner.commitTransaction();
       return savedOrder;
     } catch (error) {
@@ -101,13 +100,19 @@ export class OrdersService {
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
-      // 9. Liberación de la conexión
       await queryRunner.release();
     }
   }
 
-  async findAll(): Promise<Order[]> {
-    return await this.orderRepository.find({ relations: ['items'] });
+  async findAll(pagination: PaginationDto): Promise<PaginatedResult<Order>> {
+    const { limit = 10, offset = 0 } = pagination;
+    const [data, total] = await this.orderRepository.findAndCount({
+      relations: ['items'],
+      take: limit,
+      skip: offset,
+      order: { createdAt: 'DESC' },
+    });
+    return { data, total, limit, offset };
   }
 
   async findOne(id: number): Promise<Order> {

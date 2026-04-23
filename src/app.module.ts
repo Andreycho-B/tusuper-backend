@@ -1,14 +1,15 @@
 import { Module } from '@nestjs/common';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { DatabaseModule } from './database/database.module';
 
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
-import { enviroments } from './enviroments';
+import { environments } from './environments';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
-import { PermissionsModule } from './permissions/permissions.module';
 import { AuthModule } from './auth/auth.module';
 import { ModulesModule } from './modules/modules.module';
 import config from './config';
@@ -18,7 +19,7 @@ import { InventoryModule } from './inventory/inventory.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: enviroments[process.env.NODE_ENV || 'dev'],
+      envFilePath: environments[process.env.NODE_ENV || 'dev'],
       load: [config],
       isGlobal: true,
       validationSchema: Joi.object({
@@ -35,12 +36,21 @@ import { InventoryModule } from './inventory/inventory.module';
     AuthModule,
     UsersModule,
     RolesModule,
-    PermissionsModule,
     ModulesModule,
     OrdersModule,
     InventoryModule,
+    ThrottlerModule.forRoot([{
+      ttl: 60000,
+      limit: 100,
+    }]),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}

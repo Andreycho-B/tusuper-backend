@@ -4,6 +4,8 @@ import { Role } from '../entities/role.entity';
 import { In, Repository } from 'typeorm';
 import { CreateRoleDto, UpdateRoleDto } from '../dtos/role.dto';
 import { ModulesService } from '../../modules/modules.service';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class RolesService {
@@ -13,7 +15,7 @@ export class RolesService {
         private modulesService: ModulesService
     ) { }
 
-    async create(createRoleDto: CreateRoleDto) {
+    async create(createRoleDto: CreateRoleDto): Promise<Role> {
         const { moduleIds, ...rolesData } = createRoleDto;
         const modules = await this.modulesService.findByIds(moduleIds);
 
@@ -34,12 +36,17 @@ export class RolesService {
     }
 
 
-    async findAll() {
-        return this.roleRepo.find();
+    async findAll(pagination: PaginationDto): Promise<PaginatedResult<Role>> {
+        const { limit = 10, offset = 0 } = pagination;
+        const [data, total] = await this.roleRepo.findAndCount({
+            take: limit,
+            skip: offset,
+        });
+        return { data, total, limit, offset };
     }
 
 
-    async findOne(id: number) {
+    async findOne(id: number): Promise<Role> {
         const role = await this.roleRepo.findOne({ where: { id } });
         if (!role) {
             throw new NotFoundException(`Role #${id} not found`);
@@ -47,7 +54,7 @@ export class RolesService {
         return role;
     }
 
-    async findByIds(roleIds: number[]) {
+    async findByIds(roleIds: number[]): Promise<Role[]> {
         const roles = await this.roleRepo.find({
             where: { id: In(roleIds) },
         });
@@ -72,7 +79,7 @@ export class RolesService {
     //     return this.roleRepo.save(role);
     // }
 
-    async update(id: number, updateRoleDto: UpdateRoleDto) {
+    async update(id: number, updateRoleDto: UpdateRoleDto): Promise<Role> {
         // 1️⃣ Buscamos el role existente
         const role = await this.findOne(id);
         if (!role) throw new NotFoundException('Role not found');
@@ -104,7 +111,7 @@ export class RolesService {
         return this.roleRepo.save(role);
     }
 
-    async remove(id: number) {
+    async remove(id: number): Promise<Role> {
         // 1. Buscamos el rol incluyendo la relación con usuarios
         const role = await this.roleRepo.findOne({
             where: { id },

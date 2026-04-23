@@ -3,10 +3,16 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
+import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.enableCors();
+  const configService = app.get(ConfigService);
+  app.enableCors({
+    origin: configService.get<string>('FRONTEND_URL') || 'http://localhost:4200',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    credentials: true,
+  });
   app.useGlobalFilters(new AllExceptionsFilter());
   app.useGlobalPipes(new ValidationPipe({
     whitelist: true,
@@ -14,8 +20,8 @@ async function bootstrap() {
     transform: true,
   }));
   const config = new DocumentBuilder()
-    .setTitle('API')
-    .setDescription('The haptica API description')
+    .setTitle('Tu Super API')
+    .setDescription('Tu Super e-commerce API description')
     .setVersion('1.0')
     .addBearerAuth()
     .build();

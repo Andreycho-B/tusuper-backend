@@ -6,6 +6,7 @@ import {
   Delete,
   Param,
   Body,
+  Query,
   ParseIntPipe,
   HttpCode,
   UseGuards,
@@ -17,6 +18,8 @@ import { JwtAuthGuard } from '../../auth/guards/auth.guard';
 import { ModulesGuard } from '../../auth/guards/modules.guard.guard';
 import { Modules } from '../../auth/decorators/modules.decorator';
 import { Provider } from '../entities/provider.entity';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
 @ApiBearerAuth()
 @Modules('inventory')
@@ -29,8 +32,8 @@ export class ProvidersController {
   @Get()
   @ApiOperation({ summary: 'Get all providers' })
   @ApiResponse({ status: 200, description: 'List of providers' })
-  async findAll(): Promise<Provider[]> {
-    return this.providersService.findAll();
+  async findAll(@Query() pagination: PaginationDto): Promise<PaginatedResult<Provider>> {
+    return this.providersService.findAll(pagination);
   }
 
   @Get(':id')

@@ -7,6 +7,7 @@ import {
   ParseIntPipe,
   Post,
   Put,
+  Query,
   UseGuards,
   UseInterceptors,
   ClassSerializerInterceptor,
@@ -23,6 +24,8 @@ import { JwtAuthGuard } from '../../../auth/guards/auth.guard';
 import { CreateUserDto, UpdateUserDto } from '../../dtos/user.dto';
 import { UsersService } from '../../services/users/users.service';
 import { User } from '../../entities/user.entity';
+import { PaginationDto } from '../../../common/dtos/pagination.dto';
+import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
 
 @ApiBearerAuth()
 @ApiTags('Users')
@@ -36,8 +39,8 @@ export class UsersController {
   @Get()
   @ApiOperation({ summary: 'Obtener todos los usuarios' })
   @ApiResponse({ status: 200, description: 'Lista de usuarios retornada exitosamente' })
-  findAll(): Promise<User[]> {
-    return this.usersService.findAll();
+  findAll(@Query() pagination: PaginationDto): Promise<PaginatedResult<User>> {
+    return this.usersService.findAll(pagination);
   }
 
   @Get(':userId')

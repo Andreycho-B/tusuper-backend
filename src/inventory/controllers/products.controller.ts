@@ -6,17 +6,21 @@ import {
   Delete,
   Param,
   Body,
+  Query,
   ParseIntPipe,
   HttpCode,
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 import { ProductsService } from '../services/products.service';
 import { CreateProductDto, UpdateProductDto } from '../dtos/product.dto';
 import { JwtAuthGuard } from '../../auth/guards/auth.guard';
 import { ModulesGuard } from '../../auth/guards/modules.guard.guard';
 import { Modules } from '../../auth/decorators/modules.decorator';
 import { Product } from '../entities/product.entity';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
 @ApiBearerAuth()
 @Modules('inventory')
@@ -26,11 +30,12 @@ import { Product } from '../entities/product.entity';
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) { }
 
+  @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @Get()
   @ApiOperation({ summary: 'Get all products' })
   @ApiResponse({ status: 200, description: 'List of products', type: [Product] })
-  async findAll(): Promise<Product[]> {
-    return this.productsService.findAll();
+  async findAll(@Query() pagination: PaginationDto): Promise<PaginatedResult<Product>> {
+    return this.productsService.findAll(pagination);
   }
 
   @Get(':id')

@@ -1,7 +1,8 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
 import { OrderStatus } from '../domain/enums/order-status.enum';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { OrderItem } from './order-item.entity';
+import { User } from '../../users/entities/user.entity';
 
 @Entity('orders')
 export class Order {
@@ -10,6 +11,10 @@ export class Order {
 
   @Column({ name: 'customer_id', type: 'int' })
   customerId: number;
+
+  @ManyToOne(() => User, (user) => user.orders, { onDelete: 'RESTRICT' })
+  @JoinColumn({ name: 'customer_id' })
+  customer: User;
 
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
   status: OrderStatus;

@@ -1,11 +1,13 @@
 import { Exclude } from 'class-transformer';
 import { Role } from '../../roles/entities/role.entity';
+import { Order } from '../../orders/entities/order.entity';
 import {
   Column,
   CreateDateColumn,
   Entity,
   JoinTable,
   ManyToMany,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -42,4 +44,7 @@ export class User {
     name: 'user_roles',
   })
   roles: Role[];
+
+  @OneToMany(() => Order, (order) => order.customer)
+  orders: Order[];
 }

@@ -1,10 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { Product } from '../entities/product.entity';
 import { CreateProductDto, UpdateProductDto } from '../dtos/product.dto';
 import { Category } from '../entities/category.entity';
 import { Provider } from '../entities/provider.entity';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
+import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
 @Injectable()
 export class ProductsService {
@@ -15,12 +17,17 @@ export class ProductsService {
     private readonly categoryRepo: Repository<Category>,
     @InjectRepository(Provider)
     private readonly providerRepo: Repository<Provider>,
+    private readonly dataSource: DataSource,
   ) { }
 
-  async findAll(): Promise<Product[]> {
-    return this.productRepo.find({
+  async findAll(pagination: PaginationDto): Promise<PaginatedResult<Product>> {
+    const { limit = 10, offset = 0 } = pagination;
+    const [data, total] = await this.productRepo.findAndCount({
       relations: ['category', 'provider'],
+      take: limit,
+      skip: offset,
     });
+    return { data, total, limit, offset };
   }
 
   async findOne(id: number): Promise<Product> {
@@ -88,6 +95,36 @@ export class ProductsService {
 
     this.productRepo.merge(product, productData);
     return this.productRepo.save(product);
+  }
+
+  async decreaseStock(id: number, quantity: number): Promise<void> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const product = await queryRunner.manager.findOne(Product, {
+        where: { id },
+        lock: { mode: 'pessimistic_write' },
+      });
+
+      if (!product) {
+        throw new NotFoundException(`Product #${id} not found`);
+      }
+      
+      if (product.stock < quantity) {
+        throw new InternalServerErrorException(`Insufficient stock for Product #${id}`);
+      }
+
+      product.stock -= quantity;
+      await queryRunner.manager.save(product);
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      throw error;
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async remove(id: number): Promise<Product> {

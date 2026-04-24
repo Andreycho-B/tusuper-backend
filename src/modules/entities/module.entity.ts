@@ -7,10 +7,10 @@ export class ModuleEntity {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column({ type: 'varchar', length: 255, unique: true })
   name: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', length: 500, nullable: true })
   description: string;
 
   @ManyToMany(() => Role, role => role.modules)

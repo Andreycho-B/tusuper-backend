@@ -23,7 +23,8 @@ export class AuthService {
     return result;
   }
 
-  async login(user: UserModel) {
+ async login(user: UserModel) {
+    
     const payload = {
       sub: user.id,
       email: user.email,
@@ -35,6 +36,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        roles: payload.roles, 
       },
     };
   }

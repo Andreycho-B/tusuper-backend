@@ -19,12 +19,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const { password: _, ...result } = user;
-    return result;
+    // Retornamos el usuario completo. El filtrado ocurre en el login.
+    return user;
   }
 
- async login(user: UserModel) {
-    
+  // Se eliminó 'async' porque no hay operaciones que requieran 'await' aquí
+  login(user: UserModel) {
     const payload = {
       sub: user.id,
       email: user.email,
@@ -36,7 +36,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
-        roles: payload.roles, 
+        roles: payload.roles,
       },
     };
   }

@@ -10,7 +10,7 @@ export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
-  ) {}
+  ) { }
 
   async validateUser(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
@@ -19,12 +19,11 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    // Retornamos el usuario completo. El filtrado ocurre en el login.
-    return user;
+    const { password: _, ...result } = user;
+    return result;
   }
 
-  // Se eliminó 'async' porque no hay operaciones que requieran 'await' aquí
-  login(user: UserModel) {
+  async login(user: UserModel) {
     const payload = {
       sub: user.id,
       email: user.email,
@@ -33,11 +32,7 @@ export class AuthService {
 
     return {
       access_token: this.jwtService.sign(payload),
-      user: {
-        id: user.id,
-        email: user.email,
-        roles: payload.roles,
-      },
+      user: user,
     };
   }
 }

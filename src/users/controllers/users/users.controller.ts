@@ -34,11 +34,14 @@ import { PaginatedResult } from '../../../common/interfaces/paginated-result.int
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) { }
+  constructor(private readonly usersService: UsersService) {}
 
   @Get()
   @ApiOperation({ summary: 'Obtener todos los usuarios' })
-  @ApiResponse({ status: 200, description: 'Lista de usuarios retornada exitosamente' })
+  @ApiResponse({
+    status: 200,
+    description: 'Lista de usuarios retornada exitosamente',
+  })
   findAll(@Query() pagination: PaginationDto): Promise<PaginatedResult<User>> {
     return this.usersService.findAll(pagination);
   }
@@ -63,7 +66,10 @@ export class UsersController {
   @ApiOperation({ summary: 'Actualizar un usuario existente' })
   @ApiResponse({ status: 200, description: 'Usuario actualizado exitosamente' })
   @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
-  @ApiResponse({ status: 409, description: 'El email ya está registrado por otro usuario' })
+  @ApiResponse({
+    status: 409,
+    description: 'El email ya está registrado por otro usuario',
+  })
   update(
     @Param('userId', ParseIntPipe) userId: number,
     @Body() updateUserDto: UpdateUserDto,

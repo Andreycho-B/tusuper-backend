@@ -21,7 +21,6 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "typeorm": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js",
     "migration:generate": "ts-node -r tsconfig-paths/register ./src/scripts/migration-prompt.ts",
-    "migration:run:dev": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:run -d ./src/database/data-source.ts",
     "migration:revert:dev": "ts-node -r tsconfig-paths/register ./node_modules/typeorm/cli.js migration:revert -d ./src/database/data-source.ts",
     "migration:run": "node ./node_modules/typeorm/cli.js migration:run -d ./dist/database/data-source.js",
     "migration:revert": "node ./node_modules/typeorm/cli.js migration:revert -d ./dist/database/data-source.js"

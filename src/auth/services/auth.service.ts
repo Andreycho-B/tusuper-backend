@@ -3,7 +3,9 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../../users/services/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { UserModel } from '../../users/interfaces/user';
+import { User } from '../../users/entities/user.entity';
 import { Role } from '../../roles/entities/role.entity';
+import { JwtPayload } from '../interfaces/jwt-payload.interface';
 
 @Injectable()
 export class AuthService {
@@ -19,20 +21,44 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const { password: _, ...result } = user;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _discarded, ...result } = user;
     return result;
   }
 
-  async login(user: UserModel) {
-    const payload = {
+  login(user: UserModel) {
+    const payload: JwtPayload = {
       sub: user.id,
       email: user.email,
       roles: user.roles?.map((role: Role) => role.name) || [],
     };
 
     return {
-      access_token: this.jwtService.sign(payload),
+      access_token: this.getJwtToken(payload),
       user: user,
     };
+  }
+
+  checkAuthStatus(user: User): {
+    user: Omit<User, 'password'>;
+    access_token: string;
+  } {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _excluded, ...userProfile } = user;
+
+    const payload: JwtPayload = {
+      sub: user.id,
+      email: user.email,
+      roles: user.roles?.map((role: Role) => role.name) || [],
+    };
+
+    return {
+      user: userProfile as Omit<User, 'password'>,
+      access_token: this.getJwtToken(payload),
+    };
+  }
+
+  private getJwtToken(payload: JwtPayload): string {
+    return this.jwtService.sign(payload);
   }
 }

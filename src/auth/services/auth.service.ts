@@ -36,4 +36,14 @@ export class AuthService {
       user: user,
     };
   }
+
+  async checkStatus(userId: number) {
+    const user = await this.usersService.findOne(userId);
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('User is inactive');
+    }
+
+    return this.login(user);
+  }
 }

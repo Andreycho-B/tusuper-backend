@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { IsString, IsNotEmpty, IsArray, ArrayNotEmpty, IsInt, IsNumber } from "class-validator";
+import { IsString, IsNotEmpty, IsArray, IsNumber } from "class-validator";
 import { PartialType, ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
 
 export class CreateRoleDto {
     @IsString()

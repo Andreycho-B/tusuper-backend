@@ -11,7 +11,7 @@ export class CategoriesService {
   constructor(
     @InjectRepository(Category)
     private readonly categoryRepo: Repository<Category>,
-  ) { }
+  ) {}
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<Category>> {
     const { limit = 10, offset = 0 } = pagination;

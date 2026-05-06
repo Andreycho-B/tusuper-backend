@@ -25,7 +25,7 @@ export class OrdersService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   async checkout(customerId: number, dto: CheckoutDto): Promise<Order> {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -40,7 +40,9 @@ export class OrdersService {
         .getOne();
 
       if (!productResult) {
-        throw new NotFoundException(`Product with ID ${dto.productId} not found.`);
+        throw new NotFoundException(
+          `Product with ID ${dto.productId} not found.`,
+        );
       }
 
       if (productResult.stock < dto.quantity) {
@@ -102,13 +104,19 @@ export class OrdersService {
       let totalAmount = 0;
       const orderItems: OrderItem[] = [];
 
-      const sortedItems = [...createOrderDto.items].sort((a, b) => a.productId - b.productId);
+      const sortedItems = [...createOrderDto.items].sort(
+        (a, b) => a.productId - b.productId,
+      );
 
       for (const itemDto of sortedItems) {
-        const productData = await queryRunner.manager.query(
+        const productData = (await queryRunner.manager.query(
           `SELECT id, price, stock FROM product WHERE id = $1 FOR UPDATE`,
           [itemDto.productId],
-        );
+        )) as unknown as {
+          id: number;
+          price: string | number;
+          stock: number;
+        }[];
 
         if (!productData || productData.length === 0) {
           throw new NotFoundException(
@@ -157,7 +165,7 @@ export class OrdersService {
       const savedOrder = await queryRunner.manager.save(Order, order);
       await queryRunner.commitTransaction();
       return savedOrder;
-    } catch (error) {
+    } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {
@@ -214,10 +222,10 @@ export class OrdersService {
       for (const productId of productIds) {
         const quantity = productQuantities.get(productId);
 
-        const productResult = await queryRunner.manager.query(
+        const productResult = (await queryRunner.manager.query(
           `SELECT id, stock FROM product WHERE id = $1 FOR UPDATE`,
           [productId],
-        );
+        )) as unknown as { id: number; stock: number }[];
 
         if (!productResult || productResult.length === 0) {
           throw new NotFoundException(
@@ -235,7 +243,7 @@ export class OrdersService {
       await queryRunner.manager.save(Order, order);
 
       await queryRunner.commitTransaction();
-    } catch (error) {
+    } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
       throw error;
     } finally {

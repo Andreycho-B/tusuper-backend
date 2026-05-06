@@ -15,7 +15,6 @@ import { PaginatedResult } from '../common/interfaces/paginated-result.interface
 @ApiTags('Modules')
 @Controller('modules')
 export class ModulesController {
-
   constructor(private readonly modulesService: ModulesService) {}
 
   @Post()
@@ -26,8 +25,9 @@ export class ModulesController {
 
   @Get()
   @ApiOperation({ summary: 'Get all modules' })
-  findAll(@Query() pagination: PaginationDto): Promise<PaginatedResult<ModuleEntity>> {
+  findAll(
+    @Query() pagination: PaginationDto,
+  ): Promise<PaginatedResult<ModuleEntity>> {
     return this.modulesService.findAll(pagination);
   }
-
 }

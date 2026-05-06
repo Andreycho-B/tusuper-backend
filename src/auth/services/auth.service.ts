@@ -19,11 +19,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...result } = user;
     return result;
   }
 
-  async login(user: UserModel) {
+  login(user: UserModel) {
     const payload = {
       sub: user.id,
       email: user.email,

@@ -11,7 +11,12 @@ import {
   HttpCode,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { ProvidersService } from '../services/providers.service';
 import { CreateProviderDto, UpdateProviderDto } from '../dtos/provider.dto';
 import { JwtAuthGuard } from '../../auth/guards/auth.guard';
@@ -27,12 +32,14 @@ import { PaginatedResult } from '../../common/interfaces/paginated-result.interf
 @ApiTags('Inventory - Providers')
 @Controller('inventory/providers')
 export class ProvidersController {
-  constructor(private readonly providersService: ProvidersService) { }
+  constructor(private readonly providersService: ProvidersService) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all providers' })
   @ApiResponse({ status: 200, description: 'List of providers' })
-  async findAll(@Query() pagination: PaginationDto): Promise<PaginatedResult<Provider>> {
+  async findAll(
+    @Query() pagination: PaginationDto,
+  ): Promise<PaginatedResult<Provider>> {
     return this.providersService.findAll(pagination);
   }
 
@@ -47,7 +54,9 @@ export class ProvidersController {
   @Post()
   @ApiOperation({ summary: 'Create a new provider' })
   @ApiResponse({ status: 201, description: 'Provider created successfully' })
-  async create(@Body() createProviderDto: CreateProviderDto): Promise<Provider> {
+  async create(
+    @Body() createProviderDto: CreateProviderDto,
+  ): Promise<Provider> {
     return this.providersService.create(createProviderDto);
   }
 

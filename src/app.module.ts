@@ -19,7 +19,10 @@ import { InventoryModule } from './inventory/inventory.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: environments[process.env.NODE_ENV || 'dev'],
+      envFilePath:
+        environments[
+          (process.env.NODE_ENV || 'dev') as keyof typeof environments
+        ],
       load: [config],
       isGlobal: true,
       validationSchema: Joi.object({
@@ -39,10 +42,12 @@ import { InventoryModule } from './inventory/inventory.module';
     ModulesModule,
     OrdersModule,
     InventoryModule,
-    ThrottlerModule.forRoot([{
-      ttl: 60000,
-      limit: 100,
-    }]),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 100,
+      },
+    ]),
   ],
   controllers: [AppController],
   providers: [

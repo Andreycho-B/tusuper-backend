@@ -8,28 +8,28 @@ import { PaginatedResult } from '../common/interfaces/paginated-result.interface
 
 @Injectable()
 export class ModulesService {
+  constructor(
+    @InjectRepository(ModuleEntity)
+    private moduleRepository: Repository<ModuleEntity>,
+  ) {}
 
-    constructor(
-        @InjectRepository(ModuleEntity)
-        private moduleRepository: Repository<ModuleEntity>,
-    ) { }
+  async findByIds(ids: number[]): Promise<ModuleEntity[]> {
+    return this.moduleRepository.findBy({ id: In(ids) });
+  }
 
-    async findByIds(ids: number[]): Promise<ModuleEntity[]> {
-        return this.moduleRepository.findBy({ id: In(ids) });
-    }
+  create(dto: CreateModuleDto): Promise<ModuleEntity> {
+    const module = this.moduleRepository.create(dto);
+    return this.moduleRepository.save(module);
+  }
 
-    create(dto: CreateModuleDto): Promise<ModuleEntity> {
-        const module = this.moduleRepository.create(dto);
-        return this.moduleRepository.save(module);
-    }
-
-    async findAll(pagination: PaginationDto): Promise<PaginatedResult<ModuleEntity>> {
-        const { limit = 10, offset = 0 } = pagination;
-        const [data, total] = await this.moduleRepository.findAndCount({
-            take: limit,
-            skip: offset,
-        });
-        return { data, total, limit, offset };
-    }
-
+  async findAll(
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<ModuleEntity>> {
+    const { limit = 10, offset = 0 } = pagination;
+    const [data, total] = await this.moduleRepository.findAndCount({
+      take: limit,
+      skip: offset,
+    });
+    return { data, total, limit, offset };
+  }
 }

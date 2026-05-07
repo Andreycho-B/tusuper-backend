@@ -11,7 +11,12 @@ import {
   HttpCode,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { ProductsService } from '../services/products.service';
 import { CreateProductDto, UpdateProductDto } from '../dtos/product.dto';
@@ -28,13 +33,19 @@ import { PaginatedResult } from '../../common/interfaces/paginated-result.interf
 @ApiTags('Inventory - Products')
 @Controller('inventory/products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) { }
+  constructor(private readonly productsService: ProductsService) {}
 
   @Throttle({ default: { limit: 1000, ttl: 60000 } })
   @Get()
   @ApiOperation({ summary: 'Get all products' })
-  @ApiResponse({ status: 200, description: 'List of products', type: [Product] })
-  async findAll(@Query() pagination: PaginationDto): Promise<PaginatedResult<Product>> {
+  @ApiResponse({
+    status: 200,
+    description: 'List of products',
+    type: [Product],
+  })
+  async findAll(
+    @Query() pagination: PaginationDto,
+  ): Promise<PaginatedResult<Product>> {
     return this.productsService.findAll(pagination);
   }
 
@@ -48,14 +59,22 @@ export class ProductsController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new product' })
-  @ApiResponse({ status: 201, description: 'Product created successfully', type: Product })
+  @ApiResponse({
+    status: 201,
+    description: 'Product created successfully',
+    type: Product,
+  })
   async create(@Body() createProductDto: CreateProductDto): Promise<Product> {
     return this.productsService.create(createProductDto);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a product by ID' })
-  @ApiResponse({ status: 200, description: 'Product updated successfully', type: Product })
+  @ApiResponse({
+    status: 200,
+    description: 'Product updated successfully',
+    type: Product,
+  })
   @ApiResponse({ status: 404, description: 'Product not found' })
   async update(
     @Param('id', ParseIntPipe) id: number,

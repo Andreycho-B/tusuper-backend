@@ -11,7 +11,7 @@ export class ProvidersService {
   constructor(
     @InjectRepository(Provider)
     private readonly providerRepo: Repository<Provider>,
-  ) { }
+  ) {}
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<Provider>> {
     const { limit = 10, offset = 0 } = pagination;

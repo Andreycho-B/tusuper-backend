@@ -1,0 +1,41 @@
+﻿
+> adso-3063267@0.0.1 lint
+> eslint "{src,apps,libs,test}/**/*.ts" --fix
+
+
+C:\tusuper-backend\src\app.service.ts
+  6:5  error  Unsafe return of a value of type `any`  @typescript-eslint/no-unsafe-return
+
+C:\tusuper-backend\src\orders\orders.service.ts
+  112:15   error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+  117:41   error  Unsafe member access .length on an `any` value  @typescript-eslint/no-unsafe-member-access
+  123:15   error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+  123:37   error  Unsafe member access [0] on an `any` value      @typescript-eslint/no-unsafe-member-access
+  125:21   error  Unsafe member access .stock on an `any` value   @typescript-eslint/no-unsafe-member-access
+  127:130  error  Unsafe member access .stock on an `any` value   @typescript-eslint/no-unsafe-member-access
+  131:42   error  Unsafe member access .price on an `any` value   @typescript-eslint/no-unsafe-member-access
+  221:15   error  Unsafe assignment of an `any` value             @typescript-eslint/no-unsafe-assignment
+  226:45   error  Unsafe member access .length on an `any` value  @typescript-eslint/no-unsafe-member-access
+
+C:\tusuper-backend\src\scripts\check-tables.ts
+   7:9   error  Unsafe assignment of an `any` value                  @typescript-eslint/no-unsafe-assignment
+  12:26  error  Unsafe member access .tablename on an `any` value    @typescript-eslint/no-unsafe-member-access
+  17:11  error  Unsafe assignment of an `any` value                  @typescript-eslint/no-unsafe-assignment
+  22:28  error  Unsafe member access .name on an `any` value         @typescript-eslint/no-unsafe-member-access
+  22:51  error  Unsafe member access .timestamp on an `any` value    @typescript-eslint/no-unsafe-member-access
+  30:11  error  Unsafe assignment of an `any` value                  @typescript-eslint/no-unsafe-assignment
+  34:14  error  Unsafe member access .length on an `any` value       @typescript-eslint/no-unsafe-member-access
+  38:20  error  Unsafe member access .column_name on an `any` value  @typescript-eslint/no-unsafe-member-access
+  38:38  error  Unsafe member access .data_type on an `any` value    @typescript-eslint/no-unsafe-member-access
+  38:64  error  Unsafe member access .is_nullable on an `any` value  @typescript-eslint/no-unsafe-member-access
+
+C:\tusuper-backend\src\scripts\migration-prompt.ts
+   8:9   error  Unsafe assignment of an error typed value                              @typescript-eslint/no-unsafe-assignment
+   8:29  error  Unsafe call of a type that could not be resolved                       @typescript-eslint/no-unsafe-call
+  16:35  error  Unsafe member access .environment on a type that cannot be resolved    @typescript-eslint/no-unsafe-member-access
+  27:9   error  Unsafe assignment of an error typed value                              @typescript-eslint/no-unsafe-assignment
+  27:30  error  Unsafe call of a type that could not be resolved                       @typescript-eslint/no-unsafe-call
+  34:38  error  Unsafe member access .migrationName on a type that cannot be resolved  @typescript-eslint/no-unsafe-member-access
+
+Ô£û 26 problems (26 errors, 0 warnings)
+

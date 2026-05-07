@@ -11,7 +11,12 @@ import {
   HttpCode,
   UseGuards,
 } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { CategoriesService } from '../services/categories.service';
 import { CreateCategoryDto, UpdateCategoryDto } from '../dtos/category.dto';
 import { JwtAuthGuard } from '../../auth/guards/auth.guard';
@@ -27,12 +32,18 @@ import { PaginatedResult } from '../../common/interfaces/paginated-result.interf
 @ApiTags('Inventory - Categories')
 @Controller('inventory/categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) { }
+  constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all categories' })
-  @ApiResponse({ status: 200, description: 'List of categories', type: [Category] })
-  async findAll(@Query() pagination: PaginationDto): Promise<PaginatedResult<Category>> {
+  @ApiResponse({
+    status: 200,
+    description: 'List of categories',
+    type: [Category],
+  })
+  async findAll(
+    @Query() pagination: PaginationDto,
+  ): Promise<PaginatedResult<Category>> {
     return this.categoriesService.findAll(pagination);
   }
 
@@ -46,14 +57,24 @@ export class CategoriesController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new category' })
-  @ApiResponse({ status: 201, description: 'Category created successfully', type: Category })
-  async create(@Body() createCategoryDto: CreateCategoryDto): Promise<Category> {
+  @ApiResponse({
+    status: 201,
+    description: 'Category created successfully',
+    type: Category,
+  })
+  async create(
+    @Body() createCategoryDto: CreateCategoryDto,
+  ): Promise<Category> {
     return this.categoriesService.create(createCategoryDto);
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update a category by ID' })
-  @ApiResponse({ status: 200, description: 'Category updated successfully', type: Category })
+  @ApiResponse({
+    status: 200,
+    description: 'Category updated successfully',
+    type: Category,
+  })
   @ApiResponse({ status: 404, description: 'Category not found' })
   async update(
     @Param('id', ParseIntPipe) id: number,

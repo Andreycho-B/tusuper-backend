@@ -6,16 +6,24 @@ async function fixSequence(): Promise<void> {
   const qr = AppDataSource.createQueryRunner();
 
   try {
-    const before = await qr.query('SELECT last_value, is_called FROM migrations_id_seq');
+    const before = (await qr.query(
+      'SELECT last_value, is_called FROM migrations_id_seq',
+    )) as { last_value: string; is_called: boolean }[];
     console.log('Secuencia ANTES:', JSON.stringify(before[0]));
 
-    const maxId = await qr.query('SELECT MAX(id) as max_id FROM migrations');
+    const maxId = (await qr.query(
+      'SELECT MAX(id) as max_id FROM migrations',
+    )) as { max_id: string }[];
     const currentMax = Number(maxId[0].max_id);
     console.log('MAX(id) en migrations:', currentMax);
 
-    await qr.query(`SELECT setval('migrations_id_seq', $1, true)`, [currentMax]);
+    await qr.query(`SELECT setval('migrations_id_seq', $1, true)`, [
+      currentMax,
+    ]);
 
-    const after = await qr.query('SELECT last_value, is_called FROM migrations_id_seq');
+    const after = (await qr.query(
+      'SELECT last_value, is_called FROM migrations_id_seq',
+    )) as { last_value: string; is_called: boolean }[];
     console.log('Secuencia DESPUÉS:', JSON.stringify(after[0]));
     console.log('Próximo nextval() retornará:', currentMax + 1);
   } finally {

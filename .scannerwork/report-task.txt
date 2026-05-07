@@ -1,7 +1,0 @@
-organization=andreycho-b
-projectKey=Andreycho-B_tusuper-backend
-serverUrl=https://sonarcloud.io
-serverVersion=8.0.0.86751
-dashboardUrl=https://sonarcloud.io/dashboard?id=Andreycho-B_tusuper-backend
-ceTaskId=AZ4DqEJEV9GxF-FL-WZq
-ceTaskUrl=https://sonarcloud.io/api/ce/task?id=AZ4DqEJEV9GxF-FL-WZq

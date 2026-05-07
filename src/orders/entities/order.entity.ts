@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   OneToMany,
@@ -18,6 +19,7 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index('IDX_ORDER_CUSTOMER')
   @Column({ name: 'customer_id', type: 'int' })
   customerId: number;
 
@@ -25,6 +27,7 @@ export class Order {
   @JoinColumn({ name: 'customer_id' })
   customer: User;
 
+  @Index('IDX_ORDER_STATUS')
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
   status: OrderStatus;
 
@@ -72,6 +75,7 @@ export class Order {
   @OneToMany(() => OrderItem, (item) => item.order, { cascade: true })
   items: OrderItem[];
 
+  @Index('IDX_ORDER_CREATED_AT')
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 

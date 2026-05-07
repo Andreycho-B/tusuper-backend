@@ -8,7 +8,7 @@ import { Reflector } from '@nestjs/core';
 
 @Injectable()
 export class ModulesGuard implements CanActivate {
-  constructor(private reflector: Reflector) {}
+  constructor(private readonly reflector: Reflector) {}
 
   canActivate(context: ExecutionContext): boolean {
     const requiredModules =

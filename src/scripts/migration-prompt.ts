@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import * as prompts from 'prompts';
-import { execSync } from 'child_process';
-import { join } from 'path';
+import { execSync } from 'node:child_process';
+import { join } from 'node:path';
 
 void (async () => {
   // 1️⃣ Preguntar por el ambiente
@@ -32,7 +32,7 @@ void (async () => {
     message: '📝 Ingresa el nombre de la migración (ej: AddNewColumn):',
     validate: (name: string) => {
       if (name.trim() === '') return 'El nombre no puede estar vacío';
-      if (!/^[a-zA-Z0-9_]+$/.test(name.trim())) return 'Solo letras, números y guiones bajos permitidos';
+      if (!/^\w+$/.test(name.trim())) return 'Solo letras, números y guiones bajos permitidos';
       return true;
     },
   })) as unknown as { migrationName?: string };

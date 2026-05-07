@@ -14,8 +14,8 @@ import { PaginatedResult } from '../../common/interfaces/paginated-result.interf
 @Injectable()
 export class RolesService {
   constructor(
-    @InjectRepository(Role) private roleRepo: Repository<Role>,
-    private modulesService: ModulesService,
+    @InjectRepository(Role) private readonly roleRepo: Repository<Role>,
+    private readonly modulesService: ModulesService,
   ) {}
 
   async create(createRoleDto: CreateRoleDto): Promise<Role> {
@@ -61,23 +61,6 @@ export class RolesService {
     });
     return roles;
   }
-
-  // async update(id: number, updateRoleDto: UpdateRoleDto) {
-  //     const role = await this.findOne(id);
-
-  //     if (updateRoleDto.name) {
-  //         const existingRole = await this.roleRepo.findOne({
-  //             where: { name: updateRoleDto.name },
-  //         });
-
-  //         if (existingRole && existingRole.id !== id) {
-  //             throw new BadRequestException('Role name already exists');
-  //         }
-  //     }
-
-  //     this.roleRepo.merge(role, updateRoleDto);
-  //     return this.roleRepo.save(role);
-  // }
 
   async update(id: number, updateRoleDto: UpdateRoleDto): Promise<Role> {
     // 1️⃣ Buscamos el role existente
@@ -134,8 +117,4 @@ export class RolesService {
     // 3. Si está limpio, procedemos a borrar
     return await this.roleRepo.remove(role);
   }
-  // async remove(id: number) {
-  //     const role = await this.findOne(id);
-  //     return this.roleRepo.remove(role);
-  // }
 }

@@ -8,8 +8,7 @@ import {
   IsEmail,
   MinLength,
 } from 'class-validator';
-import { PartialType } from '@nestjs/swagger';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { PartialType, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 export class CreateUserDto {

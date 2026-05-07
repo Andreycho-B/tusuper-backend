@@ -3,7 +3,7 @@ import config from '../config';
 import * as dotenv from 'dotenv';
 import { environments } from '../environments';
 
-import { join } from 'path';
+import { join } from 'node:path';
 
 const envFile =
   environments[process.env.NODE_ENV as keyof typeof environments] ||

@@ -18,8 +18,8 @@ export const AppDataSource = new DataSource({
   username: configuration.dataBase.user,
   password: configuration.dataBase.password,
   database: configuration.dataBase.name,
-  synchronize: false,
-  logging: true,
+  synchronize: process.env.NODE_ENV === 'test',
+  logging: process.env.NODE_ENV !== 'test',
   entities: [join(__dirname, '..', '**', '*.entity.{ts,js}')],
   migrations: [join(__dirname, 'migrations', '*.{ts,js}')],
 });

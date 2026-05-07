@@ -17,7 +17,7 @@ import config from '../config';
           username: user,
           password,
           database: name,
-          synchronize: false,
+          synchronize: process.env.NODE_ENV === 'test',
           autoLoadEntities: true,
         };
       },

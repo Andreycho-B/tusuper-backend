@@ -12,6 +12,7 @@ import { CheckoutDto } from './dto/checkout.dto';
 import { OrderItem } from './entities/order-item.entity';
 import { Order } from './entities/order.entity';
 import { Product } from '../inventory/entities/product.entity';
+import { User } from '../users/entities/user.entity';
 import { OrderStatus } from './domain/enums/order-status.enum';
 import { PaymentStatus } from './domain/enums/payment-status.enum';
 import { PaginationDto } from '../common/dtos/pagination.dto';
@@ -104,6 +105,16 @@ export class OrdersService {
     await queryRunner.startTransaction();
 
     try {
+      const user = await queryRunner.manager.findOne(User, {
+        where: { id: customerId },
+      });
+
+      if (!user) {
+        throw new NotFoundException(
+          `El usuario con ID ${customerId} no existe.`,
+        );
+      }
+
       let totalAmount = 0;
       const orderItems: OrderItem[] = [];
 

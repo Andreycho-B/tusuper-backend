@@ -1,6 +1,6 @@
 /* eslint-disable prettier/prettier */
-import { IsString, IsNotEmpty, IsNumber, IsPositive, IsBoolean, IsOptional } from "class-validator";
-import { PartialType, ApiProperty } from "@nestjs/swagger";
+import { IsString, IsNotEmpty } from "class-validator";
+import { ApiProperty } from "@nestjs/swagger";
 
 export class LoginDto {
     @IsString()

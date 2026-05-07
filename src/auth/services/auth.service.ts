@@ -19,11 +19,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...result } = user;
     return result;
   }
 
-  async login(user: UserModel) {
+  login(user: UserModel) {
     const payload = {
       sub: user.id,
       email: user.email,
@@ -34,5 +35,15 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
       user: user,
     };
+  }
+
+  async checkStatus(userId: number) {
+    const user = await this.usersService.findOne(userId);
+
+    if (!user.isActive) {
+      throw new UnauthorizedException('User is inactive');
+    }
+
+    return this.login(user);
   }
 }

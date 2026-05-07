@@ -2,6 +2,8 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  InternalServerErrorException,
+  HttpException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
@@ -25,7 +27,7 @@ export class OrdersService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   async checkout(customerId: number, dto: CheckoutDto): Promise<Order> {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -40,7 +42,9 @@ export class OrdersService {
         .getOne();
 
       if (!productResult) {
-        throw new NotFoundException(`Product with ID ${dto.productId} not found.`);
+        throw new NotFoundException(
+          `Product with ID ${dto.productId} not found.`,
+        );
       }
 
       if (productResult.stock < dto.quantity) {
@@ -49,12 +53,8 @@ export class OrdersService {
         );
       }
 
-      await queryRunner.manager
-        .createQueryBuilder()
-        .update(Product)
-        .set({ stock: () => `stock - ${dto.quantity}` })
-        .where('id = :id', { id: dto.productId })
-        .execute();
+      productResult.stock -= dto.quantity;
+      await queryRunner.manager.save(Product, productResult);
 
       const unitPrice = Number(productResult.price);
       const subTotal = unitPrice * dto.quantity;
@@ -84,7 +84,12 @@ export class OrdersService {
       return savedOrder;
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
-      throw error;
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Error processing checkout transaction',
+      );
     } finally {
       await queryRunner.release();
     }
@@ -102,21 +107,22 @@ export class OrdersService {
       let totalAmount = 0;
       const orderItems: OrderItem[] = [];
 
-      const sortedItems = [...createOrderDto.items].sort((a, b) => a.productId - b.productId);
+      const sortedItems = [...createOrderDto.items].sort(
+        (a, b) => a.productId - b.productId,
+      );
 
       for (const itemDto of sortedItems) {
-        const productData = await queryRunner.manager.query(
-          `SELECT id, price, stock FROM product WHERE id = $1 FOR UPDATE`,
-          [itemDto.productId],
-        );
+        const product = await queryRunner.manager
+          .createQueryBuilder(Product, 'product')
+          .setLock('pessimistic_write')
+          .where('product.id = :id', { id: itemDto.productId })
+          .getOne();
 
-        if (!productData || productData.length === 0) {
+        if (!product) {
           throw new NotFoundException(
             `El producto con ID ${itemDto.productId} no existe en el inventario.`,
           );
         }
-
-        const product = productData[0];
 
         if (product.stock < itemDto.quantity) {
           throw new BadRequestException(
@@ -128,10 +134,8 @@ export class OrdersService {
         const subTotal = unitPrice * itemDto.quantity;
         totalAmount += subTotal;
 
-        await queryRunner.manager.query(
-          `UPDATE product SET stock = stock - $1 WHERE id = $2`,
-          [itemDto.quantity, itemDto.productId],
-        );
+        product.stock -= itemDto.quantity;
+        await queryRunner.manager.save(Product, product);
 
         const orderItem = this.orderItemRepository.create({
           productId: itemDto.productId,
@@ -157,9 +161,14 @@ export class OrdersService {
       const savedOrder = await queryRunner.manager.save(Order, order);
       await queryRunner.commitTransaction();
       return savedOrder;
-    } catch (error) {
+    } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
-      throw error;
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Error processing order transaction',
+      );
     } finally {
       await queryRunner.release();
     }
@@ -195,7 +204,16 @@ export class OrdersService {
     await queryRunner.startTransaction();
 
     try {
-      const order = await this.findOne(id);
+      const order = await queryRunner.manager
+        .createQueryBuilder(Order, 'order')
+        .setLock('pessimistic_write')
+        .leftJoinAndSelect('order.items', 'items')
+        .where('order.id = :id', { id })
+        .getOne();
+
+      if (!order) {
+        throw new NotFoundException(`Order with ID ${id} not found`);
+      }
 
       if (order.status === OrderStatus.CANCELLED) {
         throw new BadRequestException('El pedido ya se encuentra cancelado.');
@@ -214,30 +232,34 @@ export class OrdersService {
       for (const productId of productIds) {
         const quantity = productQuantities.get(productId);
 
-        const productResult = await queryRunner.manager.query(
-          `SELECT id, stock FROM product WHERE id = $1 FOR UPDATE`,
-          [productId],
-        );
+        const product = await queryRunner.manager
+          .createQueryBuilder(Product, 'product')
+          .setLock('pessimistic_write')
+          .where('product.id = :id', { id: productId })
+          .getOne();
 
-        if (!productResult || productResult.length === 0) {
+        if (!product) {
           throw new NotFoundException(
             `Producto con ID ${productId} no encontrado`,
           );
         }
 
-        await queryRunner.manager.query(
-          `UPDATE product SET stock = stock + $1 WHERE id = $2`,
-          [quantity, productId],
-        );
+        product.stock += quantity!;
+        await queryRunner.manager.save(Product, product);
       }
 
       order.status = OrderStatus.CANCELLED;
       await queryRunner.manager.save(Order, order);
 
       await queryRunner.commitTransaction();
-    } catch (error) {
+    } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
-      throw error;
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Error processing order cancellation',
+      );
     } finally {
       await queryRunner.release();
     }

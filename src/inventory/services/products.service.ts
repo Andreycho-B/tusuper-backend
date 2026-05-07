@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  InternalServerErrorException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 import { Product } from '../entities/product.entity';
@@ -18,7 +22,7 @@ export class ProductsService {
     @InjectRepository(Provider)
     private readonly providerRepo: Repository<Provider>,
     private readonly dataSource: DataSource,
-  ) { }
+  ) {}
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<Product>> {
     const { limit = 10, offset = 0 } = pagination;
@@ -111,9 +115,11 @@ export class ProductsService {
       if (!product) {
         throw new NotFoundException(`Product #${id} not found`);
       }
-      
+
       if (product.stock < quantity) {
-        throw new InternalServerErrorException(`Insufficient stock for Product #${id}`);
+        throw new InternalServerErrorException(
+          `Insufficient stock for Product #${id}`,
+        );
       }
 
       product.stock -= quantity;

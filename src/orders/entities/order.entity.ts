@@ -1,4 +1,14 @@
-import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  Index,
+  JoinColumn,
+  ManyToOne,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { OrderStatus } from '../domain/enums/order-status.enum';
 import { PaymentStatus } from '../domain/enums/payment-status.enum';
 import { OrderItem } from './order-item.entity';
@@ -9,6 +19,7 @@ export class Order {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Index('IDX_ORDER_CUSTOMER')
   @Column({ name: 'customer_id', type: 'int' })
   customerId: number;
 
@@ -16,6 +27,7 @@ export class Order {
   @JoinColumn({ name: 'customer_id' })
   customer: User;
 
+  @Index('IDX_ORDER_STATUS')
   @Column({ type: 'enum', enum: OrderStatus, default: OrderStatus.PENDING })
   status: OrderStatus;
 
@@ -39,18 +51,31 @@ export class Order {
   @Column({ name: 'total_amount', type: 'decimal', precision: 10, scale: 2 })
   totalAmount: number;
 
-  @Column({ name: 'delivery_fee', type: 'decimal', precision: 10, scale: 2, default: 0 })
+  @Column({
+    name: 'delivery_fee',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    default: 0,
+  })
   deliveryFee: number;
 
   @Column({ name: 'contact_phone', type: 'varchar', length: 20 })
   contactPhone: string;
 
-  @Column({ name: 'cash_change_requested', type: 'decimal', precision: 10, scale: 2, nullable: true })
+  @Column({
+    name: 'cash_change_requested',
+    type: 'decimal',
+    precision: 10,
+    scale: 2,
+    nullable: true,
+  })
   cashChangeRequested: number;
 
   @OneToMany(() => OrderItem, (item) => item.order, { cascade: true })
   items: OrderItem[];
 
+  @Index('IDX_ORDER_CREATED_AT')
   @CreateDateColumn({ name: 'created_at', type: 'timestamp' })
   createdAt: Date;
 

@@ -5,6 +5,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   JoinTable,
   ManyToMany,
   OneToMany,
@@ -30,6 +31,7 @@ export class User {
   @Column({ type: 'varchar', length: 255, select: false })
   password: string;
 
+  @Index('IDX_USER_IS_ACTIVE')
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 

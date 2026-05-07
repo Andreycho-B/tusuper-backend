@@ -30,8 +30,11 @@ void (async () => {
     type: 'text',
     name: 'migrationName',
     message: '📝 Ingresa el nombre de la migración (ej: AddNewColumn):',
-    validate: (name: string) =>
-      name.trim() === '' ? 'El nombre no puede estar vacío' : true,
+    validate: (name: string) => {
+      if (name.trim() === '') return 'El nombre no puede estar vacío';
+      if (!/^[a-zA-Z0-9_]+$/.test(name.trim())) return 'Solo letras, números y guiones bajos permitidos';
+      return true;
+    },
   })) as unknown as { migrationName?: string };
   const migrationName = responseName.migrationName;
 

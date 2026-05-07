@@ -2,6 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
+  Index,
   ManyToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
@@ -29,6 +30,7 @@ export class Product {
   @Column({ type: 'int' })
   stock: number;
 
+  @Index('IDX_PRODUCT_IS_ACTIVE')
   @Column({ type: 'boolean', default: true })
   isActive: boolean;
 

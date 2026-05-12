@@ -31,7 +31,7 @@ import { PaginatedResult } from '../../common/interfaces/paginated-result.interf
 @ApiTags('Inventory - Providers')
 @Controller('inventory/providers')
 export class ProvidersController {
-  constructor(private readonly providersService: ProvidersService) { }
+  constructor(private readonly providersService: ProvidersService) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all providers' })

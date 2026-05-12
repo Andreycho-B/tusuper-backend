@@ -16,6 +16,7 @@ export class ProvidersService {
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<Provider>> {
     const { limit = 10, offset = 0 } = pagination;
     const [data, total] = await this.providerRepo.findAndCount({
+      where: { isActive: true },
       relations: ['products'],
       take: limit,
       skip: offset,
@@ -23,9 +24,9 @@ export class ProvidersService {
     return { data, total, limit, offset };
   }
 
-  async findOne(id: number): Promise<Provider> {
+  async findOne(id: number, onlyActive: boolean = true): Promise<Provider> {
     const provider = await this.providerRepo.findOne({
-      where: { id },
+      where: { id, ...(onlyActive ? { isActive: true } : {}) },
       relations: ['products'],
     });
     if (!provider) {
@@ -43,13 +44,13 @@ export class ProvidersService {
     id: number,
     updateProviderDto: UpdateProviderDto,
   ): Promise<Provider> {
-    const provider = await this.findOne(id);
+    const provider = await this.findOne(id, false);
     this.providerRepo.merge(provider, updateProviderDto);
     return this.providerRepo.save(provider);
   }
 
   async remove(id: number): Promise<Provider> {
-    const provider = await this.findOne(id);
+    const provider = await this.findOne(id, false);
     provider.isActive = false;
     return this.providerRepo.save(provider);
   }

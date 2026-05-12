@@ -16,6 +16,7 @@ export class CategoriesService {
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<Category>> {
     const { limit = 10, offset = 0 } = pagination;
     const [data, total] = await this.categoryRepo.findAndCount({
+      where: { isActive: true },
       relations: ['products'],
       take: limit,
       skip: offset,
@@ -23,9 +24,9 @@ export class CategoriesService {
     return { data, total, limit, offset };
   }
 
-  async findOne(id: number): Promise<Category> {
+  async findOne(id: number, onlyActive: boolean = true): Promise<Category> {
     const category = await this.categoryRepo.findOne({
-      where: { id },
+      where: { id, ...(onlyActive ? { isActive: true } : {}) },
       relations: ['products'],
     });
     if (!category) {
@@ -43,13 +44,13 @@ export class CategoriesService {
     id: number,
     updateCategoryDto: UpdateCategoryDto,
   ): Promise<Category> {
-    const category = await this.findOne(id);
+    const category = await this.findOne(id, false);
     this.categoryRepo.merge(category, updateCategoryDto);
     return this.categoryRepo.save(category);
   }
 
   async remove(id: number): Promise<Category> {
-    const category = await this.findOne(id);
+    const category = await this.findOne(id, false);
     category.isActive = false;
     return this.categoryRepo.save(category);
   }

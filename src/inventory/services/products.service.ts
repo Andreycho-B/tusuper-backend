@@ -27,6 +27,11 @@ export class ProductsService {
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<Product>> {
     const { limit = 10, offset = 0 } = pagination;
     const [data, total] = await this.productRepo.findAndCount({
+      where: {
+        isActive: true,
+        category: { isActive: true },
+        provider: { isActive: true },
+      },
       relations: ['category', 'provider'],
       take: limit,
       skip: offset,
@@ -34,9 +39,18 @@ export class ProductsService {
     return { data, total, limit, offset };
   }
 
-  async findOne(id: number): Promise<Product> {
+  async findOne(id: number, onlyActive: boolean = true): Promise<Product> {
     const product = await this.productRepo.findOne({
-      where: { id },
+      where: {
+        id,
+        ...(onlyActive
+          ? {
+              isActive: true,
+              category: { isActive: true },
+              provider: { isActive: true },
+            }
+          : {}),
+      },
       relations: ['category', 'provider'],
     });
     if (!product) {
@@ -74,7 +88,7 @@ export class ProductsService {
     id: number,
     updateProductDto: UpdateProductDto,
   ): Promise<Product> {
-    const product = await this.findOne(id);
+    const product = await this.findOne(id, false);
     const { categoryId, providerId, ...productData } = updateProductDto;
 
     if (categoryId !== undefined) {
@@ -108,7 +122,7 @@ export class ProductsService {
 
     try {
       const product = await queryRunner.manager.findOne(Product, {
-        where: { id },
+        where: { id, isActive: true },
         lock: { mode: 'pessimistic_write' },
       });
 
@@ -134,7 +148,7 @@ export class ProductsService {
   }
 
   async remove(id: number): Promise<Product> {
-    const product = await this.findOne(id);
+    const product = await this.findOne(id, false);
     product.isActive = false;
     return this.productRepo.save(product);
   }

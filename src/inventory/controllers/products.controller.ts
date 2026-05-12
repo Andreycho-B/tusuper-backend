@@ -32,7 +32,7 @@ import { PaginatedResult } from '../../common/interfaces/paginated-result.interf
 @ApiTags('Inventory - Products')
 @Controller('inventory/products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) { }
+  constructor(private readonly productsService: ProductsService) {}
 
   // ── PUBLIC ENDPOINTS (no auth required) ────────────────────────────
 

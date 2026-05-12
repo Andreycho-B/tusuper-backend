@@ -31,7 +31,7 @@ import { PaginatedResult } from '../../common/interfaces/paginated-result.interf
 @ApiTags('Inventory - Categories')
 @Controller('inventory/categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) { }
+  constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
   @ApiOperation({ summary: 'Get all categories' })

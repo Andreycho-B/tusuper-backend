@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Query,
   Req,
@@ -18,13 +19,16 @@ import {
 } from '@nestjs/swagger';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CheckoutDto } from './dto/checkout.dto';
+import { OrderFilterDto } from './dto/order-filter.dto';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { OrdersService } from './orders.service';
 import { Order } from './entities/order.entity';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
+import { Roles } from '../auth/decorators/roles.decorator';
 import type { AuthenticatedRequest } from '../common/interfaces/authenticated-request.interface';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { PaginatedResult } from '../common/interfaces/paginated-result.interface';
-import * as express from 'express';
 
 @ApiTags('orders')
 @ApiBearerAuth()
@@ -41,12 +45,10 @@ export class OrdersController {
     type: Order,
   })
   create(
-    @Req() req: express.Request,
+    @Req() req: AuthenticatedRequest,
     @Body() createOrderDto: CreateOrderDto,
   ): Promise<Order> {
-    const customerId: number = (req as unknown as AuthenticatedRequest).user
-      .userId;
-    return this.ordersService.create(customerId, createOrderDto);
+    return this.ordersService.create(req.user.userId, createOrderDto);
   }
 
   @Post('checkout')
@@ -58,22 +60,39 @@ export class OrdersController {
     type: Order,
   })
   checkout(
-    @Req() req: express.Request,
+    @Req() req: AuthenticatedRequest,
     @Body() checkoutDto: CheckoutDto,
   ): Promise<Order> {
-    const customerId: number = (req as unknown as AuthenticatedRequest).user
-      .userId;
-    return this.ordersService.checkout(customerId, checkoutDto);
+    return this.ordersService.checkout(req.user.userId, checkoutDto);
   }
 
   @Get()
-  @ApiOperation({ summary: 'Retrieve all orders' })
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'List all orders (ADMIN only) with filters' })
   @ApiResponse({
     status: 200,
-    description: 'Successfully retrieved all orders.',
+    description: 'Paginated list of all orders with customer and item details.',
   })
-  findAll(@Query() pagination: PaginationDto): Promise<PaginatedResult<Order>> {
-    return this.ordersService.findAll(pagination);
+  @ApiResponse({ status: 403, description: 'Forbidden — requires ADMIN role.' })
+  findAllAdmin(
+    @Query() filters: OrderFilterDto,
+  ): Promise<PaginatedResult<Order>> {
+    return this.ordersService.findAllAdmin(filters);
+  }
+
+  @Get('my-orders')
+  @ApiOperation({ summary: 'List orders for the authenticated user' })
+  @ApiResponse({
+    status: 200,
+    description:
+      'Paginated list of orders belonging to the authenticated user.',
+  })
+  findMyOrders(
+    @Req() req: AuthenticatedRequest,
+    @Query() pagination: PaginationDto,
+  ): Promise<PaginatedResult<Order>> {
+    return this.ordersService.findMyOrders(req.user.userId, pagination);
   }
 
   @Get(':id')
@@ -86,6 +105,25 @@ export class OrdersController {
   @ApiResponse({ status: 404, description: 'Order not found.' })
   findOne(@Param('id', ParseIntPipe) id: number): Promise<Order> {
     return this.ordersService.findOne(id);
+  }
+
+  @Patch(':id/status')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
+  @ApiOperation({ summary: 'Update order status (ADMIN only)' })
+  @ApiResponse({
+    status: 200,
+    description: 'Order status updated successfully.',
+    type: Order,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid status transition.' })
+  @ApiResponse({ status: 403, description: 'Forbidden — requires ADMIN role.' })
+  @ApiResponse({ status: 404, description: 'Order not found.' })
+  updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateOrderStatusDto,
+  ): Promise<Order> {
+    return this.ordersService.updateStatus(id, dto.status);
   }
 
   @Delete(':id')

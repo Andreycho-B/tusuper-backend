@@ -34,8 +34,7 @@ export class RolesService {
       ...rolesData,
       modules,
     });
-    const role = this.roleRepo.create(newRol);
-    return this.roleRepo.save(role);
+    return this.roleRepo.save(newRol);
   }
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<Role>> {
@@ -65,7 +64,6 @@ export class RolesService {
   async update(id: number, updateRoleDto: UpdateRoleDto): Promise<Role> {
     // 1️⃣ Buscamos el role existente
     const role = await this.findOne(id);
-    if (!role) throw new NotFoundException('Role not found');
 
     // 2️⃣ Validamos que el nuevo nombre no exista en otro rol
     if (updateRoleDto.name) {

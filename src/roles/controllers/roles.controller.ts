@@ -21,7 +21,7 @@ import {
 } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/auth.guard';
 import { Modules } from '../../auth/decorators/modules.decorator';
-import { ModulesGuard } from '../../auth/guards/modules.guard.guard';
+import { ModulesGuard } from '../../auth/guards/modules.guard';
 import { Role } from '../entities/role.entity';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
 import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';

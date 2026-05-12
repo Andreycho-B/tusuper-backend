@@ -7,7 +7,7 @@ import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
 import { ConfigType } from '@nestjs/config';
 import config from '../config';
-import { ModulesGuard } from './guards/modules.guard.guard';
+import { ModulesGuard } from './guards/modules.guard';
 import { JwtAuthGuard } from './guards/auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -27,7 +27,6 @@ import { Role } from '../roles/entities/role.entity';
       }),
     }),
   ],
-  // providers: [AuthService, JwtStrategy],
   providers: [AuthService, ModulesGuard, RolesGuard, JwtAuthGuard, JwtStrategy],
   controllers: [AuthController],
   exports: [AuthService, ModulesGuard, RolesGuard, JwtAuthGuard],

@@ -17,6 +17,7 @@ import {
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { LoginDto } from '../dtos/login.dto';
+import { RegisterDto } from '../dtos/register.dto';
 import { AuthService } from '../services/auth.service';
 import { JwtAuthGuard } from '../guards/auth.guard';
 
@@ -43,6 +44,23 @@ export class AuthController {
   async login(@Body() body: LoginDto) {
     const user = await this.authService.validateUser(body.email, body.password);
     return this.authService.login(user);
+  }
+
+  @Post('register')
+  @ApiOperation({ summary: 'Registrar un nuevo usuario' })
+  @ApiBody({ type: RegisterDto })
+  @ApiResponse({
+    status: 201,
+    description:
+      'Usuario registrado exitosamente. Devuelve token de acceso y perfil del usuario.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Datos inválidos o las contraseñas no coinciden.',
+  })
+  @ApiResponse({ status: 409, description: 'El email ya está registrado.' })
+  async register(@Body() body: RegisterDto) {
+    return this.authService.register(body);
   }
 
   @UseGuards(JwtAuthGuard)

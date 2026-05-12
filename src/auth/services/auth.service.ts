@@ -4,12 +4,23 @@ import { UsersService } from '../../users/services/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { UserModel } from '../../users/interfaces/user';
 import { Role } from '../../roles/entities/role.entity';
+import { RegisterDto } from '../dtos/register.dto';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
+import {
+  ConflictException,
+  InternalServerErrorException,
+  BadRequestException,
+} from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    @InjectRepository(User) private readonly userRepo: Repository<User>,
+    @InjectRepository(Role) private readonly roleRepo: Repository<Role>,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -22,6 +33,43 @@ export class AuthService {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...result } = user;
     return result;
+  }
+
+  async register(dto: RegisterDto) {
+    if (dto.password !== dto.confirmPassword) {
+      throw new BadRequestException('Las contraseñas no coinciden');
+    }
+
+    const existingUser = await this.userRepo.findOne({
+      where: { email: dto.email },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('El email ya está registrado');
+    }
+
+    const userRole = await this.roleRepo.findOne({
+      where: { name: 'USER' },
+    });
+
+    if (!userRole) {
+      throw new InternalServerErrorException(
+        'Role USER no encontrado en la base de datos',
+      );
+    }
+
+    const hashedPassword = await bcrypt.hash(dto.password, 10);
+
+    const newUser = this.userRepo.create({
+      firstName: dto.firstName,
+      lastName: dto.lastName,
+      email: dto.email,
+      password: hashedPassword,
+      roles: [userRole],
+    });
+
+    const savedUser = await this.userRepo.save(newUser);
+    return this.login(savedUser);
   }
 
   login(user: UserModel) {

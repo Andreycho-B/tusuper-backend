@@ -1,5 +1,6 @@
 import {
   IsBoolean,
+  IsDefined,
   IsInt,
   IsNotEmpty,
   IsNumber,
@@ -25,6 +26,7 @@ export class CreateProductDto {
   })
   readonly description?: string;
 
+  @IsDefined()
   @IsNumber({ maxDecimalPlaces: 2 })
   @IsPositive()
   @ApiProperty({
@@ -33,6 +35,7 @@ export class CreateProductDto {
   })
   readonly price: number;
 
+  @IsDefined()
   @IsInt()
   @Min(0)
   @ApiProperty({ description: 'Available stock (integer >= 0)', example: 100 })
@@ -47,11 +50,13 @@ export class CreateProductDto {
   })
   readonly isActive?: boolean;
 
+  @IsDefined()
   @IsInt()
   @IsPositive()
   @ApiProperty({ description: 'Category ID', example: 1 })
   readonly categoryId: number;
 
+  @IsDefined()
   @IsInt()
   @IsPositive()
   @ApiProperty({ description: 'Provider ID', example: 1 })

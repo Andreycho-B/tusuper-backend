@@ -6,9 +6,10 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, QueryRunner } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CheckoutDto } from './dto/checkout.dto';
+import { OrderFilterDto } from './dto/order-filter.dto';
 import { OrderItem } from './entities/order-item.entity';
 import { Order } from './entities/order.entity';
 import { Product } from '../inventory/entities/product.entity';
@@ -17,6 +18,28 @@ import { OrderStatus } from './domain/enums/order-status.enum';
 import { PaymentStatus } from './domain/enums/payment-status.enum';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { PaginatedResult } from '../common/interfaces/paginated-result.interface';
+
+const VALID_TRANSITIONS: ReadonlyMap<OrderStatus, readonly OrderStatus[]> =
+  new Map<OrderStatus, readonly OrderStatus[]>([
+    [
+      OrderStatus.PENDING,
+      [OrderStatus.PREPARING, OrderStatus.CANCELLED] as const,
+    ],
+    [
+      OrderStatus.PREPARING,
+      [OrderStatus.READY_FOR_DISPATCH, OrderStatus.CANCELLED] as const,
+    ],
+    [
+      OrderStatus.READY_FOR_DISPATCH,
+      [OrderStatus.DISPATCHED, OrderStatus.CANCELLED] as const,
+    ],
+    [
+      OrderStatus.DISPATCHED,
+      [OrderStatus.DELIVERED, OrderStatus.CANCELLED] as const,
+    ],
+    [OrderStatus.DELIVERED, [] as const],
+    [OrderStatus.CANCELLED, [] as const],
+  ]);
 
 @Injectable()
 export class OrdersService {
@@ -185,21 +208,121 @@ export class OrdersService {
     }
   }
 
-  async findAll(pagination: PaginationDto): Promise<PaginatedResult<Order>> {
-    const { limit = 10, offset = 0 } = pagination;
-    const [data, total] = await this.orderRepository.findAndCount({
-      relations: ['items'],
-      take: limit,
-      skip: offset,
-      order: { createdAt: 'DESC' },
-    });
+  async findAllAdmin(filters: OrderFilterDto): Promise<PaginatedResult<Order>> {
+    const { limit = 10, offset = 0 } = filters;
+
+    const qb = this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.customer', 'customer')
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.product', 'product');
+
+    if (filters.status) {
+      qb.andWhere('order.status = :status', { status: filters.status });
+    }
+
+    if (filters.customerId) {
+      qb.andWhere('order.customerId = :customerId', {
+        customerId: filters.customerId,
+      });
+    }
+
+    if (filters.startDate) {
+      qb.andWhere('order.createdAt >= :startDate', {
+        startDate: filters.startDate,
+      });
+    }
+
+    if (filters.endDate) {
+      qb.andWhere('order.createdAt <= :endDate', {
+        endDate: filters.endDate,
+      });
+    }
+
+    qb.orderBy('order.createdAt', 'DESC').take(limit).skip(offset);
+
+    const [data, total] = await qb.getManyAndCount();
+
     return { data, total, limit, offset };
+  }
+
+  async findMyOrders(
+    customerId: number,
+    pagination: PaginationDto,
+  ): Promise<PaginatedResult<Order>> {
+    const { limit = 10, offset = 0 } = pagination;
+
+    const [data, total] = await this.orderRepository
+      .createQueryBuilder('order')
+      .leftJoinAndSelect('order.customer', 'customer')
+      .leftJoinAndSelect('order.items', 'items')
+      .leftJoinAndSelect('items.product', 'product')
+      .where('order.customerId = :customerId', { customerId })
+      .orderBy('order.createdAt', 'DESC')
+      .take(limit)
+      .skip(offset)
+      .getManyAndCount();
+
+    return { data, total, limit, offset };
+  }
+
+  async updateStatus(orderId: number, newStatus: OrderStatus): Promise<Order> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const order = await queryRunner.manager
+        .createQueryBuilder(Order, 'order')
+        .setLock('pessimistic_write')
+        .leftJoinAndSelect('order.items', 'items')
+        .where('order.id = :id', { id: orderId })
+        .getOne();
+
+      if (!order) {
+        throw new NotFoundException(`Order with ID ${orderId} not found`);
+      }
+
+      if (order.status === newStatus) {
+        throw new BadRequestException(
+          `Order is already in status ${newStatus}`,
+        );
+      }
+
+      const allowedTransitions = VALID_TRANSITIONS.get(order.status);
+
+      if (!allowedTransitions?.includes(newStatus)) {
+        throw new BadRequestException(
+          `Invalid status transition: ${order.status} → ${newStatus}`,
+        );
+      }
+
+      if (newStatus === OrderStatus.CANCELLED) {
+        await this.restoreStock(queryRunner, order.items);
+      }
+
+      order.status = newStatus;
+      const savedOrder = await queryRunner.manager.save(Order, order);
+      await queryRunner.commitTransaction();
+
+      return savedOrder;
+    } catch (error: unknown) {
+      await queryRunner.rollbackTransaction();
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        'Error processing status update transaction',
+      );
+    } finally {
+      await queryRunner.release();
+    }
   }
 
   async findOne(id: number): Promise<Order> {
     const order = await this.orderRepository.findOne({
       where: { id },
-      relations: ['items'],
+      relations: ['items', 'items.product', 'customer'],
     });
 
     if (!order) {
@@ -230,34 +353,7 @@ export class OrdersService {
         throw new BadRequestException('El pedido ya se encuentra cancelado.');
       }
 
-      const productQuantities = new Map<number, number>();
-      for (const item of order.items) {
-        const currentQuantity = productQuantities.get(item.productId) || 0;
-        productQuantities.set(item.productId, currentQuantity + item.quantity);
-      }
-
-      const productIds = Array.from(productQuantities.keys()).sort(
-        (a, b) => a - b,
-      );
-
-      for (const productId of productIds) {
-        const quantity = productQuantities.get(productId);
-
-        const product = await queryRunner.manager
-          .createQueryBuilder(Product, 'product')
-          .setLock('pessimistic_write')
-          .where('product.id = :id', { id: productId })
-          .getOne();
-
-        if (!product) {
-          throw new NotFoundException(
-            `Producto con ID ${productId} no encontrado`,
-          );
-        }
-
-        product.stock += quantity!;
-        await queryRunner.manager.save(Product, product);
-      }
+      await this.restoreStock(queryRunner, order.items);
 
       order.status = OrderStatus.CANCELLED;
       await queryRunner.manager.save(Order, order);
@@ -273,6 +369,40 @@ export class OrdersService {
       );
     } finally {
       await queryRunner.release();
+    }
+  }
+
+  private async restoreStock(
+    queryRunner: QueryRunner,
+    items: OrderItem[],
+  ): Promise<void> {
+    const productQuantities = new Map<number, number>();
+    for (const item of items) {
+      const currentQuantity = productQuantities.get(item.productId) || 0;
+      productQuantities.set(item.productId, currentQuantity + item.quantity);
+    }
+
+    const productIds = Array.from(productQuantities.keys()).sort(
+      (a, b) => a - b,
+    );
+
+    for (const productId of productIds) {
+      const quantity = productQuantities.get(productId) ?? 0;
+
+      const product = await queryRunner.manager
+        .createQueryBuilder(Product, 'product')
+        .setLock('pessimistic_write')
+        .where('product.id = :id', { id: productId })
+        .getOne();
+
+      if (!product) {
+        throw new NotFoundException(
+          `Producto con ID ${productId} no encontrado durante restauración de stock`,
+        );
+      }
+
+      product.stock += quantity;
+      await queryRunner.manager.save(Product, product);
     }
   }
 }

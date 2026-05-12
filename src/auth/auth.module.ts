@@ -10,9 +10,13 @@ import config from '../config';
 import { ModulesGuard } from './guards/modules.guard.guard';
 import { JwtAuthGuard } from './guards/auth.guard';
 import { RolesGuard } from './guards/roles.guard';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { User } from '../users/entities/user.entity';
+import { Role } from '../roles/entities/role.entity';
 
 @Module({
   imports: [
+    TypeOrmModule.forFeature([User, Role]),
     UsersModule,
     PassportModule,
     JwtModule.registerAsync({

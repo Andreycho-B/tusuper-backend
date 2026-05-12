@@ -5,6 +5,7 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
+import { AuthenticatedRequest } from '../../common/interfaces/authenticated-request.interface';
 
 @Injectable()
 export class ModulesGuard implements CanActivate {
@@ -14,16 +15,10 @@ export class ModulesGuard implements CanActivate {
     const requiredModules =
       this.reflector.get<string[]>('modules', context.getHandler()) ||
       this.reflector.get<string[]>('modules', context.getClass());
+
     if (!requiredModules || requiredModules.length === 0) return true;
 
-    interface RequestUser {
-      roles?: { modules?: { name: string }[] }[];
-    }
-    interface AuthorizedRequest {
-      user?: RequestUser;
-    }
-
-    const request = context.switchToHttp().getRequest<AuthorizedRequest>();
+    const request = context.switchToHttp().getRequest<AuthenticatedRequest>();
     const user = request.user;
 
     if (!user?.roles?.length) {

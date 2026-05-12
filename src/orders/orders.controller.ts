@@ -10,6 +10,7 @@ import {
   Query,
   Req,
   UseGuards,
+  ForbiddenException,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -103,8 +104,19 @@ export class OrdersController {
     type: Order,
   })
   @ApiResponse({ status: 404, description: 'Order not found.' })
-  findOne(@Param('id', ParseIntPipe) id: number): Promise<Order> {
-    return this.ordersService.findOne(id);
+  async findOne(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<Order> {
+    const order = await this.ordersService.findOne(id);
+    const isStaff = req.user.roles.some(
+      (r) => r.name === 'ADMIN' || r.name === 'TENDERO',
+    );
+
+    if (!isStaff && order.customer.id !== req.user.userId) {
+      throw new ForbiddenException('No tienes permiso para ver este pedido');
+    }
+    return order;
   }
 
   @Patch(':id/status')
@@ -127,6 +139,8 @@ export class OrdersController {
   }
 
   @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles('ADMIN')
   @ApiOperation({
     summary: 'Cancel a specific order (Soft Cancel + Stock Restore)',
   })

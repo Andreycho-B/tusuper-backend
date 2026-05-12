@@ -20,15 +20,14 @@ import {
 import { CategoriesService } from '../services/categories.service';
 import { CreateCategoryDto, UpdateCategoryDto } from '../dtos/category.dto';
 import { JwtAuthGuard } from '../../auth/guards/auth.guard';
-import { ModulesGuard } from '../../auth/guards/modules.guard.guard';
+import { ModulesGuard } from '../../auth/guards/modules.guard';
 import { Modules } from '../../auth/decorators/modules.decorator';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Roles } from '../../auth/decorators/roles.decorator';
 import { Category } from '../entities/category.entity';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
 import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
-@ApiBearerAuth()
-@Modules('inventory')
-@UseGuards(JwtAuthGuard, ModulesGuard)
 @ApiTags('Inventory - Categories')
 @Controller('inventory/categories')
 export class CategoriesController {
@@ -56,6 +55,10 @@ export class CategoriesController {
   }
 
   @Post()
+  @ApiBearerAuth()
+  @Modules('inventory')
+  @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Create a new category' })
   @ApiResponse({
     status: 201,
@@ -69,6 +72,10 @@ export class CategoriesController {
   }
 
   @Patch(':id')
+  @ApiBearerAuth()
+  @Modules('inventory')
+  @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Update a category by ID' })
   @ApiResponse({
     status: 200,
@@ -85,6 +92,10 @@ export class CategoriesController {
 
   @Delete(':id')
   @HttpCode(204)
+  @ApiBearerAuth()
+  @Modules('inventory')
+  @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Delete a category by ID' })
   @ApiResponse({ status: 204, description: 'Category deleted successfully' })
   @ApiResponse({ status: 404, description: 'Category not found' })

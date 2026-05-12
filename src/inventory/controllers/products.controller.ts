@@ -21,7 +21,7 @@ import { Throttle } from '@nestjs/throttler';
 import { ProductsService } from '../services/products.service';
 import { CreateProductDto, UpdateProductDto } from '../dtos/product.dto';
 import { JwtAuthGuard } from '../../auth/guards/auth.guard';
-import { ModulesGuard } from '../../auth/guards/modules.guard.guard';
+import { ModulesGuard } from '../../auth/guards/modules.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Modules } from '../../auth/decorators/modules.decorator';
 import { Roles } from '../../auth/decorators/roles.decorator';

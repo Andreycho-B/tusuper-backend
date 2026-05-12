@@ -1,4 +1,10 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  Matches,
+} from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 
 export class CreateProviderDto {
@@ -9,9 +15,10 @@ export class CreateProviderDto {
 
   @IsString()
   @IsOptional()
+  @Matches(/^[0-9]{10}$/, { message: 'Phone must be a valid 10-digit number' })
   @ApiProperty({
     description: 'Contact phone number',
-    example: '+57 300 123 4567',
+    example: '3001234567',
     required: false,
   })
   readonly phone?: string;

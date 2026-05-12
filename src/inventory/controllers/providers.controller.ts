@@ -20,15 +20,14 @@ import {
 import { ProvidersService } from '../services/providers.service';
 import { CreateProviderDto, UpdateProviderDto } from '../dtos/provider.dto';
 import { JwtAuthGuard } from '../../auth/guards/auth.guard';
-import { ModulesGuard } from '../../auth/guards/modules.guard.guard';
+import { ModulesGuard } from '../../auth/guards/modules.guard';
 import { Modules } from '../../auth/decorators/modules.decorator';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Roles } from '../../auth/decorators/roles.decorator';
 import { Provider } from '../entities/provider.entity';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
 import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
-@ApiBearerAuth()
-@Modules('inventory')
-@UseGuards(JwtAuthGuard, ModulesGuard)
 @ApiTags('Inventory - Providers')
 @Controller('inventory/providers')
 export class ProvidersController {
@@ -52,6 +51,10 @@ export class ProvidersController {
   }
 
   @Post()
+  @ApiBearerAuth()
+  @Modules('inventory')
+  @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Create a new provider' })
   @ApiResponse({ status: 201, description: 'Provider created successfully' })
   async create(
@@ -61,6 +64,10 @@ export class ProvidersController {
   }
 
   @Patch(':id')
+  @ApiBearerAuth()
+  @Modules('inventory')
+  @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Update a provider by ID' })
   @ApiResponse({ status: 200, description: 'Provider updated successfully' })
   @ApiResponse({ status: 404, description: 'Provider not found' })
@@ -73,6 +80,10 @@ export class ProvidersController {
 
   @Delete(':id')
   @HttpCode(204)
+  @ApiBearerAuth()
+  @Modules('inventory')
+  @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
+  @Roles('ADMIN')
   @ApiOperation({ summary: 'Delete a provider by ID' })
   @ApiResponse({ status: 204, description: 'Provider deleted successfully' })
   @ApiResponse({ status: 404, description: 'Provider not found' })

@@ -31,7 +31,7 @@ import { PaginatedResult } from '../../common/interfaces/paginated-result.interf
 @ApiTags('Inventory - Categories')
 @Controller('inventory/categories')
 export class CategoriesController {
-  constructor(private readonly categoriesService: CategoriesService) {}
+  constructor(private readonly categoriesService: CategoriesService) { }
 
   @Get()
   @ApiOperation({ summary: 'Get all categories' })
@@ -56,7 +56,7 @@ export class CategoriesController {
 
   @Post()
   @ApiBearerAuth()
-  @Modules('inventory')
+  @Modules('category')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Create a new category' })
@@ -73,7 +73,7 @@ export class CategoriesController {
 
   @Patch(':id')
   @ApiBearerAuth()
-  @Modules('inventory')
+  @Modules('category')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Update a category by ID' })
@@ -93,7 +93,7 @@ export class CategoriesController {
   @Delete(':id')
   @HttpCode(204)
   @ApiBearerAuth()
-  @Modules('inventory')
+  @Modules('category')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Delete a category by ID' })

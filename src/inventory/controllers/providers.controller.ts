@@ -31,7 +31,7 @@ import { PaginatedResult } from '../../common/interfaces/paginated-result.interf
 @ApiTags('Inventory - Providers')
 @Controller('inventory/providers')
 export class ProvidersController {
-  constructor(private readonly providersService: ProvidersService) {}
+  constructor(private readonly providersService: ProvidersService) { }
 
   @Get()
   @ApiOperation({ summary: 'Get all providers' })
@@ -52,7 +52,7 @@ export class ProvidersController {
 
   @Post()
   @ApiBearerAuth()
-  @Modules('inventory')
+  @Modules('provider')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Create a new provider' })
@@ -65,7 +65,7 @@ export class ProvidersController {
 
   @Patch(':id')
   @ApiBearerAuth()
-  @Modules('inventory')
+  @Modules('provider')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Update a provider by ID' })
@@ -81,7 +81,7 @@ export class ProvidersController {
   @Delete(':id')
   @HttpCode(204)
   @ApiBearerAuth()
-  @Modules('inventory')
+  @Modules('provider')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @Roles('ADMIN')
   @ApiOperation({ summary: 'Delete a provider by ID' })

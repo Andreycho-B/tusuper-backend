@@ -32,7 +32,7 @@ import { PaginatedResult } from '../../common/interfaces/paginated-result.interf
 @ApiTags('Inventory - Products')
 @Controller('inventory/products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(private readonly productsService: ProductsService) { }
 
   // ── PUBLIC ENDPOINTS (no auth required) ────────────────────────────
 
@@ -62,7 +62,7 @@ export class ProductsController {
 
   @Post()
   @ApiBearerAuth()
-  @Modules('inventory')
+  @Modules('product')
   @Roles('TENDERO', 'ADMIN')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @ApiOperation({ summary: 'Create a new product' })
@@ -77,7 +77,7 @@ export class ProductsController {
 
   @Patch(':id')
   @ApiBearerAuth()
-  @Modules('inventory')
+  @Modules('product')
   @Roles('TENDERO', 'ADMIN')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @ApiOperation({ summary: 'Update a product by ID' })
@@ -96,7 +96,7 @@ export class ProductsController {
 
   @Delete(':id')
   @ApiBearerAuth()
-  @Modules('inventory')
+  @Modules('product')
   @Roles('TENDERO', 'ADMIN')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @HttpCode(204)

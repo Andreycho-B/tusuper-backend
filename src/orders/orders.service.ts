@@ -5,6 +5,7 @@ import {
   InternalServerErrorException,
   HttpException,
 } from '@nestjs/common';
+import { NotificationsService } from '../notifications/notifications.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, QueryRunner } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -51,6 +52,7 @@ export class OrdersService {
     @InjectRepository(Product)
     private readonly productRepository: Repository<Product>,
     private readonly dataSource: DataSource,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async checkout(customerId: number, dto: CheckoutDto): Promise<Order> {
@@ -104,6 +106,10 @@ export class OrdersService {
 
       const savedOrder = await queryRunner.manager.save(Order, order);
       await queryRunner.commitTransaction();
+
+      // Notificar a Admin/Tendero
+      const finalOrder = await this.findOne(savedOrder.id);
+      this.notificationsService.notifyNewOrder(finalOrder);
 
       return savedOrder;
     } catch (error: unknown) {
@@ -194,6 +200,11 @@ export class OrdersService {
 
       const savedOrder = await queryRunner.manager.save(Order, order);
       await queryRunner.commitTransaction();
+
+      // Notificar a Admin/Tendero
+      savedOrder.customer = user;
+      this.notificationsService.notifyNewOrder(savedOrder);
+
       return savedOrder;
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
@@ -304,6 +315,12 @@ export class OrdersService {
       order.status = newStatus;
       const savedOrder = await queryRunner.manager.save(Order, order);
       await queryRunner.commitTransaction();
+
+      // Notificar al cliente sobre el cambio de estado
+      this.notificationsService.notifyOrderStatusChanged(
+        savedOrder,
+        savedOrder.customerId,
+      );
 
       return savedOrder;
     } catch (error: unknown) {

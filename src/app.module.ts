@@ -15,6 +15,7 @@ import { ModulesModule } from './modules/modules.module';
 import config from './config';
 import { OrdersModule } from './orders/orders.module';
 import { InventoryModule } from './inventory/inventory.module';
+import { NotificationsModule } from './notifications/notifications.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { InventoryModule } from './inventory/inventory.module';
     ModulesModule,
     OrdersModule,
     InventoryModule,
+    NotificationsModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60000,

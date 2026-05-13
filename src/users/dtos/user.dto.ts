@@ -67,3 +67,41 @@ export class CreateUserDto {
 }
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {}
+
+export class UpdateProfileDto {
+  @ApiPropertyOptional({ example: 'Juan', description: 'Nombre' })
+  @IsString()
+  @IsOptional()
+  readonly firstName?: string;
+
+  @ApiPropertyOptional({ example: 'Pérez', description: 'Apellido' })
+  @IsString()
+  @IsOptional()
+  readonly lastName?: string;
+
+  @ApiPropertyOptional({ example: 'Juancho', description: 'Alias' })
+  @IsString()
+  @IsOptional()
+  readonly displayName?: string;
+
+  @ApiPropertyOptional({
+    example: 'https://avatar.com/me.png',
+    description: 'URL de la foto',
+  })
+  @IsString()
+  @IsOptional()
+  readonly avatarUrl?: string;
+}
+
+export class UpdatePasswordDto {
+  @ApiProperty({ description: 'Contraseña actual' })
+  @IsString()
+  @IsNotEmpty()
+  readonly currentPassword: string;
+
+  @ApiProperty({ description: 'Nueva contraseña (mínimo 8 caracteres)' })
+  @IsString()
+  @IsNotEmpty()
+  @MinLength(8)
+  readonly newPassword: string;
+}

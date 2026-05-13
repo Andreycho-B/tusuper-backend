@@ -41,6 +41,12 @@ export class User {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  avatarUrl?: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  displayName?: string;
+
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({
     name: 'user_roles',

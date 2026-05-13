@@ -12,6 +12,7 @@ import { Role } from '../src/roles/entities/role.entity';
 import { Category } from '../src/inventory/entities/category.entity';
 import { Provider } from '../src/inventory/entities/provider.entity';
 import { JwtService } from '@nestjs/jwt';
+import { NotificationsService } from '../src/notifications/notifications.service';
 
 describe('OrdersController (e2e)', () => {
   let app: INestApplication;
@@ -27,11 +28,18 @@ describe('OrdersController (e2e)', () => {
   let testToken: string;
   let testUser: User;
   let testProduct: Product;
+  const mockNotificationsService = {
+    notifyNewOrder: jest.fn(),
+    notifyOrderStatusChanged: jest.fn(),
+  };
 
   beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
-    }).compile();
+    })
+      .overrideProvider(NotificationsService)
+      .useValue(mockNotificationsService)
+      .compile();
 
     app = moduleFixture.createNestApplication();
     app.useGlobalPipes(new ValidationPipe({ whitelist: true }));

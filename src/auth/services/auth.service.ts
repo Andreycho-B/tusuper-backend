@@ -106,7 +106,10 @@ export class AuthService {
   async forgotPassword(dto: ForgotPasswordDto) {
     const user = await this.userRepo.findOne({ where: { email: dto.email } });
     if (!user) {
-      return { message: 'Si el correo electrónico existe, recibirás instrucciones para restablecer tu contraseña.' };
+      return {
+        message:
+          'Si el correo electrónico existe, recibirás instrucciones para restablecer tu contraseña.',
+      };
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
@@ -114,12 +117,19 @@ export class AuthService {
 
     user.resetPasswordToken = hash;
     user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
-    
+
     await this.userRepo.save(user);
 
-    await this.mailService.sendPasswordResetEmail(user.email, resetToken, user.firstName || 'Usuario');
+    await this.mailService.sendPasswordResetEmail(
+      user.email,
+      resetToken,
+      user.firstName || 'Usuario',
+    );
 
-    return { message: 'Si el correo electrónico existe, recibirás instrucciones para restablecer tu contraseña.' };
+    return {
+      message:
+        'Si el correo electrónico existe, recibirás instrucciones para restablecer tu contraseña.',
+    };
   }
 
   async validateResetToken(token: string) {
@@ -129,7 +139,11 @@ export class AuthService {
       where: { resetPasswordToken: hash },
     });
 
-    if (!user || !user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
+    if (
+      !user ||
+      !user.resetPasswordExpires ||
+      user.resetPasswordExpires < new Date()
+    ) {
       return { valid: false };
     }
 
@@ -143,7 +157,11 @@ export class AuthService {
       where: { resetPasswordToken: hash },
     });
 
-    if (!user || !user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
+    if (
+      !user ||
+      !user.resetPasswordExpires ||
+      user.resetPasswordExpires < new Date()
+    ) {
       throw new BadRequestException('El token es inválido o ha expirado');
     }
 

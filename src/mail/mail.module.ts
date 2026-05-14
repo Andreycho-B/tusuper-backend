@@ -15,7 +15,7 @@ import { join } from 'path';
         transport: {
           host: configType.mail.host,
           port: configType.mail.port,
-          secure: false, // true para 465, false para los demás
+          secure: Number(configType.mail.port) === 465, // true for 465, false for 587/2525
           auth: {
             user: configType.mail.user,
             pass: configType.mail.password,

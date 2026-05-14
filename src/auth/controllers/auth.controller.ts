@@ -71,7 +71,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Solicitar recuperación de contraseña' })
   @ApiBody({ type: ForgotPasswordDto })
-  @ApiResponse({ status: 200, description: 'Respuesta genérica para prevenir enumeración.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Respuesta genérica para prevenir enumeración.',
+  })
   async forgotPassword(@Body() body: ForgotPasswordDto) {
     return this.authService.forgotPassword(body);
   }
@@ -81,7 +84,10 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Validar token de recuperación' })
   @ApiBody({ type: ValidateResetTokenDto })
-  @ApiResponse({ status: 200, description: 'Devuelve validación booleana del token.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Devuelve validación booleana del token.',
+  })
   async validateResetToken(@Body() body: ValidateResetTokenDto) {
     return this.authService.validateResetToken(body.token);
   }

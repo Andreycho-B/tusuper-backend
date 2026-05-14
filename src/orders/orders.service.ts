@@ -283,12 +283,10 @@ export class OrdersService {
     await queryRunner.startTransaction();
 
     try {
-      const order = await queryRunner.manager
-        .createQueryBuilder(Order, 'order')
-        .setLock('pessimistic_write')
-        .leftJoinAndSelect('order.items', 'items')
-        .where('order.id = :id', { id: orderId })
-        .getOne();
+      const order = await queryRunner.manager.findOne(Order, {
+        where: { id: orderId },
+        lock: { mode: 'pessimistic_write' },
+      });
 
       if (!order) {
         throw new NotFoundException(`Order with ID ${orderId} not found`);
@@ -312,20 +310,24 @@ export class OrdersService {
       */
 
       if (newStatus === OrderStatus.CANCELLED) {
-        await this.restoreStock(queryRunner, order.items);
+        const items = await queryRunner.manager.find(OrderItem, {
+          where: { orderId: order.id },
+        });
+        await this.restoreStock(queryRunner, items);
       }
 
       order.status = newStatus;
       const savedOrder = await queryRunner.manager.save(Order, order);
       await queryRunner.commitTransaction();
 
-      // Notificar al cliente sobre el cambio de estado
+      // Notificar al cliente sobre el cambio de estado (fuera de la transacción de bloqueo)
+      const enrichedOrder = await this.findOne(order.id);
       this.notificationsService.notifyOrderStatusChanged(
-        savedOrder,
-        savedOrder.customerId,
+        enrichedOrder,
+        enrichedOrder.customerId,
       );
 
-      return savedOrder;
+      return enrichedOrder;
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
       console.error(

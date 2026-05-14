@@ -63,7 +63,7 @@ export class ProductsController {
   @Post()
   @ApiBearerAuth()
   @Modules('product')
-  @Roles('TENDERO', 'ADMIN')
+  @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @ApiOperation({ summary: 'Create a new product' })
   @ApiResponse({
@@ -78,7 +78,7 @@ export class ProductsController {
   @Patch(':id')
   @ApiBearerAuth()
   @Modules('product')
-  @Roles('TENDERO', 'ADMIN')
+  @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @ApiOperation({ summary: 'Update a product by ID' })
   @ApiResponse({
@@ -97,7 +97,7 @@ export class ProductsController {
   @Delete(':id')
   @ApiBearerAuth()
   @Modules('product')
-  @Roles('TENDERO', 'ADMIN')
+  @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @HttpCode(204)
   @ApiOperation({ summary: 'Deactivate a product by ID' })

@@ -41,6 +41,18 @@ export class User {
   @UpdateDateColumn({ type: 'timestamp' })
   updatedAt: Date;
 
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  avatarUrl?: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  displayName?: string;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  resetPasswordToken: string | null;
+
+  @Column({ type: 'timestamp', nullable: true })
+  resetPasswordExpires: Date | null;
+
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({
     name: 'user_roles',

@@ -3,7 +3,7 @@ import { ModulesService } from './modules.service';
 import { CreateModuleDto } from './dtos/create-module.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
-import { ModulesGuard } from '../auth/guards/modules.guard.guard';
+import { ModulesGuard } from '../auth/guards/modules.guard';
 import { Modules } from '../auth/decorators/modules.decorator';
 import { ModuleEntity } from './entities/module.entity';
 import { PaginationDto } from '../common/dtos/pagination.dto';

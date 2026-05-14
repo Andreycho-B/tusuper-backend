@@ -19,7 +19,7 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { Modules } from '../../../auth/decorators/modules.decorator';
-import { ModulesGuard } from '../../../auth/guards/modules.guard.guard';
+import { ModulesGuard } from '../../../auth/guards/modules.guard';
 import { JwtAuthGuard } from '../../../auth/guards/auth.guard';
 import { CreateUserDto, UpdateUserDto } from '../../dtos/user.dto';
 import { UsersService } from '../../services/users/users.service';

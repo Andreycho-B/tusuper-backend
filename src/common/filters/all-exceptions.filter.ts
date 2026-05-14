@@ -27,6 +27,23 @@ export class AllExceptionsFilter implements ExceptionFilter {
         typeof exceptionResponse === 'string'
           ? { message: exceptionResponse }
           : exceptionResponse;
+
+      if (
+        status === (HttpStatus.UNAUTHORIZED as number) &&
+        typeof message === 'object' &&
+        message !== null
+      ) {
+        const msgObj = message as Record<string, unknown>;
+        message = {
+          statusCode: status,
+          message:
+            typeof msgObj.message === 'string'
+              ? msgObj.message
+              : 'Unauthorized',
+          error:
+            typeof msgObj.error === 'string' ? msgObj.error : 'Unauthorized',
+        };
+      }
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
       message = {

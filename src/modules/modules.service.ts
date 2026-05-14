@@ -10,7 +10,7 @@ import { PaginatedResult } from '../common/interfaces/paginated-result.interface
 export class ModulesService {
   constructor(
     @InjectRepository(ModuleEntity)
-    private moduleRepository: Repository<ModuleEntity>,
+    private readonly moduleRepository: Repository<ModuleEntity>,
   ) {}
 
   async findByIds(ids: number[]): Promise<ModuleEntity[]> {

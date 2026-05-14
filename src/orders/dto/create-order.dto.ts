@@ -40,7 +40,7 @@ export class CreateOrderDto {
 
   @ApiPropertyOptional({
     description: 'Amount of change needed if paying with cash',
-    example: 50.0,
+    example: 50,
   })
   @IsOptional()
   @IsNumber()
@@ -49,7 +49,7 @@ export class CreateOrderDto {
 
   @ApiPropertyOptional({
     description: 'Delivery fee',
-    example: 5.0,
+    example: 5,
     default: 0,
   })
   @IsOptional()

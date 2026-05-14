@@ -6,6 +6,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Order } from './order.entity';
+import { Product } from '../../inventory/entities/product.entity';
 
 @Entity('order_items')
 export class OrderItem {
@@ -18,6 +19,10 @@ export class OrderItem {
 
   @Column({ name: 'product_id', type: 'int' })
   productId: number;
+
+  @ManyToOne(() => Product, { eager: false })
+  @JoinColumn({ name: 'product_id' })
+  product: Product;
 
   @Column({ type: 'int' })
   quantity: number;

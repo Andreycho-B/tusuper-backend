@@ -6,7 +6,12 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../entities/user.entity';
-import { CreateUserDto, UpdateUserDto } from '../../dtos/user.dto';
+import {
+  CreateUserDto,
+  UpdateUserDto,
+  UpdateProfileDto,
+  UpdatePasswordDto,
+} from '../../dtos/user.dto';
 import { RolesService } from '../../../roles/services/roles.service';
 import { PaginationDto } from '../../../common/dtos/pagination.dto';
 import { PaginatedResult } from '../../../common/interfaces/paginated-result.interface';
@@ -128,6 +133,44 @@ export class UsersService {
     this.userRepo.merge(user, userData);
 
     return this.userRepo.save(user);
+  }
+
+  async updateProfile(
+    userId: number,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<User> {
+    const user = await this.findOne(userId);
+    this.userRepo.merge(user, updateProfileDto);
+    return this.userRepo.save(user);
+  }
+
+  async updatePassword(
+    userId: number,
+    updatePasswordDto: UpdatePasswordDto,
+  ): Promise<void> {
+    const { currentPassword, newPassword } = updatePasswordDto;
+
+    const user = await this.userRepo
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.id = :id', { id: userId })
+      .getOne();
+
+    if (!user) {
+      throw new NotFoundException(`Usuario #${userId} no encontrado`);
+    }
+
+    const isPasswordValid = await bcrypt.compare(
+      currentPassword,
+      user.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new ConflictException('La contraseña actual es incorrecta');
+    }
+
+    user.password = await bcrypt.hash(newPassword, 10);
+    await this.userRepo.save(user);
   }
 
   async remove(userId: number): Promise<User> {

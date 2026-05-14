@@ -300,6 +300,8 @@ export class OrdersService {
         );
       }
 
+      // La validación de transiciones se flexibiliza para permitir gestión total desde el panel administrativo
+      /*
       const allowedTransitions = VALID_TRANSITIONS.get(order.status);
 
       if (!allowedTransitions?.includes(newStatus)) {
@@ -307,6 +309,7 @@ export class OrdersService {
           `Invalid status transition: ${order.status} → ${newStatus}`,
         );
       }
+      */
 
       if (newStatus === OrderStatus.CANCELLED) {
         await this.restoreStock(queryRunner, order.items);
@@ -325,6 +328,10 @@ export class OrdersService {
       return savedOrder;
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
+      console.error(
+        '[OrdersService.updateStatus] Error updating status:',
+        error,
+      );
       if (error instanceof HttpException) {
         throw error;
       }

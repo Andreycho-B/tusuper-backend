@@ -24,6 +24,13 @@ export class NotificationsService {
   }
 
   notifyOrderStatusChanged(order: Order, userId: number): void {
+    if (!this.gateway.server) {
+      console.warn(
+        `[NotificationsService] Gateway server not initialized. Skipping notification for order ${order.id}.`,
+      );
+      return;
+    }
+
     const payload: OrderStatusPayload = {
       orderId: order.id,
       newStatus: order.status,

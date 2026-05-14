@@ -4,8 +4,7 @@ import { MailService } from './mail.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigType } from '@nestjs/config';
 import config from '../config';
-// @ts-ignore
-import { HandlebarsAdapter } from '@nestjs-modules/mailer/dist/adapters/handlebars.adapter';
+import { HandlebarsAdapter } from '@nestjs-modules/mailer/adapters/handlebars.adapter';
 import { join } from 'path';
 
 @Module({

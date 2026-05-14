@@ -53,7 +53,7 @@ export class OrdersService {
     private readonly productRepository: Repository<Product>,
     private readonly dataSource: DataSource,
     private readonly notificationsService: NotificationsService,
-  ) {}
+  ) { }
 
   async checkout(customerId: number, dto: CheckoutDto): Promise<Order> {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -311,7 +311,7 @@ export class OrdersService {
 
       if (newStatus === OrderStatus.CANCELLED) {
         const items = await queryRunner.manager.find(OrderItem, {
-          where: { orderId: order.id },
+          where: { order: order },
         });
         await this.restoreStock(queryRunner, items);
       }

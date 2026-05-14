@@ -18,6 +18,9 @@ import {
 import { Throttle } from '@nestjs/throttler';
 import { LoginDto } from '../dtos/login.dto';
 import { RegisterDto } from '../dtos/register.dto';
+import { ForgotPasswordDto } from '../dtos/forgot-password.dto';
+import { ResetPasswordDto } from '../dtos/reset-password.dto';
+import { ValidateResetTokenDto } from '../dtos/validate-reset-token.dto';
 import { AuthService } from '../services/auth.service';
 import { JwtAuthGuard } from '../guards/auth.guard';
 
@@ -61,6 +64,37 @@ export class AuthController {
   @ApiResponse({ status: 409, description: 'El email ya está registrado.' })
   async register(@Body() body: RegisterDto) {
     return this.authService.register(body);
+  }
+
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Solicitar recuperación de contraseña' })
+  @ApiBody({ type: ForgotPasswordDto })
+  @ApiResponse({ status: 200, description: 'Respuesta genérica para prevenir enumeración.' })
+  async forgotPassword(@Body() body: ForgotPasswordDto) {
+    return this.authService.forgotPassword(body);
+  }
+
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @Post('validate-reset-token')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Validar token de recuperación' })
+  @ApiBody({ type: ValidateResetTokenDto })
+  @ApiResponse({ status: 200, description: 'Devuelve validación booleana del token.' })
+  async validateResetToken(@Body() body: ValidateResetTokenDto) {
+    return this.authService.validateResetToken(body.token);
+  }
+
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Restablecer contraseña con token' })
+  @ApiBody({ type: ResetPasswordDto })
+  @ApiResponse({ status: 200, description: 'Contraseña actualizada.' })
+  @ApiResponse({ status: 400, description: 'Token inválido o expirado.' })
+  async resetPassword(@Body() body: ResetPasswordDto) {
+    return this.authService.resetPassword(body);
   }
 
   @UseGuards(JwtAuthGuard)

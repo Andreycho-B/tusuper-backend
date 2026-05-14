@@ -13,12 +13,17 @@ import {
   InternalServerErrorException,
   BadRequestException,
 } from '@nestjs/common';
+import * as crypto from 'crypto';
+import { MailService } from '../../mail/mail.service';
+import { ForgotPasswordDto } from '../dtos/forgot-password.dto';
+import { ResetPasswordDto } from '../dtos/reset-password.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
+    private readonly mailService: MailService,
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(Role) private readonly roleRepo: Repository<Role>,
   ) {}
@@ -96,5 +101,58 @@ export class AuthService {
     const { password: _, ...result } = user;
 
     return this.login(result as UserModel);
+  }
+
+  async forgotPassword(dto: ForgotPasswordDto) {
+    const user = await this.userRepo.findOne({ where: { email: dto.email } });
+    if (!user) {
+      return { message: 'Si el correo electrónico existe, recibirás instrucciones para restablecer tu contraseña.' };
+    }
+
+    const resetToken = crypto.randomBytes(32).toString('hex');
+    const hash = crypto.createHash('sha256').update(resetToken).digest('hex');
+
+    user.resetPasswordToken = hash;
+    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+    
+    await this.userRepo.save(user);
+
+    await this.mailService.sendPasswordResetEmail(user.email, resetToken, user.firstName || 'Usuario');
+
+    return { message: 'Si el correo electrónico existe, recibirás instrucciones para restablecer tu contraseña.' };
+  }
+
+  async validateResetToken(token: string) {
+    const hash = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await this.userRepo.findOne({
+      where: { resetPasswordToken: hash },
+    });
+
+    if (!user || !user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
+      return { valid: false };
+    }
+
+    return { valid: true };
+  }
+
+  async resetPassword(dto: ResetPasswordDto) {
+    const hash = crypto.createHash('sha256').update(dto.token).digest('hex');
+
+    const user = await this.userRepo.findOne({
+      where: { resetPasswordToken: hash },
+    });
+
+    if (!user || !user.resetPasswordExpires || user.resetPasswordExpires < new Date()) {
+      throw new BadRequestException('El token es inválido o ha expirado');
+    }
+
+    user.password = await bcrypt.hash(dto.newPassword, 10);
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+
+    await this.userRepo.save(user);
+
+    return { message: 'Contraseña actualizada exitosamente' };
   }
 }

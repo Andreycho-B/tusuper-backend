@@ -13,6 +13,13 @@ export default registerAs('config', () => {
       password: process.env.POSTGRES_PASSWORD,
       host: process.env.POSTGRES_HOST,
     },
+    mail: {
+      host: process.env.MAIL_HOST,
+      port: Number.parseInt(process.env.MAIL_PORT || '587', 10),
+      user: process.env.MAIL_USER,
+      password: process.env.MAIL_PASSWORD,
+      from: process.env.MAIL_FROM,
+    },
     jwt: {
       secret: process.env.JWT_SECRET,
       expiresIn: Number.parseInt(process.env.JWT_EXPIRES_IN ?? '3600', 10),

@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { MailService } from './mail.service';
-// @ts-ignore
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigType } from '@nestjs/config';
 import config from '../config';

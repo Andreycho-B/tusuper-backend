@@ -53,6 +53,12 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   resetPasswordExpires: Date | null;
 
+  @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
+  googleId?: string;
+
+  @Column({ type: 'boolean', default: false })
+  isEmailVerified: boolean;
+
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({
     name: 'user_roles',

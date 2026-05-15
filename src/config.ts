@@ -24,5 +24,10 @@ export default registerAs('config', () => {
       secret: process.env.JWT_SECRET,
       expiresIn: Number.parseInt(process.env.JWT_EXPIRES_IN ?? '3600', 10),
     },
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackUrl: process.env.GOOGLE_CALLBACK_URL,
+    },
   };
 });

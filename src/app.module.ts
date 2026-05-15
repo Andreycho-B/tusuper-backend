@@ -16,6 +16,7 @@ import config from './config';
 import { OrdersModule } from './orders/orders.module';
 import { InventoryModule } from './inventory/inventory.module';
 import { NotificationsModule } from './notifications/notifications.module';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -34,6 +35,11 @@ import { NotificationsModule } from './notifications/notifications.module';
         POSTGRES_HOST: Joi.string().required(),
         JWT_SECRET: Joi.string().required(),
         JWT_EXPIRES_IN: Joi.number().required(),
+        MAIL_HOST: Joi.string().required(),
+        MAIL_PORT: Joi.number().required(),
+        MAIL_USER: Joi.string().required(),
+        MAIL_PASSWORD: Joi.string().required(),
+        MAIL_FROM: Joi.string().required(),
       }),
     }),
     DatabaseModule,
@@ -44,6 +50,7 @@ import { NotificationsModule } from './notifications/notifications.module';
     OrdersModule,
     InventoryModule,
     NotificationsModule,
+    MailModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60000,

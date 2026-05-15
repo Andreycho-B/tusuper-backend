@@ -53,7 +53,7 @@ export class OrdersService {
     private readonly productRepository: Repository<Product>,
     private readonly dataSource: DataSource,
     private readonly notificationsService: NotificationsService,
-  ) { }
+  ) {}
 
   async checkout(customerId: number, dto: CheckoutDto): Promise<Order> {
     const queryRunner = this.dataSource.createQueryRunner();

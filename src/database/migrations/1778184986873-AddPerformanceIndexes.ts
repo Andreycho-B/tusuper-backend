@@ -7,16 +7,14 @@ export class AddPerformanceIndexes1778184986873 implements MigrationInterface {
     await queryRunner.query(
       `ALTER TABLE "modules" DROP CONSTRAINT "UQ_8cd1abde4b70e59644c98668c06"`,
     );
-    await queryRunner.query(`ALTER TABLE "modules" DROP COLUMN "name"`);
     await queryRunner.query(
-      `ALTER TABLE "modules" ADD "name" character varying(255) NOT NULL`,
+      `ALTER TABLE "modules" ALTER COLUMN "name" TYPE character varying(255)`,
     );
     await queryRunner.query(
       `ALTER TABLE "modules" ADD CONSTRAINT "UQ_8cd1abde4b70e59644c98668c06" UNIQUE ("name")`,
     );
-    await queryRunner.query(`ALTER TABLE "modules" DROP COLUMN "description"`);
     await queryRunner.query(
-      `ALTER TABLE "modules" ADD "description" character varying(500)`,
+      `ALTER TABLE "modules" ALTER COLUMN "description" TYPE character varying(500)`,
     );
     await queryRunner.query(
       `CREATE INDEX "IDX_ORDER_CUSTOMER" ON "orders" ("customer_id") `,

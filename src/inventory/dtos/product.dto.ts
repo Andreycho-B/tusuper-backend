@@ -9,7 +9,10 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { PaginationDto } from '../../common/dtos/pagination.dto';
+
 
 export class CreateProductDto {
   @IsString()
@@ -64,3 +67,24 @@ export class CreateProductDto {
 }
 
 export class UpdateProductDto extends PartialType(CreateProductDto) {}
+
+export class ProductQueryDto extends PaginationDto {
+  @ApiPropertyOptional({
+    description: 'Búsqueda por nombre o descripción del producto',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  readonly search?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filtrar por ID de categoría',
+    required: false,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  readonly categoryId?: number;
+}
+

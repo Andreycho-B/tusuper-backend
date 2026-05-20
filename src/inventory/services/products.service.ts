@@ -4,12 +4,11 @@ import {
   InternalServerErrorException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource } from 'typeorm';
+import { Repository, DataSource, ILike, FindOptionsWhere } from 'typeorm';
 import { Product } from '../entities/product.entity';
-import { CreateProductDto, UpdateProductDto } from '../dtos/product.dto';
+import { CreateProductDto, UpdateProductDto, ProductQueryDto } from '../dtos/product.dto';
 import { Category } from '../entities/category.entity';
 import { Provider } from '../entities/provider.entity';
-import { PaginationDto } from '../../common/dtos/pagination.dto';
 import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
 @Injectable()
@@ -24,14 +23,39 @@ export class ProductsService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async findAll(pagination: PaginationDto): Promise<PaginatedResult<Product>> {
-    const { limit = 10, offset = 0 } = pagination;
-    const [data, total] = await this.productRepo.findAndCount({
-      where: {
+  async findAll(query: ProductQueryDto): Promise<PaginatedResult<Product>> {
+    const { limit = 10, offset = 0, search, categoryId } = query;
+
+    const baseWhere: FindOptionsWhere<Product> = {
+      isActive: true,
+      category: { isActive: true },
+      provider: { isActive: true },
+    };
+
+    if (categoryId) {
+      baseWhere.category = {
         isActive: true,
-        category: { isActive: true },
-        provider: { isActive: true },
-      },
+        id: categoryId,
+      };
+    }
+
+    let where: FindOptionsWhere<Product> | FindOptionsWhere<Product>[] = baseWhere;
+
+    if (search) {
+      where = [
+        {
+          ...baseWhere,
+          name: ILike(`%${search}%`),
+        },
+        {
+          ...baseWhere,
+          description: ILike(`%${search}%`),
+        },
+      ];
+    }
+
+    const [data, total] = await this.productRepo.findAndCount({
+      where,
       relations: ['category', 'provider'],
       take: limit,
       skip: offset,

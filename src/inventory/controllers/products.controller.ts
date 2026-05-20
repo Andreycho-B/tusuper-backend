@@ -19,14 +19,14 @@ import {
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { ProductsService } from '../services/products.service';
-import { CreateProductDto, UpdateProductDto } from '../dtos/product.dto';
+import { CreateProductDto, UpdateProductDto, ProductQueryDto } from '../dtos/product.dto';
 import { JwtAuthGuard } from '../../auth/guards/auth.guard';
 import { ModulesGuard } from '../../auth/guards/modules.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Modules } from '../../auth/decorators/modules.decorator';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Product } from '../entities/product.entity';
-import { PaginationDto } from '../../common/dtos/pagination.dto';
+
 import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
 @ApiTags('Inventory - Products')
@@ -45,9 +45,9 @@ export class ProductsController {
     type: [Product],
   })
   async findAll(
-    @Query() pagination: PaginationDto,
+    @Query() query: ProductQueryDto,
   ): Promise<PaginatedResult<Product>> {
-    return this.productsService.findAll(pagination);
+    return this.productsService.findAll(query);
   }
 
   @Get(':id')

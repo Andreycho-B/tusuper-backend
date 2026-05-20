@@ -22,6 +22,14 @@ export class CreateProductDto {
 
   @IsString()
   @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Product barcode',
+    example: '7702001041407',
+  })
+  readonly barcode?: string;
+
+  @IsString()
+  @IsOptional()
   @ApiProperty({
     description: 'Product description',
     example: 'Leche entera pasteurizada de 1 litro',

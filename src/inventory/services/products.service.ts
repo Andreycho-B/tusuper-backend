@@ -83,6 +83,29 @@ export class ProductsService {
     return product;
   }
 
+  async findByBarcode(
+    barcode: string,
+    onlyActive: boolean = true,
+  ): Promise<Product> {
+    const product = await this.productRepo.findOne({
+      where: {
+        barcode,
+        ...(onlyActive
+          ? {
+              isActive: true,
+              category: { isActive: true },
+              provider: { isActive: true },
+            }
+          : {}),
+      },
+      relations: ['category', 'provider'],
+    });
+    if (!product) {
+      throw new NotFoundException(`Product with barcode #${barcode} not found`);
+    }
+    return product;
+  }
+
   async create(createProductDto: CreateProductDto): Promise<Product> {
     const { categoryId, providerId, ...productData } = createProductDto;
 

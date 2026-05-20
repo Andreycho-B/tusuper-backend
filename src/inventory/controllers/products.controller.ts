@@ -50,6 +50,14 @@ export class ProductsController {
     return this.productsService.findAll(query);
   }
 
+  @Get('barcode/:code')
+  @ApiOperation({ summary: 'Get product by barcode (public)' })
+  @ApiResponse({ status: 200, description: 'Product found', type: Product })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  async findByBarcode(@Param('code') code: string): Promise<Product> {
+    return this.productsService.findByBarcode(code);
+  }
+
   @Get(':id')
   @ApiOperation({ summary: 'Get product by ID (public)' })
   @ApiResponse({ status: 200, description: 'Product found', type: Product })

@@ -1,5 +1,6 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { DataSource } from 'typeorm';
 import { ProductsService } from './products.service';
 import { Product } from '../entities/product.entity';
 import { Category } from '../entities/category.entity';
@@ -32,6 +33,22 @@ describe('ProductsService', () => {
         {
           provide: getRepositoryToken(Provider),
           useValue: { ...mockRepository },
+        },
+        {
+          provide: DataSource,
+          useValue: {
+            createQueryRunner: jest.fn().mockReturnValue({
+              connect: jest.fn(),
+              startTransaction: jest.fn(),
+              commitTransaction: jest.fn(),
+              rollbackTransaction: jest.fn(),
+              release: jest.fn(),
+              manager: {
+                findOne: jest.fn(),
+                save: jest.fn(),
+              },
+            }),
+          },
         },
       ],
     }).compile();

@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { NotificationsService } from '../notifications/notifications.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, DataSource, QueryRunner } from 'typeorm';
+import { Repository, DataSource, QueryRunner, Brackets } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { CheckoutDto } from './dto/checkout.dto';
 import { OrderFilterDto } from './dto/order-filter.dto';
@@ -61,11 +61,9 @@ export class OrdersService {
     await queryRunner.startTransaction();
 
     try {
-      const productResult = await queryRunner.manager
-        .createQueryBuilder(Product, 'product')
-        .setLock('pessimistic_write')
-        .where('product.id = :id', { id: dto.productId })
-        .getOne();
+      const productResult = await queryRunner.manager.findOne(Product, {
+        where: { id: dto.productId },
+      });
 
       if (!productResult) {
         throw new NotFoundException(
@@ -78,9 +76,6 @@ export class OrdersService {
           `Insufficient stock for product ID ${dto.productId}. Requested: ${dto.quantity}, Available: ${productResult.stock}`,
         );
       }
-
-      productResult.stock -= dto.quantity;
-      await queryRunner.manager.save(Product, productResult);
 
       const unitPrice = Number(productResult.price);
       const subTotal = unitPrice * dto.quantity;
@@ -152,11 +147,9 @@ export class OrdersService {
       );
 
       for (const itemDto of sortedItems) {
-        const product = await queryRunner.manager
-          .createQueryBuilder(Product, 'product')
-          .setLock('pessimistic_write')
-          .where('product.id = :id', { id: itemDto.productId })
-          .getOne();
+        const product = await queryRunner.manager.findOne(Product, {
+          where: { id: itemDto.productId },
+        });
 
         if (!product) {
           throw new NotFoundException(
@@ -173,9 +166,6 @@ export class OrdersService {
         const unitPrice = Number(product.price);
         const subTotal = unitPrice * itemDto.quantity;
         totalAmount += subTotal;
-
-        product.stock -= itemDto.quantity;
-        await queryRunner.manager.save(Product, product);
 
         const orderItem = this.orderItemRepository.create({
           productId: itemDto.productId,
@@ -250,6 +240,19 @@ export class OrdersService {
       });
     }
 
+    if (filters.search) {
+      const searchTerm = `%${filters.search}%`;
+      qb.andWhere(
+        new Brackets((sub) => {
+          sub
+            .where('CAST(order.id AS VARCHAR) ILIKE :search', { search: searchTerm })
+            .orWhere('customer.email ILIKE :search', { search: searchTerm })
+            .orWhere('customer.firstName ILIKE :search', { search: searchTerm })
+            .orWhere('customer.lastName ILIKE :search', { search: searchTerm });
+        }),
+      );
+    }
+
     qb.orderBy('order.createdAt', 'DESC').take(limit).skip(offset);
 
     const [data, total] = await qb.getManyAndCount();
@@ -309,11 +312,20 @@ export class OrdersService {
       }
       */
 
-      if (newStatus === OrderStatus.CANCELLED) {
+      if (newStatus === OrderStatus.READY_FOR_DISPATCH) {
         const items = await queryRunner.manager.find(OrderItem, {
-          where: { order: order },
+          where: { order: { id: orderId } },
+        });
+        await this.deductStock(queryRunner, items);
+        order.stockDeducted = true;
+      }
+
+      if (newStatus === OrderStatus.CANCELLED && order.stockDeducted) {
+        const items = await queryRunner.manager.find(OrderItem, {
+          where: { order: { id: orderId } },
         });
         await this.restoreStock(queryRunner, items);
+        order.stockDeducted = false;
       }
 
       order.status = newStatus;
@@ -379,7 +391,10 @@ export class OrdersService {
         throw new BadRequestException('El pedido ya se encuentra cancelado.');
       }
 
-      await this.restoreStock(queryRunner, order.items);
+      if (order.stockDeducted) {
+        await this.restoreStock(queryRunner, order.items);
+        order.stockDeducted = false;
+      }
 
       order.status = OrderStatus.CANCELLED;
       await queryRunner.manager.save(Order, order);
@@ -395,6 +410,44 @@ export class OrdersService {
       );
     } finally {
       await queryRunner.release();
+    }
+  }
+
+  private async deductStock(
+    queryRunner: QueryRunner,
+    items: OrderItem[],
+  ): Promise<void> {
+    const productQuantities = new Map<number, number>();
+    for (const item of items) {
+      const current = productQuantities.get(item.productId) ?? 0;
+      productQuantities.set(item.productId, current + item.quantity);
+    }
+
+    const productIds = Array.from(productQuantities.keys()).sort((a, b) => a - b);
+
+    for (const productId of productIds) {
+      const quantity = productQuantities.get(productId) ?? 0;
+
+      const product = await queryRunner.manager
+        .createQueryBuilder(Product, 'product')
+        .setLock('pessimistic_write')
+        .where('product.id = :id', { id: productId })
+        .getOne();
+
+      if (!product) {
+        throw new NotFoundException(
+          `Producto con ID ${productId} no encontrado durante deducción de stock`,
+        );
+      }
+
+      if (product.stock < quantity) {
+        throw new BadRequestException(
+          `Stock insuficiente para producto ID ${productId}. Solicitado: ${quantity}, Disponible: ${product.stock}`,
+        );
+      }
+
+      product.stock -= quantity;
+      await queryRunner.manager.save(Product, product);
     }
   }
 

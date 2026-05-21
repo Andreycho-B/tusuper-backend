@@ -86,14 +86,6 @@ export class UpdateProductDto extends PartialType(CreateProductDto) {}
 
 export class ProductQueryDto extends PaginationDto {
   @ApiPropertyOptional({
-    description: 'Búsqueda por nombre o descripción del producto',
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  readonly search?: string;
-
-  @ApiPropertyOptional({
     description: 'Filtrar por ID de categoría',
     required: false,
   })

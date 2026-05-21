@@ -65,6 +65,15 @@ export class NotificationsGateway
         this.logger.log(`Client ${client.id} joined tendero-room`);
       }
 
+      if (
+        roles.includes('ADMIN') ||
+        roles.includes('TENDERO') ||
+        roles.includes('TENDER')
+      ) {
+        await client.join('staff-room');
+        this.logger.log(`Client ${client.id} joined staff-room`);
+      }
+
       if (roles.includes('USER')) {
         await client.join(`user-room-${userId}`);
         this.logger.log(`Client ${client.id} joined user-room-${userId}`);

@@ -6,6 +6,7 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationsGateway } from '../notifications/notifications.gateway';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, QueryRunner, Brackets } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -53,6 +54,7 @@ export class OrdersService {
     private readonly productRepository: Repository<Product>,
     private readonly dataSource: DataSource,
     private readonly notificationsService: NotificationsService,
+    private readonly notificationsGateway: NotificationsGateway,
   ) {}
 
   async checkout(customerId: number, dto: CheckoutDto): Promise<Order> {
@@ -105,6 +107,12 @@ export class OrdersService {
       // Notificar a Admin/Tendero
       const finalOrder = await this.findOne(savedOrder.id);
       this.notificationsService.notifyNewOrder(finalOrder);
+
+      if (this.notificationsGateway.server) {
+        this.notificationsGateway.server
+          .to('staff-room')
+          .emit('new_order', `Nuevo pedido #${savedOrder.id} recibido`);
+      }
 
       return savedOrder;
     } catch (error: unknown) {
@@ -194,6 +202,12 @@ export class OrdersService {
       // Notificar a Admin/Tendero
       savedOrder.customer = user;
       this.notificationsService.notifyNewOrder(savedOrder);
+
+      if (this.notificationsGateway.server) {
+        this.notificationsGateway.server
+          .to('staff-room')
+          .emit('new_order', `Nuevo pedido #${savedOrder.id} recibido`);
+      }
 
       return savedOrder;
     } catch (error: unknown) {
@@ -329,7 +343,7 @@ export class OrdersService {
       }
 
       order.status = newStatus;
-      const savedOrder = await queryRunner.manager.save(Order, order);
+      await queryRunner.manager.save(Order, order);
       await queryRunner.commitTransaction();
 
       // Notificar al cliente sobre el cambio de estado (fuera de la transacción de bloqueo)

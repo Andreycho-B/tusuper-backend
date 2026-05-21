@@ -1,9 +1,17 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { JwtAuthGuard } from '../../auth/guards/auth.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Roles } from '../../auth/decorators/roles.decorator';
-import { DashboardService, DashboardStats } from '../services/dashboard.service';
+import {
+  DashboardService,
+  DashboardStats,
+} from '../services/dashboard.service';
 
 @ApiTags('dashboard')
 @ApiBearerAuth()
@@ -14,7 +22,9 @@ export class DashboardController {
   constructor(private readonly dashboardService: DashboardService) {}
 
   @Get('stats')
-  @ApiOperation({ summary: 'Get aggregated statistics for administrative dashboard' })
+  @ApiOperation({
+    summary: 'Get aggregated statistics for administrative dashboard',
+  })
   @ApiResponse({
     status: 200,
     description: 'Aggregated dashboard statistics retrieved successfully.',

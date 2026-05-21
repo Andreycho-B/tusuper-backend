@@ -59,7 +59,10 @@ export class SeedService {
       };
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
-      const message = error instanceof Error ? error.message : 'Error desconocido en el seeder';
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Error desconocido en el seeder';
       throw new InternalServerErrorException(
         `Seeder falló y se revirtió la transacción: ${message}`,
       );

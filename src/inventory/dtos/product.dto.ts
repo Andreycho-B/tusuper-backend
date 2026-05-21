@@ -13,7 +13,6 @@ import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
 
-
 export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
@@ -36,6 +35,15 @@ export class CreateProductDto {
     required: false,
   })
   readonly description?: string;
+
+  @IsString()
+  @IsOptional()
+  @ApiPropertyOptional({
+    description: 'Product image URL',
+    example:
+      'https://res.cloudinary.com/demo/image/upload/v1234567890/tusuper_products/sample.jpg',
+  })
+  readonly imageUrl?: string;
 
   @IsDefined()
   @IsNumber({ maxDecimalPlaces: 2 })
@@ -95,4 +103,3 @@ export class ProductQueryDto extends PaginationDto {
   @IsPositive()
   readonly categoryId?: number;
 }
-

@@ -59,28 +59,28 @@ export class DashboardService {
     // Category Distribution (Active products grouped by category name)
     const categoryQueryPromise = this.categoryRepository
       .createQueryBuilder('category')
-      .leftJoin('category.products', 'product', 'product.isActive = :isActive', {
-        isActive: true,
-      })
+      .leftJoin(
+        'category.products',
+        'product',
+        'product.isActive = :isActive',
+        {
+          isActive: true,
+        },
+      )
       .select('category.name', 'name')
       .addSelect('COUNT(product.id)', 'value')
       .groupBy('category.id')
       .addGroupBy('category.name')
       .getRawMany();
 
-    const [
-      pendingOrders,
-      totalProducts,
-      lowStock,
-      orders,
-      rawCategories,
-    ] = await Promise.all([
-      pendingOrdersPromise,
-      totalProductsPromise,
-      lowStockPromise,
-      ordersPromise,
-      categoryQueryPromise,
-    ]);
+    const [pendingOrders, totalProducts, lowStock, orders, rawCategories] =
+      await Promise.all([
+        pendingOrdersPromise,
+        totalProductsPromise,
+        lowStockPromise,
+        ordersPromise,
+        categoryQueryPromise,
+      ]);
 
     // Build the sales flow mapping
     const salesMap = new Map<string, number>();

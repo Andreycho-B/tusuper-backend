@@ -259,7 +259,9 @@ export class OrdersService {
       qb.andWhere(
         new Brackets((sub) => {
           sub
-            .where('CAST(order.id AS VARCHAR) ILIKE :search', { search: searchTerm })
+            .where('CAST(order.id AS VARCHAR) ILIKE :search', {
+              search: searchTerm,
+            })
             .orWhere('customer.email ILIKE :search', { search: searchTerm })
             .orWhere('customer.firstName ILIKE :search', { search: searchTerm })
             .orWhere('customer.lastName ILIKE :search', { search: searchTerm });
@@ -437,7 +439,9 @@ export class OrdersService {
       productQuantities.set(item.productId, current + item.quantity);
     }
 
-    const productIds = Array.from(productQuantities.keys()).sort((a, b) => a - b);
+    const productIds = Array.from(productQuantities.keys()).sort(
+      (a, b) => a - b,
+    );
 
     for (const productId of productIds) {
       const quantity = productQuantities.get(productId) ?? 0;

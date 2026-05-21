@@ -30,7 +30,14 @@ import { MailModule } from '../mail/mail.module';
       }),
     }),
   ],
-  providers: [AuthService, ModulesGuard, RolesGuard, JwtAuthGuard, JwtStrategy, GoogleStrategy],
+  providers: [
+    AuthService,
+    ModulesGuard,
+    RolesGuard,
+    JwtAuthGuard,
+    JwtStrategy,
+    GoogleStrategy,
+  ],
   controllers: [AuthController],
   exports: [AuthService, ModulesGuard, RolesGuard, JwtAuthGuard, JwtModule],
 })

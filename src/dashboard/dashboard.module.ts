@@ -8,10 +8,7 @@ import { DashboardController } from './controllers/dashboard.controller';
 import { DashboardService } from './services/dashboard.service';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([Order, Product, Category]),
-    AuthModule,
-  ],
+  imports: [TypeOrmModule.forFeature([Order, Product, Category]), AuthModule],
   controllers: [DashboardController],
   providers: [DashboardService],
 })

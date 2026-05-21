@@ -1,6 +1,9 @@
 import { Category } from '../../inventory/entities/category.entity';
 
-export type CategorySeedData = Pick<Category, 'name' | 'description' | 'isActive'>;
+export type CategorySeedData = Pick<
+  Category,
+  'name' | 'description' | 'isActive'
+>;
 
 export const categoriesData: CategorySeedData[] = [
   {
@@ -15,12 +18,14 @@ export const categoriesData: CategorySeedData[] = [
   },
   {
     name: 'Despensa',
-    description: 'Granos, aceites, conservas, condimentos y productos no perecederos',
+    description:
+      'Granos, aceites, conservas, condimentos y productos no perecederos',
     isActive: true,
   },
   {
     name: 'Frutas y Verduras',
-    description: 'Productos frescos de temporada, frutas y verduras del campo colombiano',
+    description:
+      'Productos frescos de temporada, frutas y verduras del campo colombiano',
     isActive: true,
   },
   {
@@ -30,7 +35,8 @@ export const categoriesData: CategorySeedData[] = [
   },
   {
     name: 'Aseo y Hogar',
-    description: 'Detergentes, jabones, desinfectantes y productos de limpieza del hogar',
+    description:
+      'Detergentes, jabones, desinfectantes y productos de limpieza del hogar',
     isActive: true,
   },
 ];

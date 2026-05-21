@@ -17,7 +17,10 @@ export class SeedController {
       'DO NOT execute in staging or production environments.',
   })
   @ApiResponse({ status: 200, description: 'Seed completed successfully' })
-  @ApiResponse({ status: 500, description: 'Seed failed — transaction rolled back' })
+  @ApiResponse({
+    status: 500,
+    description: 'Seed failed — transaction rolled back',
+  })
   run(): Promise<SeedResult> {
     return this.seedService.run();
   }

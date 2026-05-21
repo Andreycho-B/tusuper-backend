@@ -6,9 +6,7 @@ import config from '../../config';
 
 @Injectable()
 export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
-  constructor(
-    @Inject(config.KEY) configService: ConfigType<typeof config>,
-  ) {
+  constructor(@Inject(config.KEY) configService: ConfigType<typeof config>) {
     super({
       clientID: configService.google.clientId!,
       clientSecret: configService.google.clientSecret!,

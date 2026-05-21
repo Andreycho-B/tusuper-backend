@@ -45,7 +45,9 @@ export class AuthController {
   async googleAuthRedirect(@Request() req: any, @Res() res: Response) {
     const result = await this.authService.googleLogin(req);
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
-    res.redirect(`${frontendUrl}/auth/social-callback?token=${result.access_token}`);
+    res.redirect(
+      `${frontendUrl}/auth/social-callback?token=${result.access_token}`,
+    );
   }
 
   @Throttle({ default: { limit: 5, ttl: 60000 } })

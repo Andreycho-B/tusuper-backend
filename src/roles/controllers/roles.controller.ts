@@ -43,7 +43,7 @@ export class RolesController {
   }
 
   // Listar todos los roles
-  // @UseGuards(JwtAuthGuard)
+  @Modules()
   @Get()
   @ApiOperation({ summary: 'Get all roles' })
   async findAll(

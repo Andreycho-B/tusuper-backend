@@ -46,11 +46,4 @@ export class OrderFilterDto extends PaginationDto {
   @IsOptional()
   @IsDateString()
   endDate?: string;
-
-  @ApiPropertyOptional({
-    description: 'Búsqueda por ID del pedido, email o nombre del cliente',
-  })
-  @IsOptional()
-  @IsString()
-  search?: string;
 }

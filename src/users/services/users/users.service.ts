@@ -25,12 +25,25 @@ export class UsersService {
   ) {}
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<User>> {
-    const { limit = 10, offset = 0 } = pagination;
-    const [data, total] = await this.userRepo.findAndCount({
-      relations: ['roles'],
-      take: limit,
-      skip: offset,
-    });
+    const { limit = 10, offset = 0, search } = pagination;
+    
+    // Complejidad Temporal: O(N) para serialización de registros devueltos. Búsqueda delegada a la DB.
+    // Complejidad Espacial: O(N) para los registros devueltos.
+    const queryBuilder = this.userRepo.createQueryBuilder('user')
+      .leftJoinAndSelect('user.roles', 'role');
+
+    if (search) {
+      queryBuilder.where(
+        'user.firstName ILIKE :search OR user.lastName ILIKE :search OR user.email ILIKE :search',
+        { search: `%${search}%` },
+      );
+    }
+
+    const [data, total] = await queryBuilder
+      .take(limit)
+      .skip(offset)
+      .getManyAndCount();
+
     return { data, total, limit, offset };
   }
 

@@ -6,7 +6,11 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, ILike, FindOptionsWhere } from 'typeorm';
 import { Product } from '../entities/product.entity';
-import { CreateProductDto, UpdateProductDto, ProductQueryDto } from '../dtos/product.dto';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  ProductQueryDto,
+} from '../dtos/product.dto';
 import { Category } from '../entities/category.entity';
 import { Provider } from '../entities/provider.entity';
 import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
@@ -39,7 +43,8 @@ export class ProductsService {
       };
     }
 
-    let where: FindOptionsWhere<Product> | FindOptionsWhere<Product>[] = baseWhere;
+    let where: FindOptionsWhere<Product> | FindOptionsWhere<Product>[] =
+      baseWhere;
 
     if (search) {
       where = [

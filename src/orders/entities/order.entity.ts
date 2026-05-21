@@ -72,6 +72,9 @@ export class Order {
   })
   cashChangeRequested: number;
 
+  @Column({ name: 'stock_deducted', type: 'boolean', default: false })
+  stockDeducted: boolean;
+
   @OneToMany(() => OrderItem, (item) => item.order, { cascade: true })
   items: OrderItem[];
 

@@ -18,6 +18,7 @@ import { InventoryModule } from './inventory/inventory.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { MailModule } from './mail/mail.module';
 import { SeedModule } from './seed/seed.module';
+import { DashboardModule } from './dashboard/dashboard.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { SeedModule } from './seed/seed.module';
     NotificationsModule,
     MailModule,
     SeedModule,
+    DashboardModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60000,

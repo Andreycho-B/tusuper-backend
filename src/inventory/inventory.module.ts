@@ -9,9 +9,13 @@ import { ProductsService } from './services/products.service';
 import { CategoriesController } from './controllers/categories.controller';
 import { ProvidersController } from './controllers/providers.controller';
 import { ProductsController } from './controllers/products.controller';
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Category, Provider, Product])],
+  imports: [
+    TypeOrmModule.forFeature([Category, Provider, Product]),
+    CloudinaryModule,
+  ],
   controllers: [CategoriesController, ProvidersController, ProductsController],
   providers: [CategoriesService, ProvidersService, ProductsService],
   exports: [CategoriesService, ProvidersService, ProductsService],

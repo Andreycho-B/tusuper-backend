@@ -5,6 +5,7 @@ import { UsersModule } from '../users/users.module';
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { JwtStrategy } from './strategies/jwt.strategy';
+import { GoogleStrategy } from './strategies/google.strategy';
 import { ConfigType } from '@nestjs/config';
 import config from '../config';
 import { ModulesGuard } from './guards/modules.guard';
@@ -29,7 +30,14 @@ import { MailModule } from '../mail/mail.module';
       }),
     }),
   ],
-  providers: [AuthService, ModulesGuard, RolesGuard, JwtAuthGuard, JwtStrategy],
+  providers: [
+    AuthService,
+    ModulesGuard,
+    RolesGuard,
+    JwtAuthGuard,
+    JwtStrategy,
+    GoogleStrategy,
+  ],
   controllers: [AuthController],
   exports: [AuthService, ModulesGuard, RolesGuard, JwtAuthGuard, JwtModule],
 })

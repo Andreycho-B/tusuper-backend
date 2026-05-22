@@ -173,4 +173,45 @@ export class AuthService {
 
     return { message: 'Contraseña actualizada exitosamente' };
   }
+
+  async googleLogin(req: any) {
+    if (!req.user) {
+      throw new BadRequestException('No user from google');
+    }
+
+    const { email, firstName, lastName, picture, googleId } = req.user;
+
+    let user = await this.userRepo.findOne({
+      where: { email },
+      relations: ['roles'],
+    });
+
+    if (user) {
+      // Si el usuario existe pero no tiene googleId, se lo vinculamos
+      if (!user.googleId) {
+        user.googleId = googleId;
+        user.isEmailVerified = true;
+        if (!user.avatarUrl) user.avatarUrl = picture;
+        await this.userRepo.save(user);
+      }
+    } else {
+      // Registro automático
+      const userRole = await this.roleRepo.findOne({ where: { name: 'USER' } });
+
+      user = this.userRepo.create({
+        email,
+        firstName,
+        lastName,
+        googleId,
+        avatarUrl: picture,
+        displayName: `${firstName} ${lastName}`,
+        isEmailVerified: true,
+        password: await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10),
+        roles: userRole ? [userRole] : [],
+      });
+      user = await this.userRepo.save(user);
+    }
+
+    return this.login(user as UserModel);
+  }
 }

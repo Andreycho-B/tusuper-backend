@@ -7,7 +7,9 @@ import {
   Get,
   UseGuards,
   Request,
+  Res,
 } from '@nestjs/common';
+import type { Response } from 'express';
 import {
   ApiTags,
   ApiOperation,
@@ -23,11 +25,30 @@ import { ResetPasswordDto } from '../dtos/reset-password.dto';
 import { ValidateResetTokenDto } from '../dtos/validate-reset-token.dto';
 import { AuthService } from '../services/auth.service';
 import { JwtAuthGuard } from '../guards/auth.guard';
+import { GoogleAuthGuard } from '../guards/google-auth.guard';
 
 @ApiTags('Autenticación')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
+
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'Iniciar sesión con Google' })
+  async googleAuth() {
+    // Guard will handle redirection
+  }
+
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  @ApiOperation({ summary: 'Callback de Google OAuth2' })
+  async googleAuthRedirect(@Request() req: any, @Res() res: Response) {
+    const result = await this.authService.googleLogin(req);
+    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
+    res.redirect(
+      `${frontendUrl}/auth/social-callback?token=${result.access_token}`,
+    );
+  }
 
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('login')

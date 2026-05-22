@@ -10,6 +10,9 @@ import {
   ParseIntPipe,
   HttpCode,
   UseGuards,
+  UseInterceptors,
+  UploadedFile,
+  BadRequestException,
 } from '@nestjs/common';
 import {
   ApiTags,
@@ -19,20 +22,28 @@ import {
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { ProductsService } from '../services/products.service';
-import { CreateProductDto, UpdateProductDto } from '../dtos/product.dto';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+  ProductQueryDto,
+} from '../dtos/product.dto';
 import { JwtAuthGuard } from '../../auth/guards/auth.guard';
 import { ModulesGuard } from '../../auth/guards/modules.guard';
 import { RolesGuard } from '../../auth/guards/roles.guard';
 import { Modules } from '../../auth/decorators/modules.decorator';
 import { Roles } from '../../auth/decorators/roles.decorator';
 import { Product } from '../entities/product.entity';
-import { PaginationDto } from '../../common/dtos/pagination.dto';
 import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { CloudinaryService } from '../../cloudinary/cloudinary.service';
 
 @ApiTags('Inventory - Products')
 @Controller('inventory/products')
 export class ProductsController {
-  constructor(private readonly productsService: ProductsService) {}
+  constructor(
+    private readonly productsService: ProductsService,
+    private readonly cloudinaryService: CloudinaryService,
+  ) {}
 
   // ── PUBLIC ENDPOINTS (no auth required) ────────────────────────────
 
@@ -45,9 +56,17 @@ export class ProductsController {
     type: [Product],
   })
   async findAll(
-    @Query() pagination: PaginationDto,
+    @Query() query: ProductQueryDto,
   ): Promise<PaginatedResult<Product>> {
-    return this.productsService.findAll(pagination);
+    return this.productsService.findAll(query);
+  }
+
+  @Get('barcode/:code')
+  @ApiOperation({ summary: 'Get product by barcode (public)' })
+  @ApiResponse({ status: 200, description: 'Product found', type: Product })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  async findByBarcode(@Param('code') code: string): Promise<Product> {
+    return this.productsService.findByBarcode(code);
   }
 
   @Get(':id')
@@ -92,6 +111,31 @@ export class ProductsController {
     @Body() updateProductDto: UpdateProductDto,
   ): Promise<Product> {
     return this.productsService.update(id, updateProductDto);
+  }
+
+  @Patch(':id/image')
+  @ApiBearerAuth()
+  @Modules('product')
+  @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
+  @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
+  @UseInterceptors(FileInterceptor('image'))
+  @ApiOperation({ summary: 'Upload product image to Cloudinary' })
+  @ApiResponse({
+    status: 200,
+    description: 'Image uploaded and product updated successfully',
+    type: Product,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid file or input' })
+  @ApiResponse({ status: 404, description: 'Product not found' })
+  async uploadImage(
+    @Param('id', ParseIntPipe) id: number,
+    @UploadedFile() file: Express.Multer.File,
+  ): Promise<Product> {
+    if (!file) {
+      throw new BadRequestException('Image file is required');
+    }
+    const result = await this.cloudinaryService.uploadImage(file);
+    return this.productsService.update(id, { imageUrl: result.secure_url });
   }
 
   @Delete(':id')

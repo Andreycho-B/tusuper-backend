@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { IsInt, IsOptional, Min } from 'class-validator';
+import { IsInt, IsOptional, IsString, Min } from 'class-validator';
 
 export class PaginationDto {
   @ApiPropertyOptional({
@@ -24,4 +24,11 @@ export class PaginationDto {
   @Min(0)
   @Type(() => Number)
   offset?: number = 0;
+
+  @ApiPropertyOptional({
+    description: 'Búsqueda por texto libre (nombre, apellido, email)',
+  })
+  @IsOptional()
+  @IsString()
+  search?: string;
 }

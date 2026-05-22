@@ -3,16 +3,11 @@
     y ponerlas disponibles en toda la aplicación NestJS de forma ordenada y segura.
 */
 import { registerAs } from '@nestjs/config';
+import { resolveDatabaseConfig } from './config/database.config';
 
 export default registerAs('config', () => {
   return {
-    dataBase: {
-      name: process.env.POSTGRES_DB,
-      port: Number.parseInt(process.env.POSTGRES_PORT || '5432', 10),
-      user: process.env.POSTGRES_USER,
-      password: process.env.POSTGRES_PASSWORD,
-      host: process.env.POSTGRES_HOST,
-    },
+    dataBase: resolveDatabaseConfig(),
     mail: {
       host: process.env.MAIL_HOST,
       port: Number.parseInt(process.env.MAIL_PORT || '587', 10),

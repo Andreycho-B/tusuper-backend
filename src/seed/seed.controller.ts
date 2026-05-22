@@ -1,7 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { ApiHeader, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SeedService } from './seed.service';
-import { SeedResult } from './interfaces/seed-result.interface';
+import {
+  BootstrapResult,
+  ProductionSeedResult,
+  SeedResult,
+} from './interfaces/seed-result.interface';
+import { DevOnlyGuard } from './guards/dev-only.guard';
+import { SeedSecretGuard } from './guards/seed-secret.guard';
 
 @ApiTags('Seed')
 @Controller('seed')
@@ -9,19 +15,38 @@ export class SeedController {
   constructor(private readonly seedService: SeedService) {}
 
   @Get()
+  @UseGuards(DevOnlyGuard)
   @ApiOperation({
-    summary: 'Populate database with seed data (DEV ONLY)',
+    summary: 'Poblar inventario (solo desarrollo)',
     description:
-      'Clears and repopulates categories, providers and products. ' +
-      'Also clears order_items to satisfy FK constraints. ' +
-      'DO NOT execute in staging or production environments.',
+      'Borra y recrea categorías, proveedores y productos. No usar en producción.',
   })
-  @ApiResponse({ status: 200, description: 'Seed completed successfully' })
-  @ApiResponse({
-    status: 500,
-    description: 'Seed failed — transaction rolled back',
-  })
-  run(): Promise<SeedResult> {
+  @ApiResponse({ status: 200, description: 'Seed completado' })
+  runInventoryDev(): Promise<SeedResult> {
     return this.seedService.run();
+  }
+
+  @Post('bootstrap')
+  @UseGuards(SeedSecretGuard)
+  @ApiHeader({ name: 'x-seed-secret', required: true })
+  @ApiOperation({
+    summary: 'Bootstrap de módulos, roles y admin (producción)',
+    description:
+      'Crea módulos, roles y usuario admin si no existen. Requiere SEED_SECRET.',
+  })
+  bootstrap(): Promise<BootstrapResult> {
+    return this.seedService.bootstrapSystem();
+  }
+
+  @Post('production')
+  @UseGuards(SeedSecretGuard)
+  @ApiHeader({ name: 'x-seed-secret', required: true })
+  @ApiOperation({
+    summary: 'Carga completa para producción',
+    description:
+      'Ejecuta bootstrap (módulos, roles, admin) + inventario real. Requiere SEED_SECRET y ADMIN_PASSWORD.',
+  })
+  runProduction(): Promise<ProductionSeedResult> {
+    return this.seedService.runProduction();
   }
 }

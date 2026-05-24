@@ -42,10 +42,10 @@ export class User {
   updatedAt: Date;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  avatarUrl?: string;
+  avatarUrl?: string | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
-  displayName?: string;
+  displayName?: string | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true })
   resetPasswordToken: string | null;

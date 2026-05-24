@@ -12,11 +12,13 @@ import { User } from './entities/user.entity';
 
 import { RolesModule } from '../roles/roles.module';
 
+import { CloudinaryModule } from '../cloudinary/cloudinary.module';
+
 
 
 @Module({
 
-  imports: [TypeOrmModule.forFeature([User]), RolesModule],
+  imports: [TypeOrmModule.forFeature([User]), RolesModule, CloudinaryModule],
 
   controllers: [UsersController, ProfileController],
 

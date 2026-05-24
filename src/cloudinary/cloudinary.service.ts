@@ -32,7 +32,10 @@ export class CloudinaryService {
 
    */
 
-  async uploadImage(file: Express.Multer.File): Promise<UploadApiResponse> {
+  async uploadImage(
+    file: Express.Multer.File,
+    folder: string = 'tusuper_products',
+  ): Promise<UploadApiResponse> {
 
     if (!file) {
 
@@ -64,7 +67,7 @@ export class CloudinaryService {
 
         {
 
-          folder: 'tusuper_products',
+          folder,
 
         },
 

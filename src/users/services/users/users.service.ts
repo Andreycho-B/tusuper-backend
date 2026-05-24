@@ -197,4 +197,16 @@ export class UsersService {
 
     return this.userRepo.save(user);
   }
+
+  async updateAvatar(userId: number, avatarUrl: string): Promise<User> {
+    const user = await this.findOne(userId);
+    user.avatarUrl = avatarUrl;
+    return this.userRepo.save(user);
+  }
+
+  async removeAvatar(userId: number): Promise<User> {
+    const user = await this.findOne(userId);
+    user.avatarUrl = null;
+    return this.userRepo.save(user);
+  }
 }

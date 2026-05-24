@@ -4,17 +4,29 @@ import {
 
   Controller,
 
+  Delete,
+
   Get,
 
+  HttpCode,
+
   Patch,
+
+  Post,
+
+  UploadedFile,
 
   UseGuards,
 
   UseInterceptors,
 
+  BadRequestException,
+
   ClassSerializerInterceptor,
 
 } from '@nestjs/common';
+
+import { FileInterceptor } from '@nestjs/platform-express';
 
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -23,6 +35,8 @@ import { JwtAuthGuard } from '../../../auth/guards/auth.guard';
 import { CurrentUser } from '../../../auth/decorators/current-user.decorator';
 
 import { UsersService } from '../../services/users/users.service';
+
+import { CloudinaryService } from '../../../cloudinary/cloudinary.service';
 
 import { UpdateProfileDto, UpdatePasswordDto } from '../../dtos/user.dto';
 
@@ -42,7 +56,13 @@ import { User } from '../../entities/user.entity';
 
 export class ProfileController {
 
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+
+    private readonly usersService: UsersService,
+
+    private readonly cloudinaryService: CloudinaryService,
+
+  ) {}
 
 
 
@@ -89,6 +109,52 @@ export class ProfileController {
   ): Promise<void> {
 
     return this.usersService.updatePassword(userId, updatePasswordDto);
+
+  }
+
+
+
+  @Post('avatar')
+
+  @UseInterceptors(FileInterceptor('avatar'))
+
+  @ApiOperation({ summary: 'Subir o cambiar foto de perfil' })
+
+  async uploadAvatar(
+
+    @CurrentUser('userId') userId: number,
+
+    @UploadedFile() file: Express.Multer.File,
+
+  ): Promise<User> {
+
+    if (!file) {
+
+      throw new BadRequestException('No se proporcionó ningún archivo');
+
+    }
+
+    const result = await this.cloudinaryService.uploadImage(file, 'tusuper_avatars');
+
+    return this.usersService.updateAvatar(userId, result.secure_url);
+
+  }
+
+
+
+  @Delete('avatar')
+
+  @HttpCode(200)
+
+  @ApiOperation({ summary: 'Eliminar foto de perfil' })
+
+  async removeAvatar(
+
+    @CurrentUser('userId') userId: number,
+
+  ): Promise<User> {
+
+    return this.usersService.removeAvatar(userId);
 
   }
 

@@ -35,7 +35,9 @@ import { DashboardModule } from './dashboard/dashboard.module';
         POSTGRES_PASSWORD: Joi.string().required(),
         POSTGRES_PORT: Joi.number().required(),
         POSTGRES_HOST: Joi.string().required(),
-        JWT_SECRET: Joi.string().required(),
+        // JWT_SECRET: mínimo 32 caracteres. Generar con:
+        // node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
+        JWT_SECRET: Joi.string().min(32).required(),
         JWT_EXPIRES_IN: Joi.number().required(),
         MAIL_HOST: Joi.string().required(),
         MAIL_PORT: Joi.number().required(),

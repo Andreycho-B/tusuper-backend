@@ -17,6 +17,7 @@ import * as crypto from 'crypto';
 import { MailService } from '../../mail/mail.service';
 import { ForgotPasswordDto } from '../dtos/forgot-password.dto';
 import { ResetPasswordDto } from '../dtos/reset-password.dto';
+import { GoogleAuthRequest } from '../interfaces/google-user.interface';
 
 @Injectable()
 export class AuthService {
@@ -174,7 +175,7 @@ export class AuthService {
     return { message: 'Contraseña actualizada exitosamente' };
   }
 
-  async googleLogin(req: any) {
+  async googleLogin(req: GoogleAuthRequest) {
     if (!req.user) {
       throw new BadRequestException('No user from google');
     }

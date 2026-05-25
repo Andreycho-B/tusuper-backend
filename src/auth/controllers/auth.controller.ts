@@ -75,6 +75,7 @@ export class AuthController {
     return this.authService.login(user);
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('register')
   @ApiOperation({ summary: 'Registrar un nuevo usuario' })
   @ApiBody({ type: RegisterDto })
@@ -88,11 +89,15 @@ export class AuthController {
     description: 'Datos inválidos o las contraseñas no coinciden.',
   })
   @ApiResponse({ status: 409, description: 'El email ya está registrado.' })
+  @ApiResponse({
+    status: 429,
+    description: 'Demasiadas peticiones. Intente más tarde.',
+  })
   async register(@Body() body: RegisterDto) {
     return this.authService.register(body);
   }
 
-  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @Throttle({ default: { limit: 2, ttl: 60000 } })
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Solicitar recuperación de contraseña' })

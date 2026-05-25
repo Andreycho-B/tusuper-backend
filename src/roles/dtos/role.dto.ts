@@ -1,15 +1,17 @@
 /* eslint-disable prettier/prettier */
-import { IsString, IsNotEmpty, IsArray, IsNumber } from "class-validator";
+import { IsString, IsNotEmpty, IsArray, IsNumber, MaxLength } from "class-validator";
 import { PartialType, ApiProperty } from "@nestjs/swagger";
 
 export class CreateRoleDto {
     @IsString()
     @IsNotEmpty()
+    @MaxLength(50)
     @ApiProperty()
     readonly name: string;
 
     @IsString()
     @IsNotEmpty()
+    @MaxLength(255)
     @ApiProperty()
     readonly description: string;
 

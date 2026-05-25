@@ -6,6 +6,7 @@ import {
   IsBoolean,
   IsOptional,
   IsEmail,
+  MaxLength,
 } from 'class-validator';
 import { PartialType, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
@@ -18,6 +19,7 @@ export class CreateUserDto {
   })
   @IsString({ message: 'El nombre debe ser una cadena de texto' })
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
+  @MaxLength(100, { message: 'El nombre no puede exceder 100 caracteres' })
   readonly firstName: string;
 
   @ApiProperty({
@@ -26,6 +28,7 @@ export class CreateUserDto {
   })
   @IsString({ message: 'El apellido debe ser una cadena de texto' })
   @IsNotEmpty({ message: 'El apellido es obligatorio' })
+  @MaxLength(100, { message: 'El apellido no puede exceder 100 caracteres' })
   readonly lastName: string;
 
   @ApiProperty({
@@ -34,6 +37,7 @@ export class CreateUserDto {
   })
   @IsEmail({}, { message: 'El email debe ser un correo electrónico válido' })
   @IsNotEmpty({ message: 'El email es obligatorio' })
+  @MaxLength(254, { message: 'El email no puede exceder 254 caracteres' })
   readonly email: string;
 
   @ApiProperty({
@@ -43,6 +47,7 @@ export class CreateUserDto {
     minLength: 8,
   })
   @IsStrongPassword()
+  @MaxLength(128, { message: 'La contraseña no puede exceder 128 caracteres' })
   readonly password: string;
 
   @ApiPropertyOptional({
@@ -71,16 +76,19 @@ export class UpdateProfileDto {
   @ApiPropertyOptional({ example: 'Juan', description: 'Nombre' })
   @IsString()
   @IsOptional()
+  @MaxLength(100)
   readonly firstName?: string;
 
   @ApiPropertyOptional({ example: 'Pérez', description: 'Apellido' })
   @IsString()
   @IsOptional()
+  @MaxLength(100)
   readonly lastName?: string;
 
   @ApiPropertyOptional({ example: 'Juancho', description: 'Alias' })
   @IsString()
   @IsOptional()
+  @MaxLength(100)
   readonly displayName?: string;
 
   @ApiPropertyOptional({
@@ -89,6 +97,7 @@ export class UpdateProfileDto {
   })
   @IsString()
   @IsOptional()
+  @MaxLength(2048)
   readonly avatarUrl?: string;
 }
 
@@ -96,6 +105,7 @@ export class UpdatePasswordDto {
   @ApiProperty({ description: 'Contraseña actual' })
   @IsString()
   @IsNotEmpty()
+  @MaxLength(128)
   readonly currentPassword: string;
 
   @ApiProperty({
@@ -104,5 +114,6 @@ export class UpdatePasswordDto {
     minLength: 8,
   })
   @IsStrongPassword()
+  @MaxLength(128, { message: 'La contraseña no puede exceder 128 caracteres' })
   readonly newPassword: string;
 }

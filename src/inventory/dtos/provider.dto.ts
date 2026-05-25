@@ -4,12 +4,14 @@ import {
   IsOptional,
   IsString,
   Matches,
+  MaxLength,
 } from 'class-validator';
 import { ApiProperty, PartialType } from '@nestjs/swagger';
 
 export class CreateProviderDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(255)
   @ApiProperty({ description: 'Provider name', example: 'Alpina S.A.' })
   readonly name: string;
 
@@ -25,6 +27,7 @@ export class CreateProviderDto {
 
   @IsEmail()
   @IsOptional()
+  @MaxLength(255)
   @ApiProperty({
     description: 'Contact email address',
     example: 'ventas@alpina.com',
@@ -34,6 +37,7 @@ export class CreateProviderDto {
 
   @IsString()
   @IsOptional()
+  @MaxLength(500)
   @ApiProperty({
     description: 'Physical address',
     example: 'Calle 10 #20-30, Bogotá',

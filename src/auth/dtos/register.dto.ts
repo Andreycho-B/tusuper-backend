@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 import { IsStrongPassword } from '../../common/validators/password.validator';
 
 export class RegisterDto {
@@ -9,6 +9,7 @@ export class RegisterDto {
   })
   @IsString({ message: 'El nombre debe ser una cadena de texto' })
   @IsNotEmpty({ message: 'El nombre es obligatorio' })
+  @MaxLength(100, { message: 'El nombre no puede exceder 100 caracteres' })
   readonly firstName: string;
 
   @ApiProperty({
@@ -17,6 +18,7 @@ export class RegisterDto {
   })
   @IsString({ message: 'El apellido debe ser una cadena de texto' })
   @IsNotEmpty({ message: 'El apellido es obligatorio' })
+  @MaxLength(100, { message: 'El apellido no puede exceder 100 caracteres' })
   readonly lastName: string;
 
   @ApiProperty({
@@ -25,6 +27,7 @@ export class RegisterDto {
   })
   @IsEmail({}, { message: 'El email debe ser un correo electrónico válido' })
   @IsNotEmpty({ message: 'El email es obligatorio' })
+  @MaxLength(254, { message: 'El email no puede exceder 254 caracteres' })
   readonly email: string;
 
   @ApiProperty({
@@ -34,6 +37,7 @@ export class RegisterDto {
     minLength: 8,
   })
   @IsStrongPassword()
+  @MaxLength(128, { message: 'La contraseña no puede exceder 128 caracteres' })
   readonly password: string;
 
   // Confirm password will not be included in swagger responses and not exposed in User entity
@@ -43,5 +47,6 @@ export class RegisterDto {
   })
   @IsString({ message: 'La confirmación de la contraseña debe ser una cadena' })
   @IsNotEmpty({ message: 'La confirmación de la contraseña es obligatoria' })
+  @MaxLength(128, { message: 'La confirmación no puede exceder 128 caracteres' })
   readonly confirmPassword: string;
 }

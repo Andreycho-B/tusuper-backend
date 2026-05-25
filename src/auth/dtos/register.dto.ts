@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsNotEmpty, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsNotEmpty, IsString } from 'class-validator';
+import { IsStrongPassword } from '../../common/validators/password.validator';
 
 export class RegisterDto {
   @ApiProperty({
@@ -28,12 +29,11 @@ export class RegisterDto {
 
   @ApiProperty({
     example: 'SecureP@ss1',
-    description: 'Contraseña del usuario (mínimo 6 caracteres)',
-    minLength: 6,
+    description:
+      'Contraseña: mínimo 8 caracteres, debe incluir mayúscula, minúscula y un número',
+    minLength: 8,
   })
-  @IsString({ message: 'La contraseña debe ser una cadena de texto' })
-  @IsNotEmpty({ message: 'La contraseña es obligatoria' })
-  @MinLength(6, { message: 'La contraseña debe tener al menos 6 caracteres' })
+  @IsStrongPassword()
   readonly password: string;
 
   // Confirm password will not be included in swagger responses and not exposed in User entity

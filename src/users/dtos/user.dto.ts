@@ -6,10 +6,10 @@ import {
   IsBoolean,
   IsOptional,
   IsEmail,
-  MinLength,
 } from 'class-validator';
 import { PartialType, ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
+import { IsStrongPassword } from '../../common/validators/password.validator';
 
 export class CreateUserDto {
   @ApiProperty({
@@ -38,12 +38,11 @@ export class CreateUserDto {
 
   @ApiProperty({
     example: 'SecureP@ss1',
-    description: 'Contraseña del usuario (mínimo 8 caracteres)',
+    description:
+      'Contraseña: mínimo 8 caracteres, debe incluir mayúscula, minúscula y un número',
     minLength: 8,
   })
-  @IsString({ message: 'La contraseña debe ser una cadena de texto' })
-  @IsNotEmpty({ message: 'La contraseña es obligatoria' })
-  @MinLength(8, { message: 'La contraseña debe tener al menos 8 caracteres' })
+  @IsStrongPassword()
   readonly password: string;
 
   @ApiPropertyOptional({
@@ -99,9 +98,11 @@ export class UpdatePasswordDto {
   @IsNotEmpty()
   readonly currentPassword: string;
 
-  @ApiProperty({ description: 'Nueva contraseña (mínimo 8 caracteres)' })
-  @IsString()
-  @IsNotEmpty()
-  @MinLength(8)
+  @ApiProperty({
+    description:
+      'Nueva contraseña: mínimo 8 caracteres, debe incluir mayúscula, minúscula y un número',
+    minLength: 8,
+  })
+  @IsStrongPassword()
   readonly newPassword: string;
 }

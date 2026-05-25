@@ -2,12 +2,25 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { ConfigService } from '@nestjs/config';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
+
+  // Security headers (HSTS, X-Frame-Options, X-Content-Type-Options, etc.).
+  // CSP is disabled because Swagger UI at /docs loads inline scripts/styles
+  // that the default CSP would block. The frontend is responsible for its
+  // own CSP at the edge (CDN / nginx).
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
+
   app.enableCors({
     origin:
       configService.get<string>('FRONTEND_URL') || 'http://localhost:4200',

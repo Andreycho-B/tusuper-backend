@@ -21,9 +21,32 @@ async function bootstrap() {
     }),
   );
 
+  // Comma-separated whitelist of allowed origins. Joi already validated
+  // that FRONTEND_URL exists and does not contain a wildcard.
+  const allowedOrigins = configService
+    .get<string>('FRONTEND_URL', '')
+    .split(',')
+    .map((origin) => origin.trim())
+    .filter((origin) => origin.length > 0);
+
   app.enableCors({
-    origin:
-      configService.get<string>('FRONTEND_URL') || 'http://localhost:4200',
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      // Same-origin / server-to-server requests (curl, health checks)
+      // arrive without an Origin header. They are not subject to CORS
+      // and must be allowed through.
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+        return;
+      }
+      callback(new Error(`CORS blocked: origin '${origin}' not allowed`));
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
   });

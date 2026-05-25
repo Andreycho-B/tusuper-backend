@@ -28,7 +28,7 @@ import {
 
 import { FileInterceptor } from '@nestjs/platform-express';
 
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { JwtAuthGuard } from '../../../auth/guards/auth.guard';
 
@@ -124,6 +124,8 @@ export class ProfileController {
   @UseInterceptors(
     FileInterceptor('avatar', imageUploadOptions(AVATAR_MAX_SIZE_BYTES)),
   )
+
+  @ApiConsumes('multipart/form-data')
 
   @ApiOperation({ summary: 'Subir o cambiar foto de perfil' })
 

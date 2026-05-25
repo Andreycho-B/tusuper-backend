@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsPositive,
   IsString,
+  MaxLength,
   Min,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
@@ -16,11 +17,13 @@ import { PaginationDto } from '../../common/dtos/pagination.dto';
 export class CreateProductDto {
   @IsString()
   @IsNotEmpty()
+  @MaxLength(255)
   @ApiProperty({ description: 'Product name', example: 'Leche entera 1L' })
   readonly name: string;
 
   @IsString()
   @IsOptional()
+  @MaxLength(64)
   @ApiPropertyOptional({
     description: 'Product barcode',
     example: '7702001041407',
@@ -29,6 +32,7 @@ export class CreateProductDto {
 
   @IsString()
   @IsOptional()
+  @MaxLength(500)
   @ApiProperty({
     description: 'Product description',
     example: 'Leche entera pasteurizada de 1 litro',
@@ -38,6 +42,7 @@ export class CreateProductDto {
 
   @IsString()
   @IsOptional()
+  @MaxLength(500)
   @ApiPropertyOptional({
     description: 'Product image URL',
     example:

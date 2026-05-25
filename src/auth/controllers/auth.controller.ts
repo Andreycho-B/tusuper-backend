@@ -18,6 +18,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import type { GoogleAuthRequest } from '../interfaces/google-user.interface';
 import { LoginDto } from '../dtos/login.dto';
 import { RegisterDto } from '../dtos/register.dto';
 import { ForgotPasswordDto } from '../dtos/forgot-password.dto';
@@ -42,7 +43,10 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Callback de Google OAuth2' })
-  async googleAuthRedirect(@Request() req: any, @Res() res: Response) {
+  async googleAuthRedirect(
+    @Request() req: GoogleAuthRequest,
+    @Res() res: Response,
+  ) {
     const result = await this.authService.googleLogin(req);
     const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
     // Use URL fragment (#) instead of query string (?) so the access token

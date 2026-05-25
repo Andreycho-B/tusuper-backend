@@ -78,6 +78,30 @@ git push --force --all origin
 3. **Rotar el secret** (aunque se purgue del git, asumir que ya está comprometido)
 4. **Auditar logs de acceso** al repo: si fue público, asumir que el secret fue obtenido por terceros
 
+## Vulnerabilidades conocidas y aceptadas
+
+Hay 3 vulnerabilidades **moderate** restantes después de `npm audit fix` que NO se resolvieron porque requieren un upgrade semver-major:
+
+| Paquete | Severidad | CVE | Cadena |
+|---|---|---|---|
+| `uuid` <11.1.1 | moderate | GHSA-w5hq-g745-h8pq | uuid → preview-email → @nestjs-modules/mailer |
+| `preview-email` * | moderate | (transitiva) | preview-email → @nestjs-modules/mailer |
+| `@nestjs-modules/mailer` 1.x | moderate | (transitiva) | usado por `MailModule` |
+
+### Por qué se aceptan temporalmente
+
+1. La vulnerabilidad de `uuid` afecta solo a las versiones `v3/v5/v6` **cuando se pasa un buffer custom**. `preview-email` no usa esa API.
+2. `preview-email` es una dependencia de desarrollo (preview de templates) que solo se activa en `NODE_ENV !== 'production'`.
+3. El fix requiere `@nestjs-modules/mailer@2.x` (semver-major) — cambia la API de `MailerModule.forRoot()` y `MailerService.sendMail()`. Migración debe hacerse en PR aparte con tests del flujo de email (reset password).
+
+### Plan de remediación
+
+Crear PR `feature/sec-upgrade-mailer-major` en backlog:
+- Upgrade `@nestjs-modules/mailer` a versión `^2.0.2` (o última estable)
+- Verificar templates en `src/mail/templates/`
+- Probar end-to-end: `/auth/forgot-password` → recepción del email → reset
+- Re-correr `npm audit` para confirmar 0 vulns
+
 ## Reportar vulnerabilidades
 
 Si encuentras una vulnerabilidad de seguridad, reporta de manera privada:

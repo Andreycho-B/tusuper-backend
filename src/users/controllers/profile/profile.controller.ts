@@ -42,6 +42,11 @@ import { UpdateProfileDto, UpdatePasswordDto } from '../../dtos/user.dto';
 
 import { User } from '../../entities/user.entity';
 
+import {
+  imageUploadOptions,
+  AVATAR_MAX_SIZE_BYTES,
+} from '../../../common/upload/image-upload-options';
+
 
 
 @ApiBearerAuth()
@@ -116,7 +121,9 @@ export class ProfileController {
 
   @Post('avatar')
 
-  @UseInterceptors(FileInterceptor('avatar'))
+  @UseInterceptors(
+    FileInterceptor('avatar', imageUploadOptions(AVATAR_MAX_SIZE_BYTES)),
+  )
 
   @ApiOperation({ summary: 'Subir o cambiar foto de perfil' })
 

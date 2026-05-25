@@ -36,6 +36,10 @@ import { Product } from '../entities/product.entity';
 import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { CloudinaryService } from '../../cloudinary/cloudinary.service';
+import {
+  imageUploadOptions,
+  PRODUCT_IMAGE_MAX_SIZE_BYTES,
+} from '../../common/upload/image-upload-options';
 
 @ApiTags('Inventory - Products')
 @Controller('inventory/products')
@@ -118,7 +122,9 @@ export class ProductsController {
   @Modules('product')
   @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
-  @UseInterceptors(FileInterceptor('image'))
+  @UseInterceptors(
+    FileInterceptor('image', imageUploadOptions(PRODUCT_IMAGE_MAX_SIZE_BYTES)),
+  )
   @ApiOperation({ summary: 'Upload product image to Cloudinary' })
   @ApiResponse({
     status: 200,

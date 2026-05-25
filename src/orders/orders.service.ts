@@ -1,5 +1,6 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   BadRequestException,
   InternalServerErrorException,
@@ -45,6 +46,8 @@ const VALID_TRANSITIONS: ReadonlyMap<OrderStatus, readonly OrderStatus[]> =
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
+
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
@@ -358,9 +361,9 @@ export class OrdersService {
       return enrichedOrder;
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
-      console.error(
-        '[OrdersService.updateStatus] Error updating status:',
-        error,
+      this.logger.error(
+        'Error updating order status',
+        error instanceof Error ? error.stack : String(error),
       );
       if (error instanceof HttpException) {
         throw error;

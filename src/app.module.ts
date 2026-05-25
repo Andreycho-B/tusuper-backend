@@ -47,6 +47,13 @@ import { DashboardModule } from './dashboard/dashboard.module';
         GOOGLE_CLIENT_ID: Joi.string().required(),
         GOOGLE_CLIENT_SECRET: Joi.string().required(),
         GOOGLE_CALLBACK_URL: Joi.string().required(),
+        // FRONTEND_URL: comma-separated whitelist of allowed CORS origins.
+        // Example single env: "https://app.tusuper.com"
+        // Example multi env:  "https://app.tusuper.com,https://staging.tusuper.com"
+        // The "*" wildcard is forbidden by the regex below.
+        FRONTEND_URL: Joi.string()
+          .pattern(/^(?!.*\*).+$/, { name: 'no-wildcard' })
+          .required(),
       }),
     }),
     DatabaseModule,

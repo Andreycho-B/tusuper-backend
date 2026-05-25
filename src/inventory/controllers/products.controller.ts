@@ -16,6 +16,7 @@ import {
 } from '@nestjs/common';
 import {
   ApiTags,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiBearerAuth,
@@ -125,6 +126,7 @@ export class ProductsController {
   @UseInterceptors(
     FileInterceptor('image', imageUploadOptions(PRODUCT_IMAGE_MAX_SIZE_BYTES)),
   )
+  @ApiConsumes('multipart/form-data')
   @ApiOperation({ summary: 'Upload product image to Cloudinary' })
   @ApiResponse({
     status: 200,

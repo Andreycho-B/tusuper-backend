@@ -56,6 +56,10 @@ export class ProductsService {
           ...baseWhere,
           description: ILike(`%${search}%`),
         },
+        {
+          ...baseWhere,
+          barcode: ILike(`%${search}%`),
+        },
       ];
     }
 

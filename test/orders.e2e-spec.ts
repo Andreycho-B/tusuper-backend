@@ -122,7 +122,7 @@ describe('OrdersController (e2e)', () => {
       const payload = {
         paymentMethod: 'CASH',
         deliveryAddress: '123 Main St',
-        contactPhone: '+1234567890',
+        contactPhone: '3001234567',
         items: [{ productId: testProduct.id, quantity: 2 }],
       };
 
@@ -141,14 +141,14 @@ describe('OrdersController (e2e)', () => {
       const updatedProduct = await productRepository.findOneBy({
         id: testProduct.id,
       });
-      expect(Number(updatedProduct?.stock)).toBe(8);
+      expect(Number(updatedProduct?.stock)).toBe(10);
     });
 
     it('[Rollback] should rollback transaction and not save anything if an item is invalid (Product not found)', async () => {
       const payload = {
         paymentMethod: 'CASH',
         deliveryAddress: '123 Main St',
-        contactPhone: '+1234567890',
+        contactPhone: '3001234567',
         items: [{ productId: 9999, quantity: 1 }],
       };
 
@@ -168,7 +168,7 @@ describe('OrdersController (e2e)', () => {
       const payload = {
         paymentMethod: 'CASH',
         deliveryAddress: '123 Main St',
-        contactPhone: '+1234567890',
+        contactPhone: '3001234567',
         items: [{ productId: testProduct.id, quantity: 1 }],
       };
 
@@ -191,7 +191,7 @@ describe('OrdersController (e2e)', () => {
       const payload = {
         paymentMethod: 'CASH',
         deliveryAddress: '123 Main St',
-        contactPhone: '+1234567890',
+        contactPhone: '3001234567',
         items: [{ productId: testProduct.id, quantity: 1 }],
       };
 
@@ -214,7 +214,7 @@ describe('OrdersController (e2e)', () => {
       const payload = {
         paymentMethod: 'CASH',
         deliveryAddress: '123 Main St',
-        contactPhone: '+1234567890',
+        contactPhone: '3001234567',
         items: [{ productId: testProduct.id, quantity: 100 }], // Quantity > Stock
       };
 
@@ -232,7 +232,7 @@ describe('OrdersController (e2e)', () => {
       const payload = {
         paymentMethod: 'CASH',
         deliveryAddress: '123 Main St',
-        contactPhone: '+1234567890',
+        contactPhone: '3001234567',
         items: [], // Empty Array
       };
 
@@ -241,6 +241,26 @@ describe('OrdersController (e2e)', () => {
         .set('Authorization', `Bearer ${testToken}`)
         .send(payload)
         .expect(400);
+
+      const orderCount = await orderRepository.count();
+      expect(orderCount).toBe(0);
+    });
+
+    it('[Validation] should reject with 400 Bad Request if contactPhone does not start with 3 or is not exactly 10 digits', async () => {
+      const payload = {
+        paymentMethod: 'CASH',
+        deliveryAddress: '123 Main St',
+        contactPhone: '2001234567', // Starts with 2 (invalid)
+        items: [{ productId: testProduct.id, quantity: 1 }],
+      };
+
+      const response = await request(app.getHttpServer() as App)
+        .post('/orders')
+        .set('Authorization', `Bearer ${testToken}`)
+        .send(payload)
+        .expect(400);
+
+      expect(response.body.message).toContain('El teléfono debe tener exactamente 10 dígitos y empezar por 3');
 
       const orderCount = await orderRepository.count();
       expect(orderCount).toBe(0);

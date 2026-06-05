@@ -6,6 +6,7 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
   MaxLength,
   Min,
   ValidateNested,
@@ -37,10 +38,12 @@ export class CreateOrderDto {
 
   @ApiProperty({
     description: 'Direct contact phone for the delivery person',
-    example: '+1234567890',
+    example: '3001234567',
   })
   @IsString()
-  @MaxLength(30)
+  @Matches(/^3\d{9}$/, {
+    message: 'El teléfono debe tener exactamente 10 dígitos y empezar por 3',
+  })
   contactPhone: string;
 
   @ApiPropertyOptional({

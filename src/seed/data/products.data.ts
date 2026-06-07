@@ -456,28 +456,8 @@ const productEntries: ProductSeedEntry[] = [
     providerIndex: 3,
     imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477871/tusuper_products/t2d2jtyhslv9cdkjo8yu.webp',
   },
-  {
-    name: 'Leche',
-    description: 'Leche entera fresca pasteurizada',
-    price: 4500,
-    stock: 100,
-    isActive: true,
-    categoryIndex: 0,
-    providerIndex: 0,
-    discount: 5,
-  },
-  {
-    name: 'Pan',
-    description: 'Pan tajado blanco de panadería',
-    price: 2500,
-    stock: 80,
-    isActive: true,
-    categoryIndex: 2,
-    providerIndex: 3,
-    discount: 0,
-  },
 
-  // ── Nuevos Productos (Volcado Producción) ──────────────────────────
+  // ── Productos sincronizados desde Producción ───────────────────────
   {
     name: 'coca cola',
     description: 'Bebida gaseosa refrescante Coca Cola',
@@ -507,16 +487,6 @@ const productEntries: ProductSeedEntry[] = [
     categoryIndex: 4,
     providerIndex: 3,
     imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779396333/tusuper_products/lfmlxpfjj7txn517ixca.webp',
-  },
-  {
-    name: 'prueba ',
-    description: 'Registro de prueba sin URL de imagen',
-    price: 100,
-    stock: 10,
-    isActive: true,
-    categoryIndex: 2,
-    providerIndex: 3,
-    imageUrl: undefined,
   },
 ];
 

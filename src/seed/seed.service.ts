@@ -27,11 +27,11 @@ export class SeedService {
     await queryRunner.startTransaction();
 
     try {
-      // ── LIMPIEZA (orden FK-safe) ────────────────────────────────────
-      await queryRunner.query('DELETE FROM order_items');
-      await queryRunner.query('DELETE FROM product');
-      await queryRunner.query('DELETE FROM category');
-      await queryRunner.query('DELETE FROM provider');
+      // ── LIMPIEZA (TRUNCATE CASCADE resetea sequences y es más rápido) ─
+      await queryRunner.query('TRUNCATE TABLE order_items CASCADE');
+      await queryRunner.query('TRUNCATE TABLE product CASCADE');
+      await queryRunner.query('TRUNCATE TABLE category CASCADE');
+      await queryRunner.query('TRUNCATE TABLE provider CASCADE');
 
       // ── INSERCIÓN DE CATEGORÍAS ─────────────────────────────────────
       const savedCategories: Category[] = await queryRunner.manager.save(

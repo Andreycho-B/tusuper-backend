@@ -30,7 +30,7 @@ const productEntries: ProductSeedEntry[] = [
     name: 'Leche Entera Colanta 1L',
     description: 'Leche entera pasteurizada de 1 litro',
     price: 4200,
-    stock: 150,
+    stock: 130,  // Sync: producción (2026-05-22)
     isActive: true,
     categoryIndex: 0,
     providerIndex: 0,
@@ -40,7 +40,7 @@ const productEntries: ProductSeedEntry[] = [
     name: 'Leche Deslactosada Colanta 1L',
     description: 'Leche deslactosada pasteurizada de 1 litro',
     price: 4800,
-    stock: 120,
+    stock: 111,  // Sync: producción (2026-05-22)
     isActive: true,
     categoryIndex: 0,
     providerIndex: 0,
@@ -50,7 +50,7 @@ const productEntries: ProductSeedEntry[] = [
     name: 'Queso Campesino Colanta 500g',
     description: 'Queso campesino fresco en bloque de 500 gramos',
     price: 9500,
-    stock: 80,
+    stock: 60,  // Sincronizado con producción (2026-05-25)
     isActive: true,
     categoryIndex: 0,
     providerIndex: 0,
@@ -70,7 +70,7 @@ const productEntries: ProductSeedEntry[] = [
     name: 'Kumis Colanta 1L',
     description: 'Kumis tradicional colombiano de 1 litro',
     price: 6800,
-    stock: 70,
+    stock: 65,  // Sync: producción (2026-05-24)
     isActive: true,
     categoryIndex: 0,
     providerIndex: 0,

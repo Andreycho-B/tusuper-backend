@@ -28,8 +28,8 @@ export class User {
   email: string;
 
   @Exclude()
-  @Column({ type: 'varchar', length: 255, select: false })
-  password: string;
+  @Column({ type: 'varchar', length: 255, select: false, nullable: true })
+  password: string | null;
 
   @Index('IDX_USER_IS_ACTIVE')
   @Column({ type: 'boolean', default: true })

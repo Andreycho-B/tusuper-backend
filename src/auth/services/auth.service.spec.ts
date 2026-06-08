@@ -434,12 +434,13 @@ describe('AuthService', () => {
       expect(existing.avatarUrl).toBe('https://existing.jpg');
     });
 
-    it('should auto-register a new user when not found', async () => {
+    it('should auto-register a new user when not found with null password', async () => {
       mockUserRepo.findOne.mockResolvedValue(null);
       mockRoleRepo.findOne.mockResolvedValue(mockRole);
       const newUser = buildUser({
         email: 'google@test.com',
         googleId: 'g-123',
+        password: null,
       });
       mockUserRepo.create.mockReturnValue(newUser);
       mockUserRepo.save.mockResolvedValue(newUser);
@@ -452,7 +453,17 @@ describe('AuthService', () => {
           email: 'google@test.com',
           googleId: 'g-123',
           isEmailVerified: true,
+          password: null,
         }),
+      );
+    });
+
+    it('should throw InternalServerErrorException when USER role is missing for OAuth registration', async () => {
+      mockUserRepo.findOne.mockResolvedValue(null);
+      mockRoleRepo.findOne.mockResolvedValue(null);
+
+      await expect(service.googleLogin(googleReq as never)).rejects.toThrow(
+        InternalServerErrorException,
       );
     });
   });

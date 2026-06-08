@@ -32,7 +32,15 @@ export class AuthService {
   async validateUser(email: string, password: string) {
     const user = await this.usersService.findByEmail(email);
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!user.password) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -75,7 +83,7 @@ export class AuthService {
     });
 
     const savedUser = await this.userRepo.save(newUser);
-    return this.login(savedUser);
+    return this.login(savedUser as UserModel);
   }
 
   login(user: UserModel) {
@@ -204,6 +212,12 @@ export class AuthService {
     } else {
       const userRole = await this.roleRepo.findOne({ where: { name: 'USER' } });
 
+      if (!userRole) {
+        throw new InternalServerErrorException(
+          'Role USER no encontrado - no se puede crear usuario OAuth',
+        );
+      }
+
       user = this.userRepo.create({
         email,
         firstName,
@@ -212,8 +226,8 @@ export class AuthService {
         avatarUrl: picture,
         displayName: `${firstName} ${lastName}`,
         isEmailVerified: true,
-        password: await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10),
-        roles: userRole ? [userRole] : [],
+        password: null,
+        roles: [userRole],
       });
       user = await this.userRepo.save(user);
     }

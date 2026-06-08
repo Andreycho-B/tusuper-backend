@@ -173,6 +173,12 @@ export class UsersService {
       throw new NotFoundException(`Usuario #${userId} no encontrado`);
     }
 
+    if (!user.password) {
+      throw new ConflictException(
+        'Usuario OAuth no tiene contraseña establecida. Use login social.',
+      );
+    }
+
     const isPasswordValid = await bcrypt.compare(
       currentPassword,
       user.password,

@@ -7,6 +7,7 @@ import type { Request } from 'express';
 export interface GoogleUser {
   googleId: string;
   email: string;
+  emailVerified: boolean;
   firstName: string;
   lastName: string;
   picture: string | null;

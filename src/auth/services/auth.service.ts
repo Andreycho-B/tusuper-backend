@@ -180,7 +180,14 @@ export class AuthService {
       throw new BadRequestException('No user from google');
     }
 
-    const { email, firstName, lastName, picture, googleId } = req.user;
+    const { email, firstName, lastName, picture, googleId, emailVerified } =
+      req.user;
+
+    if (!emailVerified) {
+      throw new BadRequestException(
+        'Google email not verified. Cannot link or create account.',
+      );
+    }
 
     let user = await this.userRepo.findOne({
       where: { email },
@@ -188,7 +195,6 @@ export class AuthService {
     });
 
     if (user) {
-      // Si el usuario existe pero no tiene googleId, se lo vinculamos
       if (!user.googleId) {
         user.googleId = googleId;
         user.isEmailVerified = true;
@@ -196,7 +202,6 @@ export class AuthService {
         await this.userRepo.save(user);
       }
     } else {
-      // Registro automático
       const userRole = await this.roleRepo.findOne({ where: { name: 'USER' } });
 
       user = this.userRepo.create({

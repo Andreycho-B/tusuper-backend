@@ -376,6 +376,7 @@ describe('AuthService', () => {
       user: {
         googleId: 'g-123',
         email: 'google@test.com',
+        emailVerified: true,
         firstName: 'Goo',
         lastName: 'Gle',
         picture: 'https://photo.url/me.jpg',
@@ -386,6 +387,15 @@ describe('AuthService', () => {
     it('should throw BadRequestException when req.user is missing', async () => {
       await expect(
         service.googleLogin({ user: undefined } as never),
+      ).rejects.toThrow(BadRequestException);
+    });
+
+    it('should throw BadRequestException when Google email is not verified', async () => {
+      const unverifiedReq = {
+        user: { ...googleReq.user, emailVerified: false },
+      };
+      await expect(
+        service.googleLogin(unverifiedReq as never),
       ).rejects.toThrow(BadRequestException);
     });
 
@@ -421,13 +431,11 @@ describe('AuthService', () => {
       const result = await service.googleLogin(googleReq as never);
 
       expect(result).toHaveProperty('access_token');
-      // User already has googleId, so linking block is skipped
-      // avatarUrl should remain unchanged (not overwritten by picture)
       expect(existing.avatarUrl).toBe('https://existing.jpg');
     });
 
     it('should auto-register a new user when not found', async () => {
-      mockUserRepo.findOne.mockResolvedValue(null); // no existing user
+      mockUserRepo.findOne.mockResolvedValue(null);
       mockRoleRepo.findOne.mockResolvedValue(mockRole);
       const newUser = buildUser({
         email: 'google@test.com',

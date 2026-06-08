@@ -180,7 +180,7 @@ async function seed() {
     console.log(`   • ${savedProviders.length} providers`);
     console.log(`   • ${savedProducts.length} products`);
     console.log(`   • ${defaultUsers.length} default users`);
-    console.log('\n🔑 Default credentials:`);
+    console.log('\n🔑 Default credentials:');
     console.log(`   admin@tusuper.com / Admin123!`);
     console.log(`   user@tusuper.com / User123!`);
     console.log(`   tendero@tusuper.com / Admin123!`);

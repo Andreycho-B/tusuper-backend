@@ -11,7 +11,6 @@ export interface GoogleUser {
   firstName: string;
   lastName: string;
   picture: string | null;
-  accessToken: string;
 }
 
 /**

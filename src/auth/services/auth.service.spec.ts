@@ -380,7 +380,6 @@ describe('AuthService', () => {
         firstName: 'Goo',
         lastName: 'Gle',
         picture: 'https://photo.url/me.jpg',
-        accessToken: 'gat',
       },
     };
 

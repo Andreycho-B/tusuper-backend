@@ -17,7 +17,7 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
   }
 
   async validate(
-    accessToken: string,
+    _accessToken: string,
     _refreshToken: string,
     profile: Profile,
     done: VerifyCallback,
@@ -32,7 +32,6 @@ export class GoogleStrategy extends PassportStrategy(Strategy, 'google') {
       firstName: name?.givenName || 'Google',
       lastName: name?.familyName || 'User',
       picture: photos && photos.length > 0 ? photos[0].value : null,
-      accessToken,
     };
     done(null, user);
   }

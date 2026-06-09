@@ -27,6 +27,7 @@ import { ValidateResetTokenDto } from '../dtos/validate-reset-token.dto';
 import { AuthService } from '../services/auth.service';
 import { JwtAuthGuard } from '../guards/auth.guard';
 import { GoogleAuthGuard } from '../guards/google-auth.guard';
+import { validateFrontendUrl } from '../constants';
 
 @ApiTags('Autenticación')
 @Controller('auth')
@@ -48,12 +49,9 @@ export class AuthController {
     @Res() res: Response,
   ) {
     const result = await this.authService.googleLogin(req);
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
-    // Use URL fragment (#) instead of query string (?) so the access token
-    // is NOT sent to the server, NOT logged by proxies/CDNs, NOT recorded
-    // in browser history as a query param, and NOT leaked via Referer
-    // headers when the destination page loads external resources.
-    // The frontend reads the token from window.location.hash.
+    const frontendUrl = validateFrontendUrl(
+      process.env.FRONTEND_URL || 'http://localhost:4200',
+    );
     res.redirect(
       `${frontendUrl}/auth/social-callback#token=${result.access_token}`,
     );

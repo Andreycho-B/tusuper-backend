@@ -28,6 +28,7 @@ import { AuthService } from '../services/auth.service';
 import { JwtAuthGuard } from '../guards/auth.guard';
 import { GoogleAuthGuard } from '../guards/google-auth.guard';
 import { validateFrontendUrl } from '../constants';
+import type { AuthenticatedRequest } from '../../common/interfaces/authenticated-request.interface';
 
 @ApiTags('Autenticación')
 @Controller('auth')
@@ -148,9 +149,7 @@ export class AuthController {
     status: 401,
     description: 'Token inválido o usuario inactivo.',
   })
-  async checkStatus(
-    @Request() req: { user: { userId: number; role: string[] } },
-  ) {
+  async checkStatus(@Request() req: AuthenticatedRequest) {
     return this.authService.checkStatus(req.user.userId);
   }
 }

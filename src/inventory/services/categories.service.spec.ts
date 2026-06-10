@@ -28,7 +28,9 @@ describe('CategoriesService', () => {
     }).compile();
 
     service = module.get<CategoriesService>(CategoriesService);
-    categoryRepo = module.get<Repository<Category>>(getRepositoryToken(Category));
+    categoryRepo = module.get<Repository<Category>>(
+      getRepositoryToken(Category),
+    );
   });
 
   it('should be defined', () => {

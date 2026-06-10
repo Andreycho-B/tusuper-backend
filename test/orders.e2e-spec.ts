@@ -260,10 +260,100 @@ describe('OrdersController (e2e)', () => {
         .send(payload)
         .expect(400);
 
-      expect(response.body.message).toContain('El teléfono debe tener exactamente 10 dígitos y empezar por 3');
+      expect(response.body.message).toContain(
+        'El teléfono debe tener exactamente 10 dígitos y empezar por 3',
+      );
 
       const orderCount = await orderRepository.count();
       expect(orderCount).toBe(0);
+    });
+  });
+
+  describe('DELETE /orders/:id/cancel', () => {
+    it('[User] should allow owner to cancel pending order and restore stock', async () => {
+      const order = await orderRepository.save(
+        orderRepository.create({
+          customerId: testUser.id,
+          paymentMethod: 'CASH',
+          deliveryAddress: '123 Main St',
+          contactPhone: '3001234567',
+          totalAmount: 1000,
+          status: OrderStatus.PENDING,
+          stockDeducted: true,
+          items: [
+            {
+              productId: testProduct.id,
+              quantity: 1,
+              unitPrice: 500,
+              subTotal: 500,
+            } as Order['items'][number],
+          ],
+        }),
+      );
+
+      const beforeStock = Number(
+        (await productRepository.findOneBy({ id: testProduct.id }))?.stock,
+      );
+
+      await request(app.getHttpServer() as App)
+        .delete(`/orders/${order.id}/cancel`)
+        .set('Authorization', `Bearer ${testToken}`)
+        .expect(200);
+
+      const updatedOrder = await orderRepository.findOne({
+        where: { id: order.id },
+        relations: ['items'],
+      });
+      expect(updatedOrder?.status).toBe(OrderStatus.CANCELLED);
+      expect(updatedOrder?.stockDeducted).toBe(false);
+
+      const afterStock = Number(
+        (await productRepository.findOneBy({ id: testProduct.id }))?.stock,
+      );
+      expect(afterStock).toBe(beforeStock + 1);
+    });
+
+    it('[User] should reject cancel attempt for another user order', async () => {
+      const order = await orderRepository.save(
+        orderRepository.create({
+          customerId: testUser.id,
+          paymentMethod: 'CASH',
+          deliveryAddress: '123 Main St',
+          contactPhone: '3001234567',
+          totalAmount: 1000,
+          status: OrderStatus.PENDING,
+          items: [
+            {
+              productId: testProduct.id,
+              quantity: 1,
+              unitPrice: 500,
+              subTotal: 500,
+            } as Order['items'][number],
+          ],
+        }),
+      );
+
+      const otherRole = await roleRepository.save(
+        roleRepository.create({ name: 'CUSTOMER2', description: 'Customer 2' }),
+      );
+      const otherUser = await userRepository.save(
+        userRepository.create({
+          firstName: 'Other',
+          lastName: 'User',
+          email: 'other@example.com',
+          password: 'password',
+          roles: [otherRole],
+        }),
+      );
+      const otherToken = jwtService.sign({
+        sub: otherUser.id,
+        roles: ['CUSTOMER2'],
+      });
+
+      await request(app.getHttpServer() as App)
+        .delete(`/orders/${order.id}/cancel`)
+        .set('Authorization', `Bearer ${otherToken}`)
+        .expect(403);
     });
   });
 });

@@ -1,9 +1,4 @@
-import {
-  Controller,
-  ForbiddenException,
-  Get,
-  UseGuards,
-} from '@nestjs/common';
+import { Controller, ForbiddenException, Get, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,

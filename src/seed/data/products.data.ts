@@ -30,31 +30,34 @@ const productEntries: ProductSeedEntry[] = [
     name: 'Leche Entera Colanta 1L',
     description: 'Leche entera pasteurizada de 1 litro',
     price: 4200,
-    stock: 130,  // Sync: producción (2026-05-22)
+    stock: 130, // Sync: producción (2026-05-22)
     isActive: true,
     categoryIndex: 0,
     providerIndex: 0,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779476935/tusuper_products/upafiafuaqomyv6s79ia.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779476935/tusuper_products/upafiafuaqomyv6s79ia.jpg',
   },
   {
     name: 'Leche Deslactosada Colanta 1L',
     description: 'Leche deslactosada pasteurizada de 1 litro',
     price: 4800,
-    stock: 111,  // Sync: producción (2026-05-22)
+    stock: 111, // Sync: producción (2026-05-22)
     isActive: true,
     categoryIndex: 0,
     providerIndex: 0,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779476985/tusuper_products/rijjxuxqq43dxajdf6bo.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779476985/tusuper_products/rijjxuxqq43dxajdf6bo.jpg',
   },
   {
     name: 'Queso Campesino Colanta 500g',
     description: 'Queso campesino fresco en bloque de 500 gramos',
     price: 9500,
-    stock: 60,  // Sincronizado con producción (2026-05-25)
+    stock: 60, // Sincronizado con producción (2026-05-25)
     isActive: true,
     categoryIndex: 0,
     providerIndex: 0,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477033/tusuper_products/pmtcmnn6trjrg8bwy7mr.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477033/tusuper_products/pmtcmnn6trjrg8bwy7mr.jpg',
   },
   {
     name: 'Yogur Colanta Fresa 1L',
@@ -64,17 +67,19 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 0,
     providerIndex: 0,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477992/tusuper_products/r1lbewrvppk39wuhz0pp.png',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477992/tusuper_products/r1lbewrvppk39wuhz0pp.png',
   },
   {
     name: 'Kumis Colanta 1L',
     description: 'Kumis tradicional colombiano de 1 litro',
     price: 6800,
-    stock: 65,  // Sync: producción (2026-05-24)
+    stock: 65, // Sync: producción (2026-05-24)
     isActive: true,
     categoryIndex: 0,
     providerIndex: 0,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478153/tusuper_products/dbllsp0w1ao6sc5v3vgj.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478153/tusuper_products/dbllsp0w1ao6sc5v3vgj.jpg',
   },
   {
     name: 'Mantequilla Colanta 250g',
@@ -84,7 +89,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 0,
     providerIndex: 0,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478183/tusuper_products/t7ukfqaolzu2l0qanmxi.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478183/tusuper_products/t7ukfqaolzu2l0qanmxi.webp',
   },
   {
     name: 'Crema de Leche Colanta 250ml',
@@ -94,7 +100,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 0,
     providerIndex: 0,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478232/tusuper_products/ciubcow0w8dxubpqybc5.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478232/tusuper_products/ciubcow0w8dxubpqybc5.webp',
   },
 
   // ── Carnes y Embutidos (cat:1, prov:1) ──────────────────────────────
@@ -106,7 +113,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 1,
     providerIndex: 1,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477078/tusuper_products/xhf76jixdn2v65szosek.png',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477078/tusuper_products/xhf76jixdn2v65szosek.png',
   },
   {
     name: 'Chorizo Zenú x6 unidades',
@@ -116,7 +124,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 1,
     providerIndex: 1,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477103/tusuper_products/v1iapyp3yzhbmqhk49nz.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477103/tusuper_products/v1iapyp3yzhbmqhk49nz.jpg',
   },
   {
     name: 'Salchicha Zenú Frankfurt 500g',
@@ -126,7 +135,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 1,
     providerIndex: 1,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477130/tusuper_products/bktdzvtvmiyxlinjx4vy.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477130/tusuper_products/bktdzvtvmiyxlinjx4vy.jpg',
   },
   {
     name: 'Jamón Pierna Zenú 200g',
@@ -136,7 +146,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 1,
     providerIndex: 1,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478530/tusuper_products/v6rjejbznjvafbktivxl.png',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478530/tusuper_products/v6rjejbznjvafbktivxl.png',
   },
   {
     name: 'Mortadela Zenú 250g',
@@ -146,7 +157,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 1,
     providerIndex: 1,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478554/tusuper_products/uyzywbgjysttjyqqypsp.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478554/tusuper_products/uyzywbgjysttjyqqypsp.webp',
   },
   {
     name: 'Carne Molida de Res 500g',
@@ -156,7 +168,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 1,
     providerIndex: 1,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478577/tusuper_products/ces73eo1pfhpdg8xl1yv.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478577/tusuper_products/ces73eo1pfhpdg8xl1yv.webp',
   },
   {
     name: 'Tocineta Ahumada Zenú 200g',
@@ -166,7 +179,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 1,
     providerIndex: 1,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478603/tusuper_products/mqqva4pyi3dzfbffetfu.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478603/tusuper_products/mqqva4pyi3dzfbffetfu.webp',
   },
 
   // ── Despensa (cat:2, prov:3) ─────────────────────────────────────────
@@ -178,7 +192,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 2,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478301/tusuper_products/mlgespjzvgxqs4rxxvqt.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478301/tusuper_products/mlgespjzvgxqs4rxxvqt.webp',
   },
   {
     name: 'Aceite Gourmet Girasol 900ml',
@@ -188,7 +203,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 2,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478343/tusuper_products/jndwmv7qghdi7j6z3nhg.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478343/tusuper_products/jndwmv7qghdi7j6z3nhg.webp',
   },
   {
     name: 'Lentejas La Italiana 500g',
@@ -198,7 +214,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 2,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478376/tusuper_products/tp9hwxjms7bxxuedvtnw.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478376/tusuper_products/tp9hwxjms7bxxuedvtnw.jpg',
   },
   {
     name: 'Frijoles Rojos Cargamanto 500g',
@@ -208,7 +225,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 2,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478411/tusuper_products/pzd1qethv5unb5iuf7k5.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478411/tusuper_products/pzd1qethv5unb5iuf7k5.jpg',
   },
   {
     name: 'Atún Van Camps en Agua 170g',
@@ -218,7 +236,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 2,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478447/tusuper_products/lsbhwihzto8c5qumxwue.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478447/tusuper_products/lsbhwihzto8c5qumxwue.webp',
   },
   {
     name: 'Pasta Doria Espagueti 500g',
@@ -228,7 +247,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 2,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478499/tusuper_products/bgb2lev2rft1yzegimta.png',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478499/tusuper_products/bgb2lev2rft1yzegimta.png',
   },
   {
     name: 'Sal Refisal 1Kg',
@@ -238,7 +258,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 2,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478474/tusuper_products/uuwncdby8sdvow0yhjde.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478474/tusuper_products/uuwncdby8sdvow0yhjde.webp',
   },
   {
     name: 'Azúcar Manuelita Blanca 1Kg',
@@ -248,7 +269,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 2,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478270/tusuper_products/t99ythj3rdcweocveb0j.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478270/tusuper_products/t99ythj3rdcweocveb0j.webp',
   },
 
   // ── Frutas y Verduras (cat:3, prov:2) ────────────────────────────────
@@ -260,7 +282,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 3,
     providerIndex: 2,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477477/tusuper_products/u6jbm3tldxjpjh77kzhx.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477477/tusuper_products/u6jbm3tldxjpjh77kzhx.jpg',
   },
   {
     name: 'Banano Cavendish x Kg',
@@ -270,7 +293,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 3,
     providerIndex: 2,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477434/tusuper_products/ytlhrmxsqy6sofib2ox7.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477434/tusuper_products/ytlhrmxsqy6sofib2ox7.webp',
   },
   {
     name: 'Tomate Chonto x Kg',
@@ -280,7 +304,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 3,
     providerIndex: 2,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477603/tusuper_products/cztzs9wdhagztdwxbwls.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477603/tusuper_products/cztzs9wdhagztdwxbwls.jpg',
   },
   {
     name: 'Cebolla Cabezona Blanca x Kg',
@@ -290,7 +315,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 3,
     providerIndex: 2,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477682/tusuper_products/z9netclv5p3zqwgio64e.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477682/tusuper_products/z9netclv5p3zqwgio64e.jpg',
   },
   {
     name: 'Papa Pastusa x Kg',
@@ -300,7 +326,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 3,
     providerIndex: 2,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477647/tusuper_products/bcwxwj4apjtogdynerpj.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477647/tusuper_products/bcwxwj4apjtogdynerpj.jpg',
   },
   {
     name: 'Zanahoria x Kg',
@@ -310,7 +337,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 3,
     providerIndex: 2,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477380/tusuper_products/mnlcwvgc8hic0x3my3ot.png',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477380/tusuper_products/mnlcwvgc8hic0x3my3ot.png',
   },
   {
     name: 'Mango Tommy x Kg',
@@ -320,7 +348,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 3,
     providerIndex: 2,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477317/tusuper_products/jvwsfftktp0mcyd0wi0l.png',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477317/tusuper_products/jvwsfftktp0mcyd0wi0l.png',
   },
   {
     name: 'Limón Tahití x Kg',
@@ -330,7 +359,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 3,
     providerIndex: 2,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477352/tusuper_products/deekbejul1nkn96lj6pl.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477352/tusuper_products/deekbejul1nkn96lj6pl.jpg',
   },
 
   // ── Bebidas (cat:4, prov:3) ──────────────────────────────────────────
@@ -342,7 +372,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 4,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477180/tusuper_products/vzbfabg28qqkjcbquozo.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477180/tusuper_products/vzbfabg28qqkjcbquozo.jpg',
   },
   {
     name: 'Agua Cristal 600ml',
@@ -352,7 +383,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 4,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477191/tusuper_products/txnh7bayjx3jgifztspq.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477191/tusuper_products/txnh7bayjx3jgifztspq.jpg',
   },
   {
     name: 'Jugo Hit Mango 1L',
@@ -362,7 +394,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 4,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477211/tusuper_products/drvzsxkzemlhno9hvsx2.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477211/tusuper_products/drvzsxkzemlhno9hvsx2.jpg',
   },
   {
     name: 'Gatorade Limón 500ml',
@@ -372,7 +405,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 4,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478049/tusuper_products/eyibirhatlwnqet1qfwu.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478049/tusuper_products/eyibirhatlwnqet1qfwu.webp',
   },
   {
     name: 'Café Águila Roja 250g',
@@ -382,7 +416,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 4,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478096/tusuper_products/aa9rduleetqphbv7xqwg.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478096/tusuper_products/aa9rduleetqphbv7xqwg.webp',
   },
   {
     name: 'Té Hindú Menta x20 sobres',
@@ -392,7 +427,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 4,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478125/tusuper_products/tufnexyuibxfkesql9o5.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779478125/tusuper_products/tufnexyuibxfkesql9o5.webp',
   },
 
   // ── Aseo y Hogar (cat:5, prov:3) ─────────────────────────────────────
@@ -404,7 +440,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 5,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477782/tusuper_products/fzpkpve1fwk54vduk9wp.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477782/tusuper_products/fzpkpve1fwk54vduk9wp.webp',
   },
   {
     name: 'Detergente Ariel Polvo 1Kg',
@@ -414,7 +451,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 5,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477841/tusuper_products/ah553rufbgkktkmxucv1.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477841/tusuper_products/ah553rufbgkktkmxucv1.webp',
   },
   {
     name: 'Suavizante Downy Brisa 850ml',
@@ -424,7 +462,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 5,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477801/tusuper_products/r67vjdqrkwmrxou88bpb.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477801/tusuper_products/r67vjdqrkwmrxou88bpb.webp',
   },
   {
     name: 'Shampoo Head & Shoulders 375ml',
@@ -434,7 +473,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 5,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477928/tusuper_products/iuv8ojqeoenszrgplfby.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477928/tusuper_products/iuv8ojqeoenszrgplfby.webp',
   },
   {
     name: 'Papel Higiénico Scott x4 rollos',
@@ -444,7 +484,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 5,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477898/tusuper_products/yf4ivzosqnfiamqldozx.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477898/tusuper_products/yf4ivzosqnfiamqldozx.webp',
   },
   {
     name: 'Desinfectante Fabuloso Lavanda 1L',
@@ -454,7 +495,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 5,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477871/tusuper_products/t2d2jtyhslv9cdkjo8yu.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779477871/tusuper_products/t2d2jtyhslv9cdkjo8yu.webp',
   },
 
   // ── Productos sincronizados desde Producción ───────────────────────
@@ -466,7 +508,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 4,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779738056/tusuper_products/dbl59eyjv0tljwm0ehqy.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779738056/tusuper_products/dbl59eyjv0tljwm0ehqy.webp',
   },
   {
     name: 'agua freca cristal',
@@ -476,7 +519,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 4,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779474857/tusuper_products/wfxyjbnusp8edyfikg6p.jpg',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779474857/tusuper_products/wfxyjbnusp8edyfikg6p.jpg',
   },
   {
     name: 'Café Águila Roja 500g',
@@ -486,7 +530,8 @@ const productEntries: ProductSeedEntry[] = [
     isActive: true,
     categoryIndex: 4,
     providerIndex: 3,
-    imageUrl: 'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779396333/tusuper_products/lfmlxpfjj7txn517ixca.webp',
+    imageUrl:
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779396333/tusuper_products/lfmlxpfjj7txn517ixca.webp',
   },
 ];
 

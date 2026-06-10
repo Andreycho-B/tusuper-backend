@@ -6,12 +6,8 @@ import { Readable } from 'node:stream';
 
 import toStream from 'buffer-to-stream';
 
-
-
 @Injectable()
-
 export class CloudinaryService {
-
   /**
 
    * Sube un archivo de imagen a Cloudinary en streaming.
@@ -36,76 +32,44 @@ export class CloudinaryService {
     file: Express.Multer.File,
     folder: string = 'tusuper_products',
   ): Promise<UploadApiResponse> {
-
     if (!file) {
-
       throw new BadRequestException('No image file provided');
-
     }
-
-
 
     // Defensa en profundidad: saneamiento y validación estricta de tipo MIME
 
     if (!file.mimetype.startsWith('image/')) {
-
       throw new BadRequestException('Only image files are allowed');
-
     }
-
-
 
     // Aserción de tipo para evitar propagación de tipo implicito any en la librería de terceros
 
     const castedToStream = toStream as (buffer: Buffer) => Readable;
 
-
-
     return new Promise<UploadApiResponse>((resolve, reject) => {
-
       const uploadStream = cloudinary.uploader.upload_stream(
-
         {
-
           folder,
-
         },
 
         (error, result) => {
-
           if (error) {
-
             return reject(
-
               new Error(error.message || 'Cloudinary upload failed'),
-
             );
-
           }
 
           if (!result) {
-
             return reject(
-
               new Error('Cloudinary upload returned undefined result'),
-
             );
-
           }
 
           resolve(result);
-
         },
-
       );
 
-
-
       castedToStream(file.buffer).pipe(uploadStream);
-
     });
-
   }
-
 }
-

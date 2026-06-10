@@ -393,9 +393,9 @@ describe('AuthService', () => {
       const unverifiedReq = {
         user: { ...googleReq.user, emailVerified: false },
       };
-      await expect(
-        service.googleLogin(unverifiedReq as never),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.googleLogin(unverifiedReq as never)).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should link googleId to existing user without one', async () => {

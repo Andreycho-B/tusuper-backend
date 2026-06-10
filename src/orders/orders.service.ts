@@ -5,6 +5,7 @@ import {
   BadRequestException,
   InternalServerErrorException,
   HttpException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
@@ -389,7 +390,7 @@ export class OrdersService {
     return order;
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, userId?: number): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -408,6 +409,12 @@ export class OrdersService {
 
       if (order.status === OrderStatus.CANCELLED) {
         throw new BadRequestException('El pedido ya se encuentra cancelado.');
+      }
+
+      if (typeof userId === 'number' && order.customerId !== userId) {
+        throw new ForbiddenException(
+          'No tienes permiso para cancelar este pedido',
+        );
       }
 
       if (order.stockDeducted) {

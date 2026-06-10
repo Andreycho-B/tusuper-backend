@@ -399,7 +399,7 @@ export class OrdersService {
       const order = await queryRunner.manager
         .createQueryBuilder(Order, 'order')
         .setLock('pessimistic_write')
-        .leftJoinAndSelect('order.items', 'items')
+        .innerJoinAndSelect('order.items', 'items')
         .where('order.id = :id', { id })
         .getOne();
 
@@ -428,11 +428,13 @@ export class OrdersService {
       await queryRunner.commitTransaction();
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
+      const msg = error instanceof Error ? `${error.message}\nStack: ${error.stack}` : String(error);
+      console.error(`[OrdersService.remove] id=${id} userId=${userId} error=${msg}`);
       if (error instanceof HttpException) {
         throw error;
       }
       throw new InternalServerErrorException(
-        'Error processing order cancellation',
+        `Error processing order cancellation: ${msg}`,
       );
     } finally {
       await queryRunner.release();

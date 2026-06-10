@@ -12,6 +12,6 @@ export class AppController {
   @Get()
   getHello(): string {
     const myVar = this.configService.get<string>('NODE_ENV') || 'development';
-return this.appService.getHello(myVar);
+    return this.appService.getHello(myVar);
   }
 }

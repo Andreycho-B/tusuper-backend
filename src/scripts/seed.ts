@@ -12,8 +12,13 @@ import * as bcrypt from 'bcrypt';
 
 async function seed() {
   // ── PROTECCIÓN: No ejecutar en producción ────────────────────────────
-  if (process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'production') {
-    console.error('❌ ERROR: Seed script is disabled in production environment');
+  if (
+    process.env.NODE_ENV === 'prod' ||
+    process.env.NODE_ENV === 'production'
+  ) {
+    console.error(
+      '❌ ERROR: Seed script is disabled in production environment',
+    );
     console.error('   NODE_ENV:', process.env.NODE_ENV);
     process.exit(1);
   }
@@ -57,7 +62,9 @@ async function seed() {
       const moduleEntity = moduleRepo.create(item);
       await moduleRepo.save(moduleEntity);
       seededModules[item.name] = moduleEntity;
-      console.log(`   ✓ Module "${item.name}" created (id: ${moduleEntity.id})`);
+      console.log(
+        `   ✓ Module "${item.name}" created (id: ${moduleEntity.id})`,
+      );
     }
 
     // ── 2. SEED ROLES ─────────────────────────────────────────────────
@@ -79,7 +86,7 @@ async function seed() {
 
     // ── 3. LINK ROLES AND MODULES ─────────────────────────────────────
     console.log('\n🔗 Linking roles and modules...');
-    
+
     seededRoles['ADMIN'].modules = Object.values(seededModules);
     await roleRepo.save(seededRoles['ADMIN']);
     console.log('   ✓ Linked all modules to ADMIN');
@@ -129,7 +136,7 @@ async function seed() {
     // ── 7. SEED DEFAULT USERS ─────────────────────────────────────────
     console.log('\n👤 Seeding default users...');
     const userRepo = AppDataSource.getRepository(User);
-    
+
     const defaultPassword = await bcrypt.hash('Admin123!', 10);
     const userPassword = await bcrypt.hash('User123!', 10);
 
@@ -166,7 +173,9 @@ async function seed() {
     for (const userData of defaultUsers) {
       const user = userRepo.create(userData);
       await userRepo.save(user);
-      console.log(`   ✓ User "${user.email}" created (${user.roles.map(r => r.name).join(', ')})`);
+      console.log(
+        `   ✓ User "${user.email}" created (${user.roles.map((r) => r.name).join(', ')})`,
+      );
     }
 
     // ── RESUMEN FINAL ──────────────────────────────────────────────────
@@ -185,7 +194,6 @@ async function seed() {
     console.log(`   user@tusuper.com / User123!`);
     console.log(`   tendero@tusuper.com / Admin123!`);
     console.log('='.repeat(60));
-
   } catch (error) {
     console.error('\n❌ ERROR during seeding:', error);
     process.exit(1);

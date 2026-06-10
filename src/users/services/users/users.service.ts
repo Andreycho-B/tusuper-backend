@@ -26,10 +26,11 @@ export class UsersService {
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<User>> {
     const { limit = 10, offset = 0, search } = pagination;
-    
+
     // Complejidad Temporal: O(N) para serialización de registros devueltos. Búsqueda delegada a la DB.
     // Complejidad Espacial: O(N) para los registros devueltos.
-    const queryBuilder = this.userRepo.createQueryBuilder('user')
+    const queryBuilder = this.userRepo
+      .createQueryBuilder('user')
       .leftJoinAndSelect('user.roles', 'role');
 
     if (search) {

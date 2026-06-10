@@ -47,6 +47,8 @@ export class RegisterDto {
   })
   @IsString({ message: 'La confirmación de la contraseña debe ser una cadena' })
   @IsNotEmpty({ message: 'La confirmación de la contraseña es obligatoria' })
-  @MaxLength(128, { message: 'La confirmación no puede exceder 128 caracteres' })
+  @MaxLength(128, {
+    message: 'La confirmación no puede exceder 128 caracteres',
+  })
   readonly confirmPassword: string;
 }

@@ -28,7 +28,9 @@ describe('ProvidersService', () => {
     }).compile();
 
     service = module.get<ProvidersService>(ProvidersService);
-    providerRepo = module.get<Repository<Provider>>(getRepositoryToken(Provider));
+    providerRepo = module.get<Repository<Provider>>(
+      getRepositoryToken(Provider),
+    );
   });
 
   it('should be defined', () => {

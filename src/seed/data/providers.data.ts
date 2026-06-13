@@ -34,4 +34,11 @@ export const providersData: ProviderSeedData[] = [
     address: 'Avenida 30 de Agosto No. 40-12, Pereira, Risaralda',
     isActive: true,
   },
+  {
+    name: 'Chocorramo',
+    phone: '6017420303',
+    email: 'contacto@chocorramo.com',
+    address: 'Zona Industrial, Bogotá, Colombia',
+    isActive: true,
+  },
 ];

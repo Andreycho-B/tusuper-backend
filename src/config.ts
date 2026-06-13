@@ -3,6 +3,7 @@
     y ponerlas disponibles en toda la aplicacion NestJS de forma ordenada y segura.
 */
 import { registerAs } from '@nestjs/config';
+import { resolveDatabaseConfig } from './config/database.config';
 
 export default registerAs('config', () => {
   const databaseUrl = process.env.DATABASE_URL;

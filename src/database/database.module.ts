@@ -2,6 +2,7 @@ import { Module, Global } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigType } from '@nestjs/config';
 import config from '../config';
+import { isManagedPostgres } from '../config/database.config';
 
 @Global()
 @Module({

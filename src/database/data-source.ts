@@ -1,7 +1,11 @@
 import { DataSource } from 'typeorm';
 import config from '../config';
 import * as dotenv from 'dotenv';
-import { environments } from '../environments';
+import { resolveEnvFile } from '../environments';
+import {
+  isManagedPostgres,
+  resolveDatabaseConfig,
+} from '../config/database.config';
 
 import { join } from 'node:path';
 

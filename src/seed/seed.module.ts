@@ -8,6 +8,8 @@ import { ModuleEntity } from '../modules/entities/module.entity';
 import { User } from '../users/entities/user.entity';
 import { SeedService } from './seed.service';
 import { SeedController } from './seed.controller';
+import { DevOnlyGuard } from './guards/dev-only.guard';
+import { SeedSecretGuard } from './guards/seed-secret.guard';
 
 @Module({
   imports: [
@@ -21,6 +23,6 @@ import { SeedController } from './seed.controller';
     ]),
   ],
   controllers: [SeedController],
-  providers: [SeedService],
+  providers: [SeedService, DevOnlyGuard, SeedSecretGuard],
 })
 export class SeedModule {}

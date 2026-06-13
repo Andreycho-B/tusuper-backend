@@ -51,6 +51,7 @@ export class CreateProductDto {
   readonly imageUrl?: string;
 
   @IsDefined()
+  @Type(() => Number)
   @IsNumber({ maxDecimalPlaces: 2 })
   @IsPositive()
   @ApiProperty({
@@ -60,6 +61,7 @@ export class CreateProductDto {
   readonly price: number;
 
   @IsDefined()
+  @Type(() => Number)
   @IsInt()
   @Min(0)
   @ApiProperty({ description: 'Available stock (integer >= 0)', example: 100 })
@@ -75,12 +77,14 @@ export class CreateProductDto {
   readonly isActive?: boolean;
 
   @IsDefined()
+  @Type(() => Number)
   @IsInt()
   @IsPositive()
   @ApiProperty({ description: 'Category ID', example: 1 })
   readonly categoryId: number;
 
   @IsDefined()
+  @Type(() => Number)
   @IsInt()
   @IsPositive()
   @ApiProperty({ description: 'Provider ID', example: 1 })

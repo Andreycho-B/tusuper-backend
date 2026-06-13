@@ -7,7 +7,7 @@ import { DatabaseModule } from './database/database.module';
 
 import { ConfigModule } from '@nestjs/config';
 import * as Joi from 'joi';
-import { environments } from './environments';
+import { resolveEnvFile } from './environments';
 import { UsersModule } from './users/users.module';
 import { RolesModule } from './roles/roles.module';
 import { AuthModule } from './auth/auth.module';
@@ -45,7 +45,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
         JWT_SECRET: Joi.string().min(32).required(),
         JWT_EXPIRES_IN: Joi.number().default(86400),
         MAIL_HOST: Joi.string().required(),
-        MAIL_PORT: Joi.number().required(),
+        MAIL_PORT: Joi.alternatives().try(Joi.number(), Joi.string()).required(),
         MAIL_USER: Joi.string().required(),
         MAIL_PASSWORD: Joi.string().required(),
         MAIL_FROM: Joi.string().required(),

@@ -39,6 +39,7 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Get('google')
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Iniciar sesion con Google' })
@@ -46,6 +47,7 @@ export class AuthController {
     // Guard will handle redirection
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Callback de Google OAuth2' })
@@ -139,6 +141,7 @@ export class AuthController {
     return this.authService.resetPassword(body);
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
   @UseGuards(JwtAuthGuard)
   @Get('check-status')
   @ApiBearerAuth()

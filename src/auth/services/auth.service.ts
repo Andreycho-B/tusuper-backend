@@ -140,7 +140,7 @@ export class AuthService {
 
     await this.userRepo.save(user);
 
-    await this.mailService.sendPasswordResetEmail(
+    void this.mailService.sendPasswordResetEmail(
       user.email,
       resetToken,
       user.firstName || 'Usuario',
@@ -214,6 +214,11 @@ export class AuthService {
     });
 
     if (user) {
+      if (user.googleId && user.googleId !== googleId) {
+        throw new BadRequestException(
+          'Este email ya esta vinculado a una cuenta de Google diferente',
+        );
+      }
       if (!user.googleId) {
         user.googleId = googleId;
         user.isEmailVerified = true;

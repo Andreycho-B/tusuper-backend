@@ -10,16 +10,13 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  // Security headers (HSTS, X-Frame-Options, X-Content-Type-Options, etc.).
-  // CSP is disabled because Swagger UI at /docs loads inline scripts/styles
-  // that the default CSP would block. The frontend is responsible for its
-  // own CSP at the edge (CDN / nginx).
-  app.use(
-    helmet({
-      contentSecurityPolicy: false,
-      crossOriginEmbedderPolicy: false,
-    }),
-  );
+  app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false,
+  }));
+
+  app.use(require('express').json({ limit: '1mb' }));
+  app.use(require('express').urlencoded({ limit: '1mb', extended: true }));
 
   // Comma-separated whitelist of allowed origins. Joi already validated
   // that FRONTEND_URL exists and does not contain a wildcard.

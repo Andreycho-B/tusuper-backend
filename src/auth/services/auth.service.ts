@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../../users/services/users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -21,6 +21,8 @@ import { GoogleAuthRequest } from '../interfaces/google-user.interface';
 
 @Injectable()
 export class AuthService {
+  private readonly logger = new Logger(AuthService.name);
+
   constructor(
     private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
@@ -33,7 +35,11 @@ export class AuthService {
     let user: User | null = null;
     try {
       user = await this.usersService.findByEmail(email);
-    } catch {
+    } catch (error: unknown) {
+      this.logger.error(
+        'validateUser failed',
+        error instanceof Error ? error.stack : String(error),
+      );
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -127,7 +133,7 @@ export class AuthService {
     }
 
     const resetToken = crypto.randomBytes(32).toString('hex');
-    const hash = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const hash = this.hashResetToken(resetToken);
 
     user.resetPasswordToken = hash;
     user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
@@ -147,7 +153,7 @@ export class AuthService {
   }
 
   async validateResetToken(token: string) {
-    const hash = crypto.createHash('sha256').update(token).digest('hex');
+    const hash = this.hashResetToken(token);
 
     const user = await this.userRepo.findOne({
       where: { resetPasswordToken: hash },
@@ -165,7 +171,7 @@ export class AuthService {
   }
 
   async resetPassword(dto: ResetPasswordDto) {
-    const hash = crypto.createHash('sha256').update(dto.token).digest('hex');
+    const hash = this.hashResetToken(dto.token);
 
     const user = await this.userRepo.findOne({
       where: { resetPasswordToken: hash },
@@ -238,5 +244,9 @@ export class AuthService {
     }
 
     return this.login(user as UserModel);
+  }
+
+  private hashResetToken(token: string): string {
+    return crypto.createHash('sha256').update(token).digest('hex');
   }
 }

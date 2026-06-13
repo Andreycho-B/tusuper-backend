@@ -69,6 +69,7 @@ export class OrdersService {
     try {
       const productResult = await queryRunner.manager.findOne(Product, {
         where: { id: dto.productId },
+        lock: { mode: 'pessimistic_write' },
       });
 
       if (!productResult) {
@@ -110,12 +111,18 @@ export class OrdersService {
 
       // Notificar a Admin/Tendero
       const finalOrder = await this.findOne(savedOrder.id);
-      this.notificationsService.notifyNewOrder(finalOrder);
-
-      if (this.notificationsGateway.server) {
-        this.notificationsGateway.server
-          .to('staff-room')
-          .emit('new_order', `Nuevo pedido #${savedOrder.id} recibido`);
+      try {
+        this.notificationsService.notifyNewOrder(finalOrder);
+        if (this.notificationsGateway.server) {
+          this.notificationsGateway.server
+            .to('staff-room')
+            .emit('new_order', `Nuevo pedido #${savedOrder.id} recibido`);
+        }
+      } catch (notifyErr: unknown) {
+        this.logger.error(
+          'Failed to send new-order notification',
+          notifyErr instanceof Error ? notifyErr.stack : String(notifyErr),
+        );
       }
 
       return savedOrder;
@@ -205,12 +212,18 @@ export class OrdersService {
 
       // Notificar a Admin/Tendero
       savedOrder.customer = user;
-      this.notificationsService.notifyNewOrder(savedOrder);
-
-      if (this.notificationsGateway.server) {
-        this.notificationsGateway.server
-          .to('staff-room')
-          .emit('new_order', `Nuevo pedido #${savedOrder.id} recibido`);
+      try {
+        this.notificationsService.notifyNewOrder(savedOrder);
+        if (this.notificationsGateway.server) {
+          this.notificationsGateway.server
+            .to('staff-room')
+            .emit('new_order', `Nuevo pedido #${savedOrder.id} recibido`);
+        }
+      } catch (notifyErr: unknown) {
+        this.logger.error(
+          'Failed to send new-order notification',
+          notifyErr instanceof Error ? notifyErr.stack : String(notifyErr),
+        );
       }
 
       return savedOrder;
@@ -321,16 +334,13 @@ export class OrdersService {
         );
       }
 
-      // La validación de transiciones se flexibiliza para permitir gestión total desde el panel administrativo
-      /*
+      // Validar transicion de estado
       const allowedTransitions = VALID_TRANSITIONS.get(order.status);
-
-      if (!allowedTransitions?.includes(newStatus)) {
+      if (allowedTransitions && !allowedTransitions.includes(newStatus)) {
         throw new BadRequestException(
           `Invalid status transition: ${order.status} → ${newStatus}`,
         );
       }
-      */
 
       if (newStatus === OrderStatus.READY_FOR_DISPATCH) {
         const items = await queryRunner.manager.find(OrderItem, {
@@ -429,7 +439,7 @@ export class OrdersService {
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
       const msg = error instanceof Error ? `${error.message}\nStack: ${error.stack}` : String(error);
-      console.error(`[OrdersService.remove] id=${id} userId=${userId} error=${msg}`);
+      this.logger.error(`[OrdersService.remove] id=${id} userId=${userId} error=${msg}`);
       if (error instanceof HttpException) {
         throw error;
       }

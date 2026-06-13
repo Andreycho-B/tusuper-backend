@@ -19,8 +19,22 @@ interface JwtPayload {
 
 @WebSocketGateway({
   cors: {
-    origin: (origin, callback) => {
-      callback(null, true);
+    origin: (
+      origin: string | undefined,
+      callback: (err: Error | null, allow?: boolean) => void,
+    ) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+      const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:4200')
+        .split(',')
+        .map((o) => o.trim());
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS blocked: origin '${origin}' not allowed`));
+      }
     },
     credentials: true,
   },

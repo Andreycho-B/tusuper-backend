@@ -13,9 +13,14 @@ export class NotificationsService {
   constructor(private readonly gateway: NotificationsGateway) {}
 
   notifyNewOrder(order: Order): void {
+    if (!this.gateway.server) {
+      this.logger.warn('Gateway server not initialized. Skipping new order notification.');
+      return;
+    }
+
     const payload: NewOrderPayload = {
       orderId: order.id,
-      customerName: `${order.customer.firstName} ${order.customer.lastName}`,
+      customerName: `${order.customer?.firstName ?? 'Unknown'} ${order.customer?.lastName ?? ''}`,
       total: Number(order.totalAmount),
       createdAt: order.createdAt,
     };

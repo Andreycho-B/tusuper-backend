@@ -28,11 +28,8 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate(payload: JwtPayload) {
     const user = await this.usersService.findOne(payload.sub);
 
-    // Reject tokens belonging to deactivated users. Without this check, a
-    // user that an admin disabled (DELETE /users/:id sets isActive=false)
-    // could keep using their existing JWT until it expires (up to 1h).
-    if (!user.isActive) {
-      throw new UnauthorizedException('User account is inactive');
+    if (!user || !user.isActive) {
+      throw new UnauthorizedException('User account is inactive or deleted');
     }
 
     return { userId: payload.sub, role: payload.roles, roles: user.roles };

@@ -18,6 +18,7 @@ import {
   ApiBearerAuth,
 } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
+import { ConfigService } from '@nestjs/config';
 import type { GoogleAuthRequest } from '../interfaces/google-user.interface';
 import { LoginDto } from '../dtos/login.dto';
 import { RegisterDto } from '../dtos/register.dto';
@@ -30,14 +31,17 @@ import { GoogleAuthGuard } from '../guards/google-auth.guard';
 import { validateFrontendUrl } from '../constants';
 import type { AuthenticatedRequest } from '../../common/interfaces/authenticated-request.interface';
 
-@ApiTags('Autenticación')
+@ApiTags('Autenticacion')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly configService: ConfigService,
+  ) {}
 
   @Get('google')
   @UseGuards(GoogleAuthGuard)
-  @ApiOperation({ summary: 'Iniciar sesión con Google' })
+  @ApiOperation({ summary: 'Iniciar sesion con Google' })
   async googleAuth() {
     // Guard will handle redirection
   }
@@ -50,9 +54,7 @@ export class AuthController {
     @Res() res: Response,
   ) {
     const result = await this.authService.googleLogin(req);
-    const frontendUrl = validateFrontendUrl(
-      process.env.FRONTEND_URL || 'http://localhost:4200',
-    );
+    const frontendUrl = validateFrontendUrl(this.configService);
     res.redirect(
       `${frontendUrl}/auth/social-callback#token=${result.access_token}`,
     );
@@ -61,17 +63,17 @@ export class AuthController {
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Iniciar sesión y obtener JWT' })
+  @ApiOperation({ summary: 'Iniciar sesion y obtener JWT' })
   @ApiBody({ type: LoginDto })
   @ApiResponse({
     status: 200,
     description:
       'Login exitoso. Devuelve token de acceso y perfil del usuario filtrado.',
   })
-  @ApiResponse({ status: 401, description: 'Credenciales inválidas.' })
+  @ApiResponse({ status: 401, description: 'Credenciales invalidas.' })
   @ApiResponse({
     status: 429,
-    description: 'Demasiadas peticiones. Intente más tarde.',
+    description: 'Demasiadas peticiones. Intente mas tarde.',
   })
   async login(@Body() body: LoginDto) {
     const user = await this.authService.validateUser(body.email, body.password);
@@ -89,12 +91,12 @@ export class AuthController {
   })
   @ApiResponse({
     status: 400,
-    description: 'Datos inválidos o las contraseñas no coinciden.',
+    description: 'Datos invalidos o las contrasenas no coinciden.',
   })
-  @ApiResponse({ status: 409, description: 'El email ya está registrado.' })
+  @ApiResponse({ status: 409, description: 'El email ya esta registrado.' })
   @ApiResponse({
     status: 429,
-    description: 'Demasiadas peticiones. Intente más tarde.',
+    description: 'Demasiadas peticiones. Intente mas tarde.',
   })
   async register(@Body() body: RegisterDto) {
     return this.authService.register(body);
@@ -103,11 +105,11 @@ export class AuthController {
   @Throttle({ default: { limit: 2, ttl: 60000 } })
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Solicitar recuperación de contraseña' })
+  @ApiOperation({ summary: 'Solicitar recuperacion de contrasena' })
   @ApiBody({ type: ForgotPasswordDto })
   @ApiResponse({
     status: 200,
-    description: 'Respuesta genérica para prevenir enumeración.',
+    description: 'Respuesta generica para prevenir enumeracion.',
   })
   async forgotPassword(@Body() body: ForgotPasswordDto) {
     return this.authService.forgotPassword(body);
@@ -116,11 +118,11 @@ export class AuthController {
   @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Post('validate-reset-token')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Validar token de recuperación' })
+  @ApiOperation({ summary: 'Validar token de recuperacion' })
   @ApiBody({ type: ValidateResetTokenDto })
   @ApiResponse({
     status: 200,
-    description: 'Devuelve validación booleana del token.',
+    description: 'Devuelve validacion booleana del token.',
   })
   async validateResetToken(@Body() body: ValidateResetTokenDto) {
     return this.authService.validateResetToken(body.token);
@@ -129,10 +131,10 @@ export class AuthController {
   @Throttle({ default: { limit: 3, ttl: 60000 } })
   @Post('reset-password')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Restablecer contraseña con token' })
+  @ApiOperation({ summary: 'Restablecer contrasena con token' })
   @ApiBody({ type: ResetPasswordDto })
-  @ApiResponse({ status: 200, description: 'Contraseña actualizada.' })
-  @ApiResponse({ status: 400, description: 'Token inválido o expirado.' })
+  @ApiResponse({ status: 200, description: 'Contrasena actualizada.' })
+  @ApiResponse({ status: 400, description: 'Token invalido o expirado.' })
   async resetPassword(@Body() body: ResetPasswordDto) {
     return this.authService.resetPassword(body);
   }
@@ -140,14 +142,14 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('check-status')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Verificar estado de sesión y refrescar token' })
+  @ApiOperation({ summary: 'Verificar estado de sesion y refrescar token' })
   @ApiResponse({
     status: 200,
-    description: 'Sesión válida. Devuelve token refrescado y usuario.',
+    description: 'Sesion valida. Devuelve token refrescado y usuario.',
   })
   @ApiResponse({
     status: 401,
-    description: 'Token inválido o usuario inactivo.',
+    description: 'Token invalido o usuario inactivo.',
   })
   async checkStatus(@Request() req: AuthenticatedRequest) {
     return this.authService.checkStatus(req.user.userId);

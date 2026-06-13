@@ -13,6 +13,8 @@ import {
   ClassSerializerInterceptor,
 } from '@nestjs/common';
 
+import { Throttle } from '@nestjs/throttler';
+
 import { FileInterceptor } from '@nestjs/platform-express';
 
 import {
@@ -67,6 +69,7 @@ export class ProfileController {
     return this.usersService.updateProfile(userId, updateProfileDto);
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Patch('password')
   @ApiOperation({ summary: 'Cambiar mi contraseña' })
   async updatePassword(
@@ -77,6 +80,7 @@ export class ProfileController {
     return this.usersService.updatePassword(userId, updatePasswordDto);
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('avatar')
   @UseInterceptors(
     FileInterceptor('avatar', imageUploadOptions(AVATAR_MAX_SIZE_BYTES)),
@@ -100,6 +104,7 @@ export class ProfileController {
     return this.usersService.updateAvatar(userId, result.secure_url);
   }
 
+  @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Delete('avatar')
   @HttpCode(200)
   @ApiOperation({ summary: 'Eliminar foto de perfil' })

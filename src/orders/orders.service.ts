@@ -438,13 +438,13 @@ export class OrdersService {
       await queryRunner.commitTransaction();
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
-      const msg = error instanceof Error ? `${error.message}\nStack: ${error.stack}` : String(error);
-      this.logger.error(`[OrdersService.remove] id=${id} userId=${userId} error=${msg}`);
+      const msg = error instanceof Error ? error.message : String(error);
+      this.logger.error(`[OrdersService.remove] id=${id} userId=${userId}`, error instanceof Error ? error.stack : error);
       if (error instanceof HttpException) {
         throw error;
       }
       throw new InternalServerErrorException(
-        `Error processing order cancellation: ${msg}`,
+        'Error processing order cancellation',
       );
     } finally {
       await queryRunner.release();

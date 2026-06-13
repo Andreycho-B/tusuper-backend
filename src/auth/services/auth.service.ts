@@ -50,13 +50,30 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (user.lockedUntil && user.lockedUntil > new Date()) {
+      throw new UnauthorizedException(
+        'Account temporarily locked. Try again later.',
+      );
+    }
+
     if (!user.password) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    if (!(await bcrypt.compare(password, user.password))) {
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      user.failedLoginAttempts += 1;
+      if (user.failedLoginAttempts >= 5) {
+        user.lockedUntil = new Date(Date.now() + 15 * 60 * 1000);
+      }
+      await this.userRepo.save(user);
       throw new UnauthorizedException('Invalid credentials');
     }
+
+    user.failedLoginAttempts = 0;
+    user.lockedUntil = null;
+    await this.userRepo.save(user);
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { password: _, ...result } = user;
@@ -163,11 +180,11 @@ export class AuthService {
     const hash = this.hashResetToken(resetToken);
 
     user.resetPasswordToken = hash;
-    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutos
+    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000);
 
     await this.userRepo.save(user);
 
-    await this.mailService.sendPasswordResetEmail(
+    void this.mailService.sendPasswordResetEmail(
       user.email,
       resetToken,
       user.firstName || 'Usuario',
@@ -241,6 +258,11 @@ export class AuthService {
     });
 
     if (user) {
+      if (user.googleId && user.googleId !== googleId) {
+        throw new BadRequestException(
+          'Este email ya esta vinculado a una cuenta de Google diferente',
+        );
+      }
       if (!user.googleId) {
         user.googleId = googleId;
         user.isEmailVerified = true;

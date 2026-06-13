@@ -47,10 +47,12 @@ export class User {
   @Column({ type: 'varchar', length: 255, nullable: true })
   displayName?: string | null;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Exclude()
+  @Column({ type: 'varchar', length: 255, nullable: true, select: false })
   resetPasswordToken: string | null;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @Exclude()
+  @Column({ type: 'timestamp', nullable: true, select: false })
   resetPasswordExpires: Date | null;
 
   @Column({ type: 'varchar', length: 255, nullable: true, unique: true })
@@ -58,6 +60,12 @@ export class User {
 
   @Column({ type: 'boolean', default: false })
   isEmailVerified: boolean;
+
+  @Column({ type: 'int', default: 0 })
+  failedLoginAttempts: number;
+
+  @Column({ type: 'timestamp', nullable: true })
+  lockedUntil: Date | null;
 
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({

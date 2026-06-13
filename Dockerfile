@@ -2,7 +2,7 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 
 # ---------- Build ----------
 FROM base AS build
@@ -14,7 +14,7 @@ FROM node:20-alpine AS production
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --omit=dev && npm install ts-node tsconfig-paths
+RUN npm install --omit=dev && npm install ts-node tsconfig-paths
 
 COPY --from=build /app/dist ./dist
 

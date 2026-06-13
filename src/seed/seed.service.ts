@@ -135,7 +135,7 @@ export class SeedService {
       ),
     );
     const userModules = allModules.filter((m) =>
-      ['product'].includes(m.name),
+      ['product', 'orders'].includes(m.name),
     );
 
     const rolesData = [

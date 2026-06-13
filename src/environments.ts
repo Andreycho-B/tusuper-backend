@@ -4,4 +4,5 @@ export const environments = {
     stg: '.stg.env',
     prod: '.prod.env',
     test: '.env.test',
+    render: undefined,
 };

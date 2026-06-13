@@ -1,17 +1,21 @@
 /* 
     sirve para leer variables de entorno (.env)
-    y ponerlas disponibles en toda la aplicación NestJS de forma ordenada y segura.
+    y ponerlas disponibles en toda la aplicacion NestJS de forma ordenada y segura.
 */
 import { registerAs } from '@nestjs/config';
 
 export default registerAs('config', () => {
+  const databaseUrl = process.env.DATABASE_URL;
+
   return {
     dataBase: {
+      url: databaseUrl || undefined,
       name: process.env.POSTGRES_DB,
       port: Number.parseInt(process.env.POSTGRES_PORT || '5432', 10),
       user: process.env.POSTGRES_USER,
       password: process.env.POSTGRES_PASSWORD,
       host: process.env.POSTGRES_HOST,
+      ssl: process.env.NODE_ENV === 'prod',
     },
     mail: {
       host: process.env.MAIL_HOST,

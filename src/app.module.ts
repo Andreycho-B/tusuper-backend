@@ -23,22 +23,27 @@ import { DashboardModule } from './dashboard/dashboard.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath:
-        environments[
-          (process.env.NODE_ENV || 'dev') as keyof typeof environments
-        ],
+      envFilePath: process.env.SKIP_ENV_FILE
+        ? undefined
+        : environments[
+            (process.env.NODE_ENV || 'dev') as keyof typeof environments
+          ],
+      ignoreEnvFile: !!process.env.SKIP_ENV_FILE,
       load: [config],
       isGlobal: true,
       validationSchema: Joi.object({
-        POSTGRES_DB: Joi.string().required(),
-        POSTGRES_USER: Joi.string().required(),
-        POSTGRES_PASSWORD: Joi.string().required(),
-        POSTGRES_PORT: Joi.number().required(),
-        POSTGRES_HOST: Joi.string().required(),
-        // JWT_SECRET: mínimo 32 caracteres. Generar con:
+        // DATABASE_URL: connection string from Clever Cloud / Render.
+        // When present, individual POSTGRES_* vars are optional.
+        DATABASE_URL: Joi.string().uri().optional(),
+        POSTGRES_DB: Joi.string().optional(),
+        POSTGRES_USER: Joi.string().optional(),
+        POSTGRES_PASSWORD: Joi.string().optional(),
+        POSTGRES_PORT: Joi.number().optional(),
+        POSTGRES_HOST: Joi.string().optional(),
+        // JWT_SECRET: minimo 32 caracteres. Generar con:
         // node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
         JWT_SECRET: Joi.string().min(32).required(),
-        JWT_EXPIRES_IN: Joi.number().required(),
+        JWT_EXPIRES_IN: Joi.number().default(86400),
         MAIL_HOST: Joi.string().required(),
         MAIL_PORT: Joi.number().required(),
         MAIL_USER: Joi.string().required(),
@@ -54,6 +59,14 @@ import { DashboardModule } from './dashboard/dashboard.module';
         FRONTEND_URL: Joi.string()
           .pattern(/^(?!.*\*).+$/, { name: 'no-wildcard' })
           .required(),
+        // CLOUDINARY_*: optional for deployments without image uploads
+        CLOUDINARY_CLOUD_NAME: Joi.string().optional(),
+        CLOUDINARY_API_KEY: Joi.string().optional(),
+        CLOUDINARY_API_SECRET: Joi.string().optional(),
+        // SEED_SECRET / ADMIN_*: required only for production seed
+        SEED_SECRET: Joi.string().optional(),
+        ADMIN_EMAIL: Joi.string().email().optional(),
+        ADMIN_PASSWORD: Joi.string().min(8).optional(),
       }),
     }),
     DatabaseModule,

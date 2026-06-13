@@ -3,6 +3,8 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
+import * as express from 'express';
 import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 import { ConfigService } from '@nestjs/config';
 
@@ -10,16 +12,18 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  app.use(helmet({
-    contentSecurityPolicy: false,
-    crossOriginEmbedderPolicy: false,
-  }));
+  app.use(cookieParser());
 
-  app.use(require('express').json({ limit: '1mb' }));
-  app.use(require('express').urlencoded({ limit: '1mb', extended: true }));
+  app.use(
+    helmet({
+      contentSecurityPolicy: false,
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
 
-  // Comma-separated whitelist of allowed origins. Joi already validated
-  // that FRONTEND_URL exists and does not contain a wildcard.
+  app.use(express.json({ limit: '1mb' }));
+  app.use(express.urlencoded({ limit: '1mb', extended: true }));
+
   const allowedOrigins = configService
     .get<string>('FRONTEND_URL', '')
     .split(',')
@@ -31,9 +35,6 @@ async function bootstrap() {
       origin: string | undefined,
       callback: (err: Error | null, allow?: boolean) => void,
     ) => {
-      // Same-origin / server-to-server requests (curl, health checks)
-      // arrive without an Origin header. They are not subject to CORS
-      // and must be allowed through.
       if (!origin) {
         callback(null, true);
         return;
@@ -60,6 +61,7 @@ async function bootstrap() {
     .setDescription('Tu Super e-commerce API description')
     .setVersion('1.0')
     .addBearerAuth()
+    .addCookieAuth('token')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);

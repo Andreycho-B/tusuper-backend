@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Post,
   HttpCode,
   HttpStatus,
@@ -31,6 +32,14 @@ import { GoogleAuthGuard } from '../guards/google-auth.guard';
 import { validateFrontendUrl } from '../constants';
 import type { AuthenticatedRequest } from '../../common/interfaces/authenticated-request.interface';
 
+const COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'strict' as const,
+  path: '/',
+  maxAge: 86400_000,
+};
+
 @ApiTags('Autenticacion')
 @Controller('auth')
 export class AuthController {
@@ -39,13 +48,29 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
+  private setTokenCookie(res: Response, token: string): void {
+    const isProduction = process.env.NODE_ENV === 'prod';
+    res.cookie('token', token, {
+      ...COOKIE_OPTIONS,
+      secure: isProduction,
+    });
+  }
+
+  private clearTokenCookie(res: Response): void {
+    res.cookie('token', '', {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'prod',
+      sameSite: 'strict',
+      path: '/',
+      maxAge: 0,
+    });
+  }
+
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Get('google')
   @UseGuards(GoogleAuthGuard)
   @ApiOperation({ summary: 'Iniciar sesion con Google' })
-  async googleAuth() {
-    // Guard will handle redirection
-  }
+  async googleAuth() {}
 
   @Throttle({ default: { limit: 10, ttl: 60000 } })
   @Get('google/callback')
@@ -53,9 +78,10 @@ export class AuthController {
   @ApiOperation({ summary: 'Callback de Google OAuth2' })
   async googleAuthRedirect(
     @Request() req: GoogleAuthRequest,
-    @Res() res: Response,
+    @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.googleLogin(req);
+    this.setTokenCookie(res, result.access_token);
     const frontendUrl = validateFrontendUrl(this.configService);
     res.redirect(
       `${frontendUrl}/auth/social-callback#token=${result.access_token}`,
@@ -67,41 +93,21 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Iniciar sesion y obtener JWT' })
   @ApiBody({ type: LoginDto })
-  @ApiResponse({
-    status: 200,
-    description:
-      'Login exitoso. Devuelve token de acceso y perfil del usuario filtrado.',
-  })
-  @ApiResponse({ status: 401, description: 'Credenciales invalidas.' })
-  @ApiResponse({
-    status: 429,
-    description: 'Demasiadas peticiones. Intente mas tarde.',
-  })
-  async login(@Body() body: LoginDto) {
+  async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
     const user = await this.authService.validateUser(body.email, body.password);
-    return this.authService.login(user);
+    const result = this.authService.login(user);
+    this.setTokenCookie(res, result.access_token);
+    return result;
   }
 
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('register')
   @ApiOperation({ summary: 'Registrar un nuevo usuario' })
   @ApiBody({ type: RegisterDto })
-  @ApiResponse({
-    status: 201,
-    description:
-      'Usuario registrado exitosamente. Devuelve token de acceso y perfil del usuario.',
-  })
-  @ApiResponse({
-    status: 400,
-    description: 'Datos invalidos o las contrasenas no coinciden.',
-  })
-  @ApiResponse({ status: 409, description: 'El email ya esta registrado.' })
-  @ApiResponse({
-    status: 429,
-    description: 'Demasiadas peticiones. Intente mas tarde.',
-  })
-  async register(@Body() body: RegisterDto) {
-    return this.authService.register(body);
+  async register(@Body() body: RegisterDto, @Res({ passthrough: true }) res: Response) {
+    const result = await this.authService.register(body);
+    this.setTokenCookie(res, result.access_token);
+    return result;
   }
 
   @Throttle({ default: { limit: 2, ttl: 60000 } })
@@ -109,10 +115,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Solicitar recuperacion de contrasena' })
   @ApiBody({ type: ForgotPasswordDto })
-  @ApiResponse({
-    status: 200,
-    description: 'Respuesta generica para prevenir enumeracion.',
-  })
   async forgotPassword(@Body() body: ForgotPasswordDto) {
     return this.authService.forgotPassword(body);
   }
@@ -122,10 +124,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Validar token de recuperacion' })
   @ApiBody({ type: ValidateResetTokenDto })
-  @ApiResponse({
-    status: 200,
-    description: 'Devuelve validacion booleana del token.',
-  })
   async validateResetToken(@Body() body: ValidateResetTokenDto) {
     return this.authService.validateResetToken(body.token);
   }
@@ -135,8 +133,6 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Restablecer contrasena con token' })
   @ApiBody({ type: ResetPasswordDto })
-  @ApiResponse({ status: 200, description: 'Contrasena actualizada.' })
-  @ApiResponse({ status: 400, description: 'Token invalido o expirado.' })
   async resetPassword(@Body() body: ResetPasswordDto) {
     return this.authService.resetPassword(body);
   }
@@ -146,15 +142,29 @@ export class AuthController {
   @Get('check-status')
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Verificar estado de sesion y refrescar token' })
-  @ApiResponse({
-    status: 200,
-    description: 'Sesion valida. Devuelve token refrescado y usuario.',
-  })
-  @ApiResponse({
-    status: 401,
-    description: 'Token invalido o usuario inactivo.',
-  })
-  async checkStatus(@Request() req: AuthenticatedRequest) {
-    return this.authService.checkStatus(req.user.userId);
+  async checkStatus(
+    @Request() req: AuthenticatedRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const result = await this.authService.checkStatus(req.user.userId);
+    this.setTokenCookie(res, result.access_token);
+    return result;
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Cerrar sesion y revocar token' })
+  async logout(
+    @Request() req: AuthenticatedRequest,
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const { jti, exp } = req.user as any;
+    if (jti) {
+      await this.authService.logout(jti, exp);
+    }
+    this.clearTokenCookie(res);
+    return { message: 'Sesion cerrada exitosamente' };
   }
 }

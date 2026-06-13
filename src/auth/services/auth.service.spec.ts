@@ -15,6 +15,7 @@ import { UsersService } from '../../users/services/users/users.service';
 import { MailService } from '../../mail/mail.service';
 import { User } from '../../users/entities/user.entity';
 import { Role } from '../../roles/entities/role.entity';
+import { TokenBlacklist } from '../entities/token-blacklist.entity';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -47,6 +48,8 @@ function buildUser(overrides: Partial<User> = {}): User {
     resetPasswordExpires: null,
     googleId: undefined,
     isEmailVerified: false,
+    failedLoginAttempts: 0,
+    lockedUntil: null,
     orders: [],
     ...overrides,
   } as User;
@@ -79,6 +82,16 @@ const mockRoleRepo = {
   findOne: jest.fn(),
 };
 
+const mockBlacklistRepo = {
+  findOne: jest.fn(),
+  save: jest.fn(),
+  createQueryBuilder: jest.fn().mockReturnValue({
+    delete: jest.fn().mockReturnThis(),
+    where: jest.fn().mockReturnThis(),
+    execute: jest.fn().mockResolvedValue(undefined),
+  }),
+};
+
 // ---------------------------------------------------------------------------
 // Tests
 // ---------------------------------------------------------------------------
@@ -98,6 +111,7 @@ describe('AuthService', () => {
         { provide: MailService, useValue: mockMailService },
         { provide: getRepositoryToken(User), useValue: mockUserRepo },
         { provide: getRepositoryToken(Role), useValue: mockRoleRepo },
+        { provide: getRepositoryToken(TokenBlacklist), useValue: mockBlacklistRepo },
       ],
     }).compile();
 
@@ -172,11 +186,11 @@ describe('AuthService', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('should throw ConflictException when email already exists', async () => {
+    it('should throw generic error when email already exists (anti-enumeration)', async () => {
       mockUserRepo.findOne.mockResolvedValue(buildUser());
 
       await expect(service.register(registerDto)).rejects.toThrow(
-        ConflictException,
+        BadRequestException,
       );
     });
 

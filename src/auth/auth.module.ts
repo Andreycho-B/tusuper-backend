@@ -14,11 +14,12 @@ import { RolesGuard } from './guards/roles.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
+import { TokenBlacklist } from './entities/token-blacklist.entity';
 import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Role]),
+    TypeOrmModule.forFeature([User, Role, TokenBlacklist]),
     UsersModule,
     MailModule,
     PassportModule,
@@ -26,7 +27,10 @@ import { MailModule } from '../mail/mail.module';
       inject: [config.KEY],
       useFactory: (configType: ConfigType<typeof config>) => ({
         secret: configType.jwt.secret,
-        signOptions: { expiresIn: configType.jwt.expiresIn },
+        signOptions: {
+          expiresIn: configType.jwt.expiresIn,
+          algorithm: 'HS256',
+        },
       }),
     }),
   ],

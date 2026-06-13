@@ -2,6 +2,7 @@ import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../../users/services/users/users.service';
 import * as bcrypt from 'bcrypt';
+import * as crypto from 'crypto';
 import { UserModel } from '../../users/interfaces/user';
 import { Role } from '../../roles/entities/role.entity';
 import { RegisterDto } from '../dtos/register.dto';
@@ -13,11 +14,11 @@ import {
   InternalServerErrorException,
   BadRequestException,
 } from '@nestjs/common';
-import * as crypto from 'crypto';
 import { MailService } from '../../mail/mail.service';
 import { ForgotPasswordDto } from '../dtos/forgot-password.dto';
 import { ResetPasswordDto } from '../dtos/reset-password.dto';
 import { GoogleAuthRequest } from '../interfaces/google-user.interface';
+import { TokenBlacklist } from '../entities/token-blacklist.entity';
 
 @Injectable()
 export class AuthService {
@@ -29,6 +30,8 @@ export class AuthService {
     private readonly mailService: MailService,
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     @InjectRepository(Role) private readonly roleRepo: Repository<Role>,
+    @InjectRepository(TokenBlacklist)
+    private readonly blacklistRepo: Repository<TokenBlacklist>,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -87,7 +90,9 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException('El email ya está registrado');
+      throw new BadRequestException(
+        'No se pudo completar el registro. Por favor, intentalo de nuevo.',
+      );
     }
 
     const userRole = await this.roleRepo.findOne({
@@ -115,16 +120,38 @@ export class AuthService {
   }
 
   login(user: UserModel) {
+    const jti = crypto.randomUUID();
     const payload = {
       sub: user.id,
       email: user.email,
       roles: user.roles?.map((role: Role) => role.name) || [],
+      jti,
     };
 
     return {
       access_token: this.jwtService.sign(payload),
       user: user,
     };
+  }
+
+  async logout(jti: string, exp: number): Promise<void> {
+    await this.blacklistRepo.save({
+      jti,
+      expiresAt: new Date(exp * 1000),
+    });
+  }
+
+  async isTokenBlacklisted(jti: string): Promise<boolean> {
+    const entry = await this.blacklistRepo.findOne({ where: { jti } });
+    return !!entry;
+  }
+
+  async cleanupExpiredTokens(): Promise<void> {
+    await this.blacklistRepo
+      .createQueryBuilder()
+      .delete()
+      .where('expiresAt < :now', { now: new Date() })
+      .execute();
   }
 
   async checkStatus(userId: number) {

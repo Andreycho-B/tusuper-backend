@@ -9,7 +9,6 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import {
-  ConflictException,
   InternalServerErrorException,
   BadRequestException,
 } from '@nestjs/common';
@@ -70,7 +69,9 @@ export class AuthService {
     });
 
     if (existingUser) {
-      throw new ConflictException('El email ya está registrado');
+      throw new BadRequestException(
+        'No se pudo completar el registro. Por favor, intentalo de nuevo.',
+      );
     }
 
     const userRole = await this.roleRepo.findOne({

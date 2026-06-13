@@ -4,7 +4,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
   BadRequestException,
-  ConflictException,
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -172,11 +171,11 @@ describe('AuthService', () => {
       ).rejects.toThrow(BadRequestException);
     });
 
-    it('should throw ConflictException when email already exists', async () => {
+    it('should throw generic error when email already exists (anti-enumeration)', async () => {
       mockUserRepo.findOne.mockResolvedValue(buildUser());
 
       await expect(service.register(registerDto)).rejects.toThrow(
-        ConflictException,
+        BadRequestException,
       );
     });
 

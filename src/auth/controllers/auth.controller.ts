@@ -27,6 +27,7 @@ import { ForgotPasswordDto } from '../dtos/forgot-password.dto';
 import { ResetPasswordDto } from '../dtos/reset-password.dto';
 import { ValidateResetTokenDto } from '../dtos/validate-reset-token.dto';
 import { AuthService } from '../services/auth.service';
+import { PasswordResetService } from '../services/password-reset.service';
 import { JwtAuthGuard } from '../guards/auth.guard';
 import { GoogleAuthGuard } from '../guards/google-auth.guard';
 import { validateFrontendUrl } from '../constants';
@@ -45,6 +46,7 @@ const COOKIE_OPTIONS = {
 export class AuthController {
   constructor(
     private readonly authService: AuthService,
+    private readonly passwordResetService: PasswordResetService,
     private readonly configService: ConfigService,
   ) {}
 
@@ -116,7 +118,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Solicitar recuperacion de contrasena' })
   @ApiBody({ type: ForgotPasswordDto })
   async forgotPassword(@Body() body: ForgotPasswordDto) {
-    return this.authService.forgotPassword(body);
+    return this.passwordResetService.forgotPassword(body);
   }
 
   @Throttle({ default: { limit: 3, ttl: 60000 } })
@@ -125,7 +127,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Validar token de recuperacion' })
   @ApiBody({ type: ValidateResetTokenDto })
   async validateResetToken(@Body() body: ValidateResetTokenDto) {
-    return this.authService.validateResetToken(body.token);
+    return this.passwordResetService.validateResetToken(body.token);
   }
 
   @Throttle({ default: { limit: 3, ttl: 60000 } })
@@ -134,7 +136,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Restablecer contrasena con token' })
   @ApiBody({ type: ResetPasswordDto })
   async resetPassword(@Body() body: ResetPasswordDto) {
-    return this.authService.resetPassword(body);
+    return this.passwordResetService.resetPassword(body);
   }
 
   @Throttle({ default: { limit: 10, ttl: 60000 } })

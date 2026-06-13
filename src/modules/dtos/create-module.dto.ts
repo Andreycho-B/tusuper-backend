@@ -1,5 +1,5 @@
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
-import { IsString, IsOptional } from 'class-validator';
+import { IsString, IsOptional, MaxLength, IsNotEmpty } from 'class-validator';
 
 export class CreateModuleDto {
   @ApiProperty({
@@ -7,6 +7,8 @@ export class CreateModuleDto {
     description: 'Nombre del módulo del sistema',
   })
   @IsString()
+  @IsNotEmpty()
+  @MaxLength(50)
   name: string;
 
   @ApiPropertyOptional({
@@ -15,6 +17,7 @@ export class CreateModuleDto {
   })
   @IsOptional()
   @IsString()
+  @MaxLength(255)
   description?: string;
 }
 

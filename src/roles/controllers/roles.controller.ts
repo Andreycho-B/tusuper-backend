@@ -22,13 +22,16 @@ import {
 import { JwtAuthGuard } from '../../auth/guards/auth.guard';
 import { Modules } from '../../auth/decorators/modules.decorator';
 import { ModulesGuard } from '../../auth/guards/modules.guard';
+import { RolesGuard } from '../../auth/guards/roles.guard';
+import { Roles } from '../../auth/decorators/roles.decorator';
 import { Role } from '../entities/role.entity';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
 import { PaginatedResult } from '../../common/interfaces/paginated-result.interface';
 
 @ApiBearerAuth()
 @Modules('roles')
-@UseGuards(JwtAuthGuard, ModulesGuard)
+@Roles('ADMIN')
+@UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
 @ApiTags('Roles')
 @Controller('roles')
 export class RolesController {

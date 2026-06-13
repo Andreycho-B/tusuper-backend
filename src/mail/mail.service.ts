@@ -1,13 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import { MailerService } from '@nestjs-modules/mailer';
+import { validateFrontendUrl } from '../auth/constants';
 
 @Injectable()
 export class MailService {
   constructor(private readonly mailerService: MailerService) {}
 
   async sendPasswordResetEmail(email: string, token: string, userName: string) {
-    const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4200';
-    const resetUrl = `${frontendUrl}/auth/reset-password?token=${token}`;
+    const frontendUrl = validateFrontendUrl(
+      process.env.FRONTEND_URL || 'http://localhost:4200',
+    );
+    const resetUrl = `${frontendUrl}/auth/reset-password#token=${token}`;
 
     await this.mailerService.sendMail({
       to: email,

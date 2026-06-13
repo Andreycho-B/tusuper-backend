@@ -6,6 +6,8 @@ import {
   IsNumber,
   IsOptional,
   IsString,
+  Matches,
+  MaxLength,
   Min,
   ValidateNested,
 } from 'class-validator';
@@ -14,6 +16,7 @@ import { CreateOrderItemDto } from './create-order-item.dto';
 export class CreateOrderDto {
   @ApiProperty({ description: 'The payment method used', example: 'CASH' })
   @IsString()
+  @MaxLength(50)
   paymentMethod: string;
 
   @ApiProperty({
@@ -21,6 +24,7 @@ export class CreateOrderDto {
     example: '123 Main St, Apt 4B',
   })
   @IsString()
+  @MaxLength(500)
   deliveryAddress: string;
 
   @ApiPropertyOptional({
@@ -29,13 +33,17 @@ export class CreateOrderDto {
   })
   @IsOptional()
   @IsString()
+  @MaxLength(1000)
   deliveryNotes?: string;
 
   @ApiProperty({
     description: 'Direct contact phone for the delivery person',
-    example: '+1234567890',
+    example: '3001234567',
   })
   @IsString()
+  @Matches(/^3\d{9}$/, {
+    message: 'El teléfono debe tener exactamente 10 dígitos y empezar por 3',
+  })
   contactPhone: string;
 
   @ApiPropertyOptional({

@@ -26,10 +26,11 @@ export class UsersService {
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<User>> {
     const { limit = 10, offset = 0, search } = pagination;
-    
+
     // Complejidad Temporal: O(N) para serialización de registros devueltos. Búsqueda delegada a la DB.
     // Complejidad Espacial: O(N) para los registros devueltos.
-    const queryBuilder = this.userRepo.createQueryBuilder('user')
+    const queryBuilder = this.userRepo
+      .createQueryBuilder('user')
       .leftJoinAndSelect('user.roles', 'role');
 
     if (search) {
@@ -173,6 +174,12 @@ export class UsersService {
       throw new NotFoundException(`Usuario #${userId} no encontrado`);
     }
 
+    if (!user.password) {
+      throw new ConflictException(
+        'Usuario OAuth no tiene contraseña establecida. Use login social.',
+      );
+    }
+
     const isPasswordValid = await bcrypt.compare(
       currentPassword,
       user.password,
@@ -195,6 +202,18 @@ export class UsersService {
 
     user.isActive = false;
 
+    return this.userRepo.save(user);
+  }
+
+  async updateAvatar(userId: number, avatarUrl: string): Promise<User> {
+    const user = await this.findOne(userId);
+    user.avatarUrl = avatarUrl;
+    return this.userRepo.save(user);
+  }
+
+  async removeAvatar(userId: number): Promise<User> {
+    const user = await this.findOne(userId);
+    user.avatarUrl = null;
     return this.userRepo.save(user);
   }
 }

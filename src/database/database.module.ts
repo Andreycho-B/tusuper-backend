@@ -10,21 +10,31 @@ import { isManagedPostgres } from '../config/database.config';
     TypeOrmModule.forRootAsync({
       inject: [config.KEY],
       useFactory: (configType: ConfigType<typeof config>) => {
-        const { user, host, name, password, port } = configType.dataBase;
-        const useSsl = isManagedPostgres();
+        const { user, host, name, password, port, url, ssl } =
+          configType.dataBase;
+
+        const baseConfig = {
+          type: 'postgres' as const,
+          synchronize: process.env.NODE_ENV === 'test',
+          autoLoadEntities: true,
+        };
+
+        if (url) {
+          return {
+            ...baseConfig,
+            url,
+            ssl: ssl ? { rejectUnauthorized: false } : false,
+          };
+        }
 
         return {
-          type: 'postgres',
+          ...baseConfig,
           host,
           port,
           username: user,
           password,
           database: name,
-          synchronize: process.env.NODE_ENV === 'test',
-          autoLoadEntities: true,
-          ...(useSsl
-            ? { ssl: { rejectUnauthorized: false } }
-            : {}),
+          ssl: ssl ? { rejectUnauthorized: false } : false,
         };
       },
     }),

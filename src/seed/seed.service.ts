@@ -1,7 +1,6 @@
 import {
   Injectable,
   InternalServerErrorException,
-  BadRequestException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, DeepPartial, Repository } from 'typeorm';
@@ -12,11 +11,7 @@ import { Product } from '../inventory/entities/product.entity';
 import { Role } from '../roles/entities/role.entity';
 import { ModuleEntity } from '../modules/entities/module.entity';
 import { User } from '../users/entities/user.entity';
-import {
-  BootstrapResult,
-  ProductionSeedResult,
-  SeedResult,
-} from './interfaces/seed-result.interface';
+import { SeedResult } from './interfaces/seed-result.interface';
 import { categoriesData } from './data/categories.data';
 import { providersData } from './data/providers.data';
 import { buildProductsData } from './data/products.data';
@@ -39,108 +34,169 @@ export class SeedService {
     private readonly dataSource: DataSource,
   ) {}
 
-  async bootstrapSystem(): Promise<BootstrapResult> {
-    const modulesData = [
-      { name: 'users', description: 'Gestión de Usuarios' },
-      { name: 'roles', description: 'Gestión de Roles' },
-      { name: 'modules', description: 'Gestión de Módulos' },
-      { name: 'product', description: 'Gestión de Productos' },
-      { name: 'category', description: 'Gestión de Categorías' },
-      { name: 'provider', description: 'Gestión de Proveedores' },
-      { name: 'orders', description: 'Gestión de Pedidos' },
+  async runProduction(
+    seedSecret: string,
+    adminEmail: string,
+    adminPassword: string,
+  ): Promise<SeedResult> {
+    const expectedSecret = process.env.SEED_SECRET;
+    if (!expectedSecret || seedSecret !== expectedSecret) {
+      throw new InternalServerErrorException('Seed secret invalido');
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      // ── BOOTSTRAP: modulos, roles, admin ─
+      const bootstrapResult = await this.bootstrap(adminEmail, adminPassword);
+
+      // ── LIMPIEZA DE INVENTARIO ─
+      await queryRunner.query('TRUNCATE TABLE order_items CASCADE');
+      await queryRunner.query('TRUNCATE TABLE product CASCADE');
+      await queryRunner.query('TRUNCATE TABLE category CASCADE');
+      await queryRunner.query('TRUNCATE TABLE provider CASCADE');
+
+      // ── INSERCION DE CATEGORIAS ─
+      const savedCategories: Category[] = await queryRunner.manager.save(
+        Category,
+        categoriesData as DeepPartial<Category>[],
+      );
+
+      // ── INSERCION DE PROVEEDORES ─
+      const savedProviders: Provider[] = await queryRunner.manager.save(
+        Provider,
+        providersData as DeepPartial<Provider>[],
+      );
+
+      // ── INSERCION DE PRODUCTOS ─
+      const productsToSeed = buildProductsData(savedCategories, savedProviders);
+      await queryRunner.manager.save(Product, productsToSeed);
+
+      await queryRunner.commitTransaction();
+
+      return {
+        message: 'Seeder completado exitosamente',
+        bootstrap: bootstrapResult,
+        categoriesInserted: savedCategories.length,
+        providersInserted: savedProviders.length,
+        productsInserted: productsToSeed.length,
+      };
+    } catch (error: unknown) {
+      await queryRunner.rollbackTransaction();
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Error desconocido en el seeder';
+      throw new InternalServerErrorException(
+        `Seeder fallo y se revirtio la transaccion: ${message}`,
+      );
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  private async bootstrap(
+    adminEmail: string,
+    adminPassword: string,
+  ): Promise<NonNullable<SeedResult['bootstrap']>> {
+    // ── MODULOS ─
+    const moduleNames = [
+      { name: 'users', description: 'Gestion de usuarios' },
+      { name: 'roles', description: 'Gestion de roles' },
+      { name: 'modules', description: 'Gestion de modulos' },
+      { name: 'product', description: 'Gestion de productos' },
+      { name: 'category', description: 'Gestion de categorias' },
+      { name: 'provider', description: 'Gestion de proveedores' },
+      { name: 'orders', description: 'Gestion de pedidos' },
+      { name: 'dashboard', description: 'Panel de estadisticas' },
+      { name: 'notifications', description: 'Notificaciones' },
     ];
 
-    const seededModules: Record<string, ModuleEntity> = {};
-    for (const item of modulesData) {
-      let moduleEntity = await this.moduleRepo.findOne({
-        where: { name: item.name },
+    const savedModules: ModuleEntity[] = [];
+    for (const mod of moduleNames) {
+      const existing = await this.moduleRepo.findOne({
+        where: { name: mod.name },
       });
-      if (!moduleEntity) {
-        moduleEntity = this.moduleRepo.create(item);
-        await this.moduleRepo.save(moduleEntity);
+      if (!existing) {
+        savedModules.push(await this.moduleRepo.save(mod));
+      } else {
+        savedModules.push(existing);
       }
-      seededModules[item.name] = moduleEntity;
     }
+
+    // ── ROLES ─
+    const allModules = await this.moduleRepo.find();
+    const adminModules = allModules;
+    const staffModules = allModules.filter((m) =>
+      ['product', 'category', 'provider', 'orders', 'dashboard', 'notifications'].includes(
+        m.name,
+      ),
+    );
+    const userModules = allModules.filter((m) =>
+      ['product'].includes(m.name),
+    );
 
     const rolesData = [
-      { name: 'USER', description: 'Usuario final / cliente' },
-      { name: 'ADMIN', description: 'Administrador del sistema' },
-      { name: 'TENDERO', description: 'Tendero / Vendedor' },
-      { name: 'TENDER', description: 'Tendero (alias)' },
-      { name: 'VENDEDOR', description: 'Vendedor de tienda' },
+      { name: 'ADMIN', description: 'Administrador del sistema', modules: adminModules },
+      { name: 'TENDERO', description: 'Tendero', modules: staffModules },
+      { name: 'TENDER', description: 'Tender', modules: staffModules },
+      { name: 'VENDEDOR', description: 'Vendedor', modules: staffModules },
+      { name: 'USER', description: 'Usuario cliente', modules: userModules },
     ];
 
-    const seededRoles: Record<string, Role> = {};
-    for (const item of rolesData) {
-      let roleEntity = await this.roleRepo.findOne({ where: { name: item.name } });
-      if (!roleEntity) {
-        roleEntity = this.roleRepo.create(item);
-        await this.roleRepo.save(roleEntity);
+    const savedRoles: Role[] = [];
+    for (const r of rolesData) {
+      const existing = await this.roleRepo.findOne({
+        where: { name: r.name },
+        relations: ['modules'],
+      });
+      if (!existing) {
+        savedRoles.push(await this.roleRepo.save(r));
+      } else {
+        existing.modules = r.modules;
+        savedRoles.push(await this.roleRepo.save(existing));
       }
-      seededRoles[item.name] = roleEntity;
     }
 
-    seededRoles['ADMIN'].modules = Object.values(seededModules);
-    await this.roleRepo.save(seededRoles['ADMIN']);
-
-    const staffModules = [
-      seededModules['product'],
-      seededModules['category'],
-      seededModules['provider'],
-      seededModules['orders'],
-      seededModules['users'],
-      seededModules['roles'],
-    ];
-
-    for (const roleName of ['TENDERO', 'TENDER', 'VENDEDOR']) {
-      seededRoles[roleName].modules = staffModules;
-      await this.roleRepo.save(seededRoles[roleName]);
-    }
-
-    seededRoles['USER'].modules = [
-      seededModules['product'],
-      seededModules['category'],
-      seededModules['orders'],
-    ];
-    await this.roleRepo.save(seededRoles['USER']);
-
-    const adminEmail = process.env.ADMIN_EMAIL || 'admin@tusuper.com';
-    const adminPassword = process.env.ADMIN_PASSWORD;
-    if (!adminPassword) {
-      throw new BadRequestException(
-        'ADMIN_PASSWORD es obligatorio para crear el usuario administrador',
-      );
-    }
-
+    // ── ADMIN USER ─
+    const adminRole = savedRoles.find((r) => r.name === 'ADMIN');
     let adminCreated = false;
-    let adminUser = await this.userRepo.findOne({
+    let existingAdmin = await this.userRepo.findOne({
       where: { email: adminEmail },
-      relations: { roles: true },
     });
 
-    if (!adminUser) {
+    if (!existingAdmin) {
       const hashedPassword = await bcrypt.hash(adminPassword, 10);
-      adminUser = this.userRepo.create({
-        firstName: process.env.ADMIN_FIRST_NAME || 'Admin',
-        lastName: process.env.ADMIN_LAST_NAME || 'TuSuper',
+      const adminUser = this.userRepo.create({
+        firstName: 'Admin',
+        lastName: 'TuSuper',
         email: adminEmail,
         password: hashedPassword,
-        isActive: true,
-        roles: [seededRoles['ADMIN']],
+        displayName: 'Admin TuSuper',
+        isEmailVerified: true,
+        roles: adminRole ? [adminRole] : [],
       });
       await this.userRepo.save(adminUser);
       adminCreated = true;
-    } else if (!adminUser.roles.some((r) => r.name === 'ADMIN')) {
-      adminUser.roles = [...adminUser.roles, seededRoles['ADMIN']];
-      await this.userRepo.save(adminUser);
+    } else {
+      // Update admin role if it exists but doesn't have admin role
+      const hasAdminRole = existingAdmin.roles?.some(
+        (r) => r.name === 'ADMIN',
+      );
+      if (!hasAdminRole && adminRole) {
+        existingAdmin.roles = [...(existingAdmin.roles || []), adminRole];
+        await this.userRepo.save(existingAdmin);
+        adminCreated = true;
+      }
     }
 
     return {
-      message: 'Bootstrap de sistema completado',
-      modulesReady: Object.keys(seededModules).length,
-      rolesReady: Object.keys(seededRoles).length,
       adminEmail,
       adminCreated,
+      rolesInserted: savedRoles.length,
+      modulesInserted: savedModules.length,
     };
   }
 
@@ -150,21 +206,25 @@ export class SeedService {
     await queryRunner.startTransaction();
 
     try {
-      await queryRunner.query('DELETE FROM order_items');
-      await queryRunner.query('DELETE FROM product');
-      await queryRunner.query('DELETE FROM category');
-      await queryRunner.query('DELETE FROM provider');
+      // ── LIMPIEZA (TRUNCATE CASCADE resetea sequences y es mas rapido) ─
+      await queryRunner.query('TRUNCATE TABLE order_items CASCADE');
+      await queryRunner.query('TRUNCATE TABLE product CASCADE');
+      await queryRunner.query('TRUNCATE TABLE category CASCADE');
+      await queryRunner.query('TRUNCATE TABLE provider CASCADE');
 
+      // ── INSERCION DE CATEGORIAS ─
       const savedCategories: Category[] = await queryRunner.manager.save(
         Category,
         categoriesData as DeepPartial<Category>[],
       );
 
+      // ── INSERCION DE PROVEEDORES ─
       const savedProviders: Provider[] = await queryRunner.manager.save(
         Provider,
         providersData as DeepPartial<Provider>[],
       );
 
+      // ── INSERCION DE PRODUCTOS ─
       const productsToSeed = buildProductsData(savedCategories, savedProviders);
       await queryRunner.manager.save(Product, productsToSeed);
 
@@ -183,7 +243,7 @@ export class SeedService {
           ? error.message
           : 'Error desconocido en el seeder';
       throw new InternalServerErrorException(
-        `Seeder falló y se revirtió la transacción: ${message}`,
+        `Seeder fallo y se revirtio la transaccion: ${message}`,
       );
     } finally {
       await queryRunner.release();

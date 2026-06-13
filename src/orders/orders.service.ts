@@ -1,9 +1,11 @@
 import {
   Injectable,
+  Logger,
   NotFoundException,
   BadRequestException,
   InternalServerErrorException,
   HttpException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
@@ -45,6 +47,8 @@ const VALID_TRANSITIONS: ReadonlyMap<OrderStatus, readonly OrderStatus[]> =
 
 @Injectable()
 export class OrdersService {
+  private readonly logger = new Logger(OrdersService.name);
+
   constructor(
     @InjectRepository(Order)
     private readonly orderRepository: Repository<Order>,
@@ -358,9 +362,9 @@ export class OrdersService {
       return enrichedOrder;
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
-      console.error(
-        '[OrdersService.updateStatus] Error updating status:',
-        error,
+      this.logger.error(
+        'Error updating order status',
+        error instanceof Error ? error.stack : String(error),
       );
       if (error instanceof HttpException) {
         throw error;
@@ -386,7 +390,7 @@ export class OrdersService {
     return order;
   }
 
-  async remove(id: number): Promise<void> {
+  async remove(id: number, userId?: number): Promise<void> {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -395,7 +399,7 @@ export class OrdersService {
       const order = await queryRunner.manager
         .createQueryBuilder(Order, 'order')
         .setLock('pessimistic_write')
-        .leftJoinAndSelect('order.items', 'items')
+        .innerJoinAndSelect('order.items', 'items')
         .where('order.id = :id', { id })
         .getOne();
 
@@ -405,6 +409,12 @@ export class OrdersService {
 
       if (order.status === OrderStatus.CANCELLED) {
         throw new BadRequestException('El pedido ya se encuentra cancelado.');
+      }
+
+      if (typeof userId === 'number' && order.customerId !== userId) {
+        throw new ForbiddenException(
+          'No tienes permiso para cancelar este pedido',
+        );
       }
 
       if (order.stockDeducted) {
@@ -418,11 +428,13 @@ export class OrdersService {
       await queryRunner.commitTransaction();
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
+      const msg = error instanceof Error ? `${error.message}\nStack: ${error.stack}` : String(error);
+      console.error(`[OrdersService.remove] id=${id} userId=${userId} error=${msg}`);
       if (error instanceof HttpException) {
         throw error;
       }
       throw new InternalServerErrorException(
-        'Error processing order cancellation',
+        `Error processing order cancellation: ${msg}`,
       );
     } finally {
       await queryRunner.release();

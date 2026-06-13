@@ -10,6 +10,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 interface JwtPayload {
   sub: number;
@@ -18,7 +19,9 @@ interface JwtPayload {
 
 @WebSocketGateway({
   cors: {
-    origin: 'http://localhost:4200',
+    origin: (origin, callback) => {
+      callback(null, true);
+    },
     credentials: true,
   },
 })
@@ -30,7 +33,10 @@ export class NotificationsGateway
 
   private readonly logger = new Logger(NotificationsGateway.name);
 
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly jwtService: JwtService,
+    private readonly configService: ConfigService,
+  ) {}
 
   handleConnection(client: Socket) {
     this.logger.log(`Client connected: ${client.id}`);

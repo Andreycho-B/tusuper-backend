@@ -4,14 +4,17 @@ import { CreateModuleDto } from './dtos/create-module.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
 import { ModulesGuard } from '../auth/guards/modules.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import { Modules } from '../auth/decorators/modules.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { ModuleEntity } from './entities/module.entity';
 import { PaginationDto } from '../common/dtos/pagination.dto';
 import { PaginatedResult } from '../common/interfaces/paginated-result.interface';
 
 @ApiBearerAuth()
 @Modules('modules')
-@UseGuards(JwtAuthGuard, ModulesGuard)
+@Roles('ADMIN')
+@UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
 @ApiTags('Modules')
 @Controller('modules')
 export class ModulesController {

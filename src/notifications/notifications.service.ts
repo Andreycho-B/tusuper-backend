@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { NotificationsGateway } from './notifications.gateway';
 import { Order } from '../orders/entities/order.entity';
 import {
@@ -8,6 +8,8 @@ import {
 
 @Injectable()
 export class NotificationsService {
+  private readonly logger = new Logger(NotificationsService.name);
+
   constructor(private readonly gateway: NotificationsGateway) {}
 
   notifyNewOrder(order: Order): void {
@@ -25,8 +27,8 @@ export class NotificationsService {
 
   notifyOrderStatusChanged(order: Order, userId: number): void {
     if (!this.gateway.server) {
-      console.warn(
-        `[NotificationsService] Gateway server not initialized. Skipping notification for order ${order.id}.`,
+      this.logger.warn(
+        `Gateway server not initialized. Skipping notification for order ${order.id}.`,
       );
       return;
     }

@@ -37,6 +37,9 @@ export class Product {
   @Column({ type: 'varchar', nullable: true, unique: true })
   barcode: string;
 
+  @Column({ type: 'int', default: 0 })
+  discount: number;
+
   @CreateDateColumn({ type: 'timestamp' })
   createdAt: Date;
 

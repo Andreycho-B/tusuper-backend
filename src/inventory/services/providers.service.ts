@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike, FindOptionsWhere } from 'typeorm';
 import { Provider } from '../entities/provider.entity';
 import { CreateProviderDto, UpdateProviderDto } from '../dtos/provider.dto';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
@@ -14,9 +14,21 @@ export class ProvidersService {
   ) {}
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<Provider>> {
-    const { limit = 10, offset = 0 } = pagination;
+    const { limit = 10, offset = 0, search } = pagination;
+
+    let where: FindOptionsWhere<Provider> | FindOptionsWhere<Provider>[] = {
+      isActive: true,
+    };
+
+    if (search) {
+      where = [
+        { isActive: true, name: ILike(`%${search}%`) },
+        { isActive: true, email: ILike(`%${search}%`) },
+      ];
+    }
+
     const [data, total] = await this.providerRepo.findAndCount({
-      where: { isActive: true },
+      where,
       relations: ['products'],
       take: limit,
       skip: offset,

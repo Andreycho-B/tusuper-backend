@@ -17,6 +17,7 @@ import * as crypto from 'crypto';
 import { MailService } from '../../mail/mail.service';
 import { ForgotPasswordDto } from '../dtos/forgot-password.dto';
 import { ResetPasswordDto } from '../dtos/reset-password.dto';
+import { GoogleAuthRequest } from '../interfaces/google-user.interface';
 
 @Injectable()
 export class AuthService {
@@ -29,9 +30,22 @@ export class AuthService {
   ) {}
 
   async validateUser(email: string, password: string) {
-    const user = await this.usersService.findByEmail(email);
+    let user: User | null = null;
+    try {
+      user = await this.usersService.findByEmail(email);
+    } catch {
+      throw new UnauthorizedException('Invalid credentials');
+    }
 
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!user.password) {
+      throw new UnauthorizedException('Invalid credentials');
+    }
+
+    if (!(await bcrypt.compare(password, user.password))) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
@@ -74,7 +88,7 @@ export class AuthService {
     });
 
     const savedUser = await this.userRepo.save(newUser);
-    return this.login(savedUser);
+    return this.login(savedUser as UserModel);
   }
 
   login(user: UserModel) {
@@ -174,12 +188,19 @@ export class AuthService {
     return { message: 'Contraseña actualizada exitosamente' };
   }
 
-  async googleLogin(req: any) {
+  async googleLogin(req: GoogleAuthRequest) {
     if (!req.user) {
       throw new BadRequestException('No user from google');
     }
 
-    const { email, firstName, lastName, picture, googleId } = req.user;
+    const { email, firstName, lastName, picture, googleId, emailVerified } =
+      req.user;
+
+    if (!emailVerified) {
+      throw new BadRequestException(
+        'Google email not verified. Cannot link or create account.',
+      );
+    }
 
     let user = await this.userRepo.findOne({
       where: { email },
@@ -187,7 +208,6 @@ export class AuthService {
     });
 
     if (user) {
-      // Si el usuario existe pero no tiene googleId, se lo vinculamos
       if (!user.googleId) {
         user.googleId = googleId;
         user.isEmailVerified = true;
@@ -195,8 +215,13 @@ export class AuthService {
         await this.userRepo.save(user);
       }
     } else {
-      // Registro automático
       const userRole = await this.roleRepo.findOne({ where: { name: 'USER' } });
+
+      if (!userRole) {
+        throw new InternalServerErrorException(
+          'Role USER no encontrado - no se puede crear usuario OAuth',
+        );
+      }
 
       user = this.userRepo.create({
         email,
@@ -206,8 +231,8 @@ export class AuthService {
         avatarUrl: picture,
         displayName: `${firstName} ${lastName}`,
         isEmailVerified: true,
-        password: await bcrypt.hash(crypto.randomBytes(16).toString('hex'), 10),
-        roles: userRole ? [userRole] : [],
+        password: null,
+        roles: [userRole],
       });
       user = await this.userRepo.save(user);
     }

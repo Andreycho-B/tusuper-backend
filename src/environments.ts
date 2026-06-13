@@ -1,9 +1,10 @@
 /* eslint-disable prettier/prettier */
 export const environments = {
-  dev: '.env',
-  stg: '.stg.env',
-  prod: '.prod.env',
-  test: '.env.test',
+    dev: '.env',
+    stg: '.stg.env',
+    prod: '.prod.env',
+    test: '.env.test',
+    render: undefined,
 };
 
 /** Normaliza NODE_ENV de Render/CI al archivo .env del proyecto. */

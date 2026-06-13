@@ -10,6 +10,7 @@ export class CreateCategoryDto {
 
   @IsString()
   @IsOptional()
+  @MaxLength(500)
   @ApiProperty({
     description: 'Category description',
     example: 'Productos derivados de la leche',

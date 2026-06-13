@@ -1,9 +1,17 @@
 import { Controller, Get } from '@nestjs/common';
+import { AppService } from './app.service';
+import { ConfigService } from '@nestjs/config';
 
 @Controller()
 export class AppController {
+  constructor(
+    private readonly appService: AppService,
+    private readonly configService: ConfigService,
+  ) {}
+
   @Get()
-  health(): { status: string; service: string } {
-    return { status: 'ok', service: 'tusuper-api' };
+  getHello(): string {
+    const myVar = this.configService.get<string>('NODE_ENV') || 'development';
+    return this.appService.getHello(myVar);
   }
 }

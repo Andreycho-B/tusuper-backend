@@ -17,6 +17,8 @@ lerna-debug.log*
 
 # Tests
 /coverage
+coverage/
+test/coverage/
 /.nyc_output
 
 # IDEs and editors
@@ -39,10 +41,12 @@ lerna-debug.log*
 .env
 .stg.env
 .prod.env
+.env.test
 .env.development.local
 .env.test.local
 .env.production.local
 .env.local
+.env.backup_*
 
 # temp directory
 .temp
@@ -62,3 +66,10 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 /postgres_data_prod
 *.env
 .scannerwork/
+
+# IDE - Windsurf
+.windsurf/
+
+# Reports and temporary docs
+audit-reports/
+docs/

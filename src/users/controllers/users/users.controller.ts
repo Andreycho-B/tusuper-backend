@@ -21,6 +21,8 @@ import {
 import { Modules } from '../../../auth/decorators/modules.decorator';
 import { ModulesGuard } from '../../../auth/guards/modules.guard';
 import { JwtAuthGuard } from '../../../auth/guards/auth.guard';
+import { RolesGuard } from '../../../auth/guards/roles.guard';
+import { Roles } from '../../../auth/decorators/roles.decorator';
 import { CreateUserDto, UpdateUserDto } from '../../dtos/user.dto';
 import { UsersService } from '../../services/users/users.service';
 import { User } from '../../entities/user.entity';
@@ -30,7 +32,8 @@ import { PaginatedResult } from '../../../common/interfaces/paginated-result.int
 @ApiBearerAuth()
 @ApiTags('Users')
 @Modules('users')
-@UseGuards(JwtAuthGuard, ModulesGuard)
+@Roles('ADMIN')
+@UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
 @UseInterceptors(ClassSerializerInterceptor)
 @Controller('users')
 export class UsersController {

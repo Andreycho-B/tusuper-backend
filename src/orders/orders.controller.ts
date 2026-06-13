@@ -138,6 +138,27 @@ export class OrdersController {
     return this.ordersService.updateStatus(id, dto.status);
   }
 
+  @Delete(':id/cancel')
+  @ApiOperation({
+    summary: 'Cancel own order (owner only)',
+  })
+  @ApiResponse({
+    status: 200,
+    description:
+      'The order has been successfully cancelled and stock restored.',
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden — order does not belong to user.',
+  })
+  @ApiResponse({ status: 404, description: 'Order not found.' })
+  cancel(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthenticatedRequest,
+  ): Promise<void> {
+    return this.ordersService.remove(id, req.user.userId);
+  }
+
   @Delete(':id')
   @UseGuards(RolesGuard)
   @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')

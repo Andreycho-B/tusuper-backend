@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, ILike, FindOptionsWhere } from 'typeorm';
 import { Category } from '../entities/category.entity';
 import { CreateCategoryDto, UpdateCategoryDto } from '../dtos/category.dto';
 import { PaginationDto } from '../../common/dtos/pagination.dto';
@@ -14,9 +14,21 @@ export class CategoriesService {
   ) {}
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<Category>> {
-    const { limit = 10, offset = 0 } = pagination;
+    const { limit = 10, offset = 0, search } = pagination;
+
+    let where: FindOptionsWhere<Category> | FindOptionsWhere<Category>[] = {
+      isActive: true,
+    };
+
+    if (search) {
+      where = [
+        { isActive: true, name: ILike(`%${search}%`) },
+        { isActive: true, description: ILike(`%${search}%`) },
+      ];
+    }
+
     const [data, total] = await this.categoryRepo.findAndCount({
-      where: { isActive: true },
+      where,
       relations: ['products'],
       take: limit,
       skip: offset,

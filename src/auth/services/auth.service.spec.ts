@@ -4,7 +4,6 @@ import { getRepositoryToken } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import {
   BadRequestException,
-  ConflictException,
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';

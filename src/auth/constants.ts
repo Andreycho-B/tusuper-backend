@@ -17,17 +17,30 @@ export function validateFrontendUrl(
       (requestedUrl ?? 'http://localhost:4200');
   }
 
-  if (requestedUrl && allowedOrigin.includes(requestedUrl)) {
-    return requestedUrl;
+  const allowedHosts = allowedOrigin
+    .split(',')
+    .map((u) => {
+      try {
+        return new URL(u.trim()).host;
+      } catch {
+        return u.trim();
+      }
+    });
+
+  if (requestedUrl) {
+    try {
+      const requestedHost = new URL(requestedUrl).host;
+      if (allowedHosts.includes(requestedHost)) {
+        return requestedUrl;
+      }
+    } catch {
+      // invalid URL, fall through
+    }
   }
 
   const firstUrl = allowedOrigin.split(',')[0].trim();
-  if (!requestedUrl) {
-    logger.debug(`Redirecting to configured frontend: ${firstUrl}`);
-  } else {
-    logger.warn(
-      `Frontend URL "${requestedUrl}" not in whitelist, defaulting to: ${firstUrl}`,
-    );
+  if (requestedUrl) {
+    logger.warn(`Frontend URL "${requestedUrl}" not in whitelist, defaulting to: ${firstUrl}`);
   }
   return firstUrl;
 }

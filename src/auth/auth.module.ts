@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { AuthService } from '../auth/services/auth.service';
+import { PasswordResetService } from '../auth/services/password-reset.service';
 import { AuthController } from '../auth/controllers/auth.controller';
 import { UsersModule } from '../users/users.module';
 import { PassportModule } from '@nestjs/passport';
@@ -36,6 +37,7 @@ import { MailModule } from '../mail/mail.module';
   ],
   providers: [
     AuthService,
+    PasswordResetService,
     ModulesGuard,
     RolesGuard,
     JwtAuthGuard,

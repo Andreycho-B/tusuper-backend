@@ -10,6 +10,7 @@ import {
 import * as bcrypt from 'bcrypt';
 
 import { AuthService } from './auth.service';
+import { PasswordResetService } from './password-reset.service';
 import { UsersService } from '../../users/services/users/users.service';
 import { MailService } from '../../mail/mail.service';
 import { User } from '../../users/entities/user.entity';
@@ -97,6 +98,7 @@ const mockBlacklistRepo = {
 
 describe('AuthService', () => {
   let service: AuthService;
+  let resetService: PasswordResetService;
 
   beforeEach(async () => {
     jest.resetAllMocks();
@@ -105,6 +107,7 @@ describe('AuthService', () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
+        PasswordResetService,
         { provide: UsersService, useValue: mockUsersService },
         { provide: JwtService, useValue: mockJwtService },
         { provide: MailService, useValue: mockMailService },
@@ -115,6 +118,7 @@ describe('AuthService', () => {
     }).compile();
 
     service = module.get<AuthService>(AuthService);
+    resetService = module.get<PasswordResetService>(PasswordResetService);
   });
 
   it('should be defined', () => {
@@ -267,7 +271,7 @@ describe('AuthService', () => {
       mockUserRepo.findOne.mockResolvedValue(user);
       mockUserRepo.save.mockResolvedValue(user);
 
-      const result = await service.forgotPassword({ email: 'juan@test.com' });
+      const result = await resetService.forgotPassword({ email: 'juan@test.com' });
 
       expect(result.message).toContain('Si el correo electrónico existe');
       expect(mockMailService.sendPasswordResetEmail).toHaveBeenCalledWith(
@@ -280,7 +284,7 @@ describe('AuthService', () => {
     it('should return same generic message when user does NOT exist (anti-enumeration)', async () => {
       mockUserRepo.findOne.mockResolvedValue(null);
 
-      const result = await service.forgotPassword({
+      const result = await resetService.forgotPassword({
         email: 'ghost@test.com',
       });
 
@@ -299,7 +303,7 @@ describe('AuthService', () => {
       });
       mockUserRepo.findOne.mockResolvedValue(user);
 
-      const result = await service.validateResetToken('some-raw-token');
+      const result = await resetService.validateResetToken('some-raw-token');
 
       expect(result).toEqual({ valid: true });
     });
@@ -307,7 +311,7 @@ describe('AuthService', () => {
     it('should return { valid: false } when token is not found', async () => {
       mockUserRepo.findOne.mockResolvedValue(null);
 
-      const result = await service.validateResetToken('bad-token');
+      const result = await resetService.validateResetToken('bad-token');
 
       expect(result).toEqual({ valid: false });
     });
@@ -318,7 +322,7 @@ describe('AuthService', () => {
       });
       mockUserRepo.findOne.mockResolvedValue(user);
 
-      const result = await service.validateResetToken('expired-token');
+      const result = await resetService.validateResetToken('expired-token');
 
       expect(result).toEqual({ valid: false });
     });
@@ -336,7 +340,7 @@ describe('AuthService', () => {
       mockUserRepo.findOne.mockResolvedValue(user);
       mockUserRepo.save.mockResolvedValue(user);
 
-      const result = await service.resetPassword({
+      const result = await resetService.resetPassword({
         token: 'raw-token',
         newPassword: 'NewSecureP@ss2',
       });
@@ -359,7 +363,7 @@ describe('AuthService', () => {
       mockUserRepo.findOne.mockResolvedValue(null);
 
       await expect(
-        service.resetPassword({
+        resetService.resetPassword({
           token: 'bad-token',
           newPassword: 'NewSecureP@ss2',
         }),
@@ -373,7 +377,7 @@ describe('AuthService', () => {
       mockUserRepo.findOne.mockResolvedValue(user);
 
       await expect(
-        service.resetPassword({
+        resetService.resetPassword({
           token: 'expired',
           newPassword: 'NewSecureP@ss2',
         }),

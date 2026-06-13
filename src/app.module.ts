@@ -23,11 +23,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: process.env.SKIP_ENV_FILE
-        ? undefined
-        : environments[
-            (process.env.NODE_ENV || 'dev') as keyof typeof environments
-          ],
+      envFilePath: resolveEnvFile(),
       ignoreEnvFile: !!process.env.SKIP_ENV_FILE,
       load: [config],
       isGlobal: true,

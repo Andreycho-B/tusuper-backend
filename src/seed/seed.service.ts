@@ -249,10 +249,4 @@ export class SeedService {
       await queryRunner.release();
     }
   }
-
-  async runProduction(): Promise<ProductionSeedResult> {
-    const bootstrap = await this.bootstrapSystem();
-    const inventory = await this.run();
-    return { bootstrap, inventory };
-  }
 }

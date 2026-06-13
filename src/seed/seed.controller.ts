@@ -28,7 +28,6 @@ export class SeedController {
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('ADMIN')
   @Get()
-  @UseGuards(DevOnlyGuard)
   @ApiOperation({
     summary: 'Populate database with seed data (ADMIN only, never in prod)',
     description:

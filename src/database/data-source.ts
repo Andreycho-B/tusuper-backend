@@ -2,18 +2,10 @@ import { DataSource } from 'typeorm';
 import config from '../config';
 import * as dotenv from 'dotenv';
 import { resolveEnvFile } from '../environments';
-import {
-  isManagedPostgres,
-  resolveDatabaseConfig,
-} from '../config/database.config';
 
 import { join } from 'node:path';
 
-const envFile =
-  process.env.SKIP_ENV_FILE
-    ? undefined
-    : environments[process.env.NODE_ENV as keyof typeof environments] ||
-      environments.dev;
+const envFile = resolveEnvFile();
 
 if (envFile) {
   dotenv.config({ path: envFile });

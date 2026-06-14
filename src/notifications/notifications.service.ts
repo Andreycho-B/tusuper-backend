@@ -49,4 +49,24 @@ export class NotificationsService {
       .to(`user-room-${userId}`)
       .emit('order-status-changed', payload);
   }
+
+  notifyOrderCancelled(order: Order): void {
+    if (!this.gateway.server) {
+      this.logger.warn('Gateway server not initialized. Skipping cancellation notification.');
+      return;
+    }
+
+    const payload = {
+      orderId: order.id,
+      customerName: `${order.customer?.firstName ?? 'Unknown'} ${order.customer?.lastName ?? ''}`,
+      total: Number(order.totalAmount),
+      cancelledAt: new Date().toISOString(),
+    };
+
+    // Emitir a staff para que sepan que se cancelo
+    this.gateway.server.to('admin-room').emit('order-cancelled', payload);
+    this.gateway.server.to('tendero-room').emit('order-cancelled', payload);
+    // Tambien emitir el mensaje legacy a staff-room
+    this.gateway.server.to('staff-room').emit('new_order', `Pedido #${order.id} fue cancelado por el cliente`);
+  }
 }

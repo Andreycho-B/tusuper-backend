@@ -57,7 +57,12 @@ export class PushNotificationsService {
     data?: Record<string, unknown>,
   ): Promise<void> {
     const subs = await this.subRepo.find({ where: { userId } });
-    if (subs.length === 0) return;
+    if (subs.length === 0) {
+      this.logger.log(`No push subscriptions for user ${userId} - skipping`);
+      return;
+    }
+
+    this.logger.log(`Sending push to user ${userId}: "${title}" (${subs.length} devices)`);
 
     const payload = JSON.stringify({ title, body, data, icon: '/branding/tusuper-logo-new.png' });
 

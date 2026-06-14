@@ -87,8 +87,7 @@ export class NotificationsGateway
 
       if (
         roles.includes('ADMIN') ||
-        roles.includes('TENDERO') ||
-        roles.includes('TENDER')
+        roles.includes('TENDERO')
       ) {
         await client.join('staff-room');
         this.logger.log(`Client ${client.id} joined staff-room`);

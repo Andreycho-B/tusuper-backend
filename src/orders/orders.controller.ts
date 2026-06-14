@@ -69,7 +69,7 @@ export class OrdersController {
 
   @Get()
   @UseGuards(RolesGuard)
-  @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
+  @Roles('ADMIN', 'TENDERO')
   @ApiOperation({ summary: 'List all orders (ADMIN only) with filters' })
   @ApiResponse({
     status: 200,
@@ -110,7 +110,7 @@ export class OrdersController {
   ): Promise<Order> {
     const order = await this.ordersService.findOne(id);
     const isStaff = req.user.roles.some((r) =>
-      ['ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR'].includes(r.name),
+      ['ADMIN', 'TENDERO'].includes(r.name),
     );
 
     if (!isStaff && order.customer.id !== req.user.userId) {
@@ -121,7 +121,7 @@ export class OrdersController {
 
   @Patch(':id/status')
   @UseGuards(RolesGuard)
-  @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
+  @Roles('ADMIN', 'TENDERO')
   @ApiOperation({ summary: 'Update order status (ADMIN only)' })
   @ApiResponse({
     status: 200,
@@ -161,7 +161,7 @@ export class OrdersController {
 
   @Delete(':id')
   @UseGuards(RolesGuard)
-  @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
+  @Roles('ADMIN', 'TENDERO')
   @ApiOperation({
     summary: 'Cancel a specific order (Soft Cancel + Stock Restore)',
   })

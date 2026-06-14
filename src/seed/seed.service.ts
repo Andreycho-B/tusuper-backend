@@ -141,8 +141,6 @@ export class SeedService {
     const rolesData = [
       { name: 'ADMIN', description: 'Administrador del sistema', modules: adminModules },
       { name: 'TENDERO', description: 'Tendero', modules: staffModules },
-      { name: 'TENDER', description: 'Tender', modules: staffModules },
-      { name: 'VENDEDOR', description: 'Vendedor', modules: staffModules },
       { name: 'USER', description: 'Usuario cliente', modules: userModules },
     ];
 

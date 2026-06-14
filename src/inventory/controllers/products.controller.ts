@@ -87,7 +87,7 @@ export class ProductsController {
   @Post()
   @ApiBearerAuth()
   @Modules('product')
-  @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
+  @Roles('ADMIN', 'TENDERO')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @ApiOperation({ summary: 'Create a new product' })
   @ApiResponse({
@@ -102,7 +102,7 @@ export class ProductsController {
   @Patch(':id')
   @ApiBearerAuth()
   @Modules('product')
-  @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
+  @Roles('ADMIN', 'TENDERO')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @ApiOperation({ summary: 'Update a product by ID' })
   @ApiResponse({
@@ -121,7 +121,7 @@ export class ProductsController {
   @Patch(':id/image')
   @ApiBearerAuth()
   @Modules('product')
-  @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
+  @Roles('ADMIN', 'TENDERO')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @UseInterceptors(
     FileInterceptor('image', imageUploadOptions(PRODUCT_IMAGE_MAX_SIZE_BYTES)),
@@ -149,7 +149,7 @@ export class ProductsController {
   @Delete(':id')
   @ApiBearerAuth()
   @Modules('product')
-  @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
+  @Roles('ADMIN', 'TENDERO')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
   @HttpCode(204)
   @ApiOperation({ summary: 'Deactivate a product by ID' })

@@ -58,7 +58,7 @@ export class CategoriesController {
   @ApiBearerAuth()
   @Modules('category')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
-  @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
+  @Roles('ADMIN', 'TENDERO')
   @ApiOperation({ summary: 'Create a new category' })
   @ApiResponse({
     status: 201,
@@ -75,7 +75,7 @@ export class CategoriesController {
   @ApiBearerAuth()
   @Modules('category')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
-  @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
+  @Roles('ADMIN', 'TENDERO')
   @ApiOperation({ summary: 'Update a category by ID' })
   @ApiResponse({
     status: 200,
@@ -95,7 +95,7 @@ export class CategoriesController {
   @ApiBearerAuth()
   @Modules('category')
   @UseGuards(JwtAuthGuard, ModulesGuard, RolesGuard)
-  @Roles('ADMIN', 'TENDERO', 'TENDER', 'VENDEDOR')
+  @Roles('ADMIN', 'TENDERO')
   @ApiOperation({ summary: 'Delete a category by ID' })
   @ApiResponse({ status: 204, description: 'Category deleted successfully' })
   @ApiResponse({ status: 404, description: 'Category not found' })

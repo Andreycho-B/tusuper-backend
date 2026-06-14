@@ -139,7 +139,7 @@ export class AuthController {
     return this.passwordResetService.resetPassword(body);
   }
 
-  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @UseGuards(JwtAuthGuard)
   @Get('check-status')
   @ApiBearerAuth()

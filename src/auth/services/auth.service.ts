@@ -137,8 +137,12 @@ export class AuthService {
   }
 
   async isTokenBlacklisted(jti: string): Promise<boolean> {
-    const entry = await this.blacklistRepo.findOne({ where: { jti } });
-    return !!entry;
+    try {
+      const entry = await this.blacklistRepo.findOne({ where: { jti } });
+      return !!entry;
+    } catch {
+      return false;
+    }
   }
 
   async cleanupExpiredTokens(): Promise<void> {

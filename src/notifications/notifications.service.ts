@@ -66,7 +66,5 @@ export class NotificationsService {
     // Emitir a staff para que sepan que se cancelo
     this.gateway.server.to('admin-room').emit('order-cancelled', payload);
     this.gateway.server.to('tendero-room').emit('order-cancelled', payload);
-    // Tambien emitir el mensaje legacy a staff-room
-    this.gateway.server.to('staff-room').emit('new_order', `Pedido #${order.id} fue cancelado por el cliente`);
   }
 }

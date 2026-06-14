@@ -6,6 +6,7 @@ export class GoogleAuthGuard extends AuthGuard('google') {
   constructor() {
     super({
       accessType: 'offline',
+      session: false,
     });
   }
 }

@@ -23,7 +23,7 @@ import { MailModule } from '../mail/mail.module';
     TypeOrmModule.forFeature([User, Role, TokenBlacklist]),
     UsersModule,
     MailModule,
-    PassportModule,
+    PassportModule.register({ session: false }),
     JwtModule.registerAsync({
       inject: [config.KEY],
       useFactory: (configType: ConfigType<typeof config>) => ({

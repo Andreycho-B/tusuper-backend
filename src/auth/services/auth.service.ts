@@ -20,10 +20,14 @@ import {
 } from '@nestjs/common';
 import { GoogleAuthRequest } from '../interfaces/google-user.interface';
 import { TokenBlacklist } from '../entities/token-blacklist.entity';
+import { RefreshToken } from '../entities/refresh-token.entity';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
+
+  private readonly ACCESS_TTL = 900; // 15 minutos
+  private readonly REFRESH_TTL = 7 * 24 * 60 * 60; // 7 dias
 
   constructor(
     private readonly usersService: UsersService,
@@ -32,6 +36,8 @@ export class AuthService {
     @InjectRepository(Role) private readonly roleRepo: Repository<Role>,
     @InjectRepository(TokenBlacklist)
     private readonly blacklistRepo: Repository<TokenBlacklist>,
+    @InjectRepository(RefreshToken)
+    private readonly refreshTokenRepo: Repository<RefreshToken>,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -128,7 +134,7 @@ export class AuthService {
     return this.login(savedUser as UserModel);
   }
 
-  login(user: UserModel) {
+  async login(user: UserModel) {
     const jti = crypto.randomUUID();
     const payload = {
       sub: user.id,
@@ -137,17 +143,51 @@ export class AuthService {
       jti,
     };
 
-    return {
-      access_token: this.jwtService.sign(payload),
-      user: user,
-    };
+    const accessToken = this.jwtService.sign(payload, { expiresIn: this.ACCESS_TTL });
+    const refreshToken = await this.generateRefreshToken(user.id);
+
+    return { access_token: accessToken, refresh_token: refreshToken, user };
   }
 
-  async logout(jti: string, exp: number): Promise<void> {
-    await this.blacklistRepo.save({
-      jti,
-      expiresAt: new Date(exp * 1000),
+  private async generateRefreshToken(userId: number): Promise<string> {
+    const token = crypto.randomBytes(48).toString('hex');
+    const entity = this.refreshTokenRepo.create({
+      userId,
+      token,
+      expiresAt: new Date(Date.now() + this.REFRESH_TTL * 1000),
     });
+    await this.refreshTokenRepo.save(entity);
+    return token;
+  }
+
+  async refresh(refreshToken: string) {
+    const entity = await this.refreshTokenRepo.findOne({
+      where: { token: refreshToken },
+    });
+
+    if (!entity || entity.expiresAt < new Date()) {
+      if (entity) await this.refreshTokenRepo.delete({ id: entity.id });
+      throw new UnauthorizedException('Invalid or expired refresh token');
+    }
+
+    // Rotacion: eliminar el viejo y generar nuevo
+    await this.refreshTokenRepo.delete({ id: entity.id });
+
+    const user = await this.usersService.findOne(entity.userId);
+    if (!user.isActive) {
+      throw new UnauthorizedException('User is inactive');
+    }
+
+    return this.login(user as UserModel);
+  }
+
+  async logout(jti: string, exp: number, refreshToken?: string): Promise<void> {
+    if (jti) {
+      await this.blacklistRepo.save({ jti, expiresAt: new Date(exp * 1000) });
+    }
+    if (refreshToken) {
+      await this.refreshTokenRepo.delete({ token: refreshToken });
+    }
   }
 
   async isTokenBlacklisted(jti: string): Promise<boolean> {
@@ -161,10 +201,9 @@ export class AuthService {
 
   async cleanupExpiredTokens(): Promise<void> {
     await this.blacklistRepo
-      .createQueryBuilder()
-      .delete()
-      .where('expiresAt < :now', { now: new Date() })
-      .execute();
+      .createQueryBuilder().delete().where('expiresAt < :now', { now: new Date() }).execute();
+    await this.refreshTokenRepo
+      .createQueryBuilder().delete().where('expiresAt < :now', { now: new Date() }).execute();
   }
 
   async checkStatus(userId: number) {

@@ -21,9 +21,14 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     private readonly usersService: UsersService,
     private readonly authService: AuthService,
   ) {
-    const secret = configService.get<string>('JWT_SECRET');
+    const rsaPublicKey = configService.get<string>('RSA_PUBLIC_KEY');
+    const secret = rsaPublicKey
+      ? Buffer.from(rsaPublicKey, 'base64').toString('utf-8')
+      : configService.get<string>('JWT_SECRET');
+    const algorithms: string[] = rsaPublicKey ? ['RS256'] : ['HS256'];
+
     if (!secret) {
-      throw new Error('JWT_SECRET environment variable is required but not set');
+      throw new Error('JWT_SECRET or RSA_PUBLIC_KEY is required but not set');
     }
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
@@ -32,7 +37,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       ]),
       ignoreExpiration: false,
       secretOrKey: secret,
-      algorithms: ['HS256'],
+      algorithms: algorithms as any,
       passReqToCallback: true,
     });
   }

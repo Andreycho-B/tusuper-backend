@@ -28,7 +28,7 @@ export default registerAs('config', () => {
     jwt: {
       secret: process.env.JWT_SECRET,
       expiresIn: (() => {
-        const value = Number.parseInt(process.env.JWT_EXPIRES_IN ?? '3600', 10);
+        const value = Number.parseInt(process.env.JWT_EXPIRES_IN ?? '86400', 10);
         if (isNaN(value) || value <= 0) {
           throw new Error(
             'JWT_EXPIRES_IN must be a positive integer in seconds',

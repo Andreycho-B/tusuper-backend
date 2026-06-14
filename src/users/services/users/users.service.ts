@@ -4,7 +4,7 @@ import {
   ConflictException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, DataSource } from 'typeorm';
 import { User } from '../../entities/user.entity';
 import {
   CreateUserDto,
@@ -22,6 +22,7 @@ export class UsersService {
   constructor(
     @InjectRepository(User) private readonly userRepo: Repository<User>,
     private readonly rolesService: RolesService,
+    private readonly dataSource: DataSource,
   ) {}
 
   async findAll(pagination: PaginationDto): Promise<PaginatedResult<User>> {
@@ -215,5 +216,35 @@ export class UsersService {
     const user = await this.findOne(userId);
     user.avatarUrl = null;
     return this.userRepo.save(user);
+  }
+
+  async deleteMyAccount(userId: number): Promise<void> {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(`Usuario #${userId} no encontrado`);
+    }
+
+    // Eliminar subscripciones push del usuario
+    await this.dataSource
+      .createQueryBuilder()
+      .delete()
+      .from('push_subscriptions')
+      .where('userId = :userId', { userId })
+      .execute();
+
+    // Anonimizar datos personales y desactivar cuenta
+    user.firstName = 'Usuario';
+    user.lastName = 'Eliminado';
+    user.email = `deleted_${userId}_${Date.now()}@tusuper.com`;
+    user.password = null;
+    user.displayName = null;
+    user.avatarUrl = null;
+    user.googleId = undefined;
+    user.isEmailVerified = false;
+    user.isActive = false;
+    user.failedLoginAttempts = 0;
+    user.lockedUntil = null;
+
+    await this.userRepo.save(user);
   }
 }

@@ -115,11 +115,6 @@ export class OrdersService {
       const finalOrder = await this.findOne(savedOrder.id);
       try {
         this.notificationsService.notifyNewOrder(finalOrder);
-        if (this.notificationsGateway.server) {
-          this.notificationsGateway.server
-            .to('staff-room')
-            .emit('new_order', `Nuevo pedido #${savedOrder.id} recibido`);
-        }
       } catch (notifyErr: unknown) {
         this.logger.error(
           'Failed to send new-order notification',
@@ -216,11 +211,6 @@ export class OrdersService {
       savedOrder.customer = user;
       try {
         this.notificationsService.notifyNewOrder(savedOrder);
-        if (this.notificationsGateway.server) {
-          this.notificationsGateway.server
-            .to('staff-room')
-            .emit('new_order', `Nuevo pedido #${savedOrder.id} recibido`);
-        }
       } catch (notifyErr: unknown) {
         this.logger.error(
           'Failed to send new-order notification',

@@ -372,16 +372,16 @@ export class OrdersService {
       );
 
       // Enviar notificacion push nativa al celular del cliente
+      const statusLabel = this.getStatusLabel(enrichedOrder.status);
+      const statusEmoji = this.getStatusEmoji(enrichedOrder.status);
       this.pushNotificationsService
         .sendToUser(
           enrichedOrder.customerId,
-          'Tu pedido fue actualizado',
-          `El pedido #${enrichedOrder.id} ahora está: ${enrichedOrder.status}`,
+          `${statusEmoji} ${statusLabel}`,
+          `Tu pedido #${enrichedOrder.id} fue actualizado a "${statusLabel}". Toca para ver.`,
           { orderId: enrichedOrder.id, status: enrichedOrder.status },
         )
-        .catch(() => {
-          // Silencioso - push puede fallar sin afectar la actualizacion
-        });
+        .catch(() => {});
 
       return enrichedOrder;
     } catch (error: unknown) {
@@ -537,5 +537,29 @@ export class OrdersService {
       product.stock += quantity;
       await queryRunner.manager.save(Product, product);
     }
+  }
+
+  private getStatusLabel(status: OrderStatus): string {
+    const labels: Record<OrderStatus, string> = {
+      [OrderStatus.PENDING]: 'Pendiente',
+      [OrderStatus.PREPARING]: 'En preparación',
+      [OrderStatus.READY_FOR_DISPATCH]: 'Listo para despachar',
+      [OrderStatus.DISPATCHED]: 'En camino',
+      [OrderStatus.DELIVERED]: 'Entregado',
+      [OrderStatus.CANCELLED]: 'Cancelado',
+    };
+    return labels[status] || status;
+  }
+
+  private getStatusEmoji(status: OrderStatus): string {
+    const emojis: Record<OrderStatus, string> = {
+      [OrderStatus.PENDING]: '📋',
+      [OrderStatus.PREPARING]: '👨‍🍳',
+      [OrderStatus.READY_FOR_DISPATCH]: '📦',
+      [OrderStatus.DISPATCHED]: '🛵',
+      [OrderStatus.DELIVERED]: '✅',
+      [OrderStatus.CANCELLED]: '❌',
+    };
+    return emojis[status] || '📋';
   }
 }

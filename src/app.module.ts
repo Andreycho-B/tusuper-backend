@@ -19,6 +19,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { MailModule } from './mail/mail.module';
 import { SeedModule } from './seed/seed.module';
 import { DashboardModule } from './dashboard/dashboard.module';
+import { PushNotificationsModule } from './push-notifications/push-notifications.module';
 
 @Module({
   imports: [
@@ -63,6 +64,10 @@ import { DashboardModule } from './dashboard/dashboard.module';
         SEED_SECRET: Joi.string().optional(),
         ADMIN_EMAIL: Joi.string().email().optional(),
         ADMIN_PASSWORD: Joi.string().min(8).optional(),
+        // VAPID keys for Web Push (optional)
+        VAPID_PUBLIC_KEY: Joi.string().optional(),
+        VAPID_PRIVATE_KEY: Joi.string().optional(),
+        VAPID_SUBJECT: Joi.string().optional(),
       }),
     }),
     DatabaseModule,
@@ -76,6 +81,7 @@ import { DashboardModule } from './dashboard/dashboard.module';
     MailModule,
     SeedModule,
     DashboardModule,
+    PushNotificationsModule,
     ThrottlerModule.forRoot([
       {
         ttl: 60000,

@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { NotificationsService } from '../notifications/notifications.service';
 import { NotificationsGateway } from '../notifications/notifications.gateway';
+import { PushNotificationsService } from '../push-notifications/push-notifications.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource, QueryRunner, Brackets } from 'typeorm';
 import { CreateOrderDto } from './dto/create-order.dto';
@@ -59,6 +60,7 @@ export class OrdersService {
     private readonly dataSource: DataSource,
     private readonly notificationsService: NotificationsService,
     private readonly notificationsGateway: NotificationsGateway,
+    private readonly pushNotificationsService: PushNotificationsService,
   ) {}
 
   async checkout(customerId: number, dto: CheckoutDto): Promise<Order> {
@@ -368,6 +370,18 @@ export class OrdersService {
         enrichedOrder,
         enrichedOrder.customerId,
       );
+
+      // Enviar notificacion push nativa al celular del cliente
+      this.pushNotificationsService
+        .sendToUser(
+          enrichedOrder.customerId,
+          'Tu pedido fue actualizado',
+          `El pedido #${enrichedOrder.id} ahora está: ${enrichedOrder.status}`,
+          { orderId: enrichedOrder.id, status: enrichedOrder.status },
+        )
+        .catch(() => {
+          // Silencioso - push puede fallar sin afectar la actualizacion
+        });
 
       return enrichedOrder;
     } catch (error: unknown) {

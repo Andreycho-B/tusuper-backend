@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   HttpCode,
+  HttpStatus,
   Patch,
   Post,
   UploadedFile,
@@ -110,5 +111,16 @@ export class ProfileController {
   @ApiOperation({ summary: 'Eliminar foto de perfil' })
   async removeAvatar(@CurrentUser('userId') userId: number): Promise<User> {
     return this.usersService.removeAvatar(userId);
+  }
+
+  @Throttle({ default: { limit: 3, ttl: 60000 } })
+  @Delete()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Eliminar mi cuenta permanentemente' })
+  async deleteMyAccount(
+    @CurrentUser('userId') userId: number,
+  ): Promise<{ message: string }> {
+    await this.usersService.deleteMyAccount(userId);
+    return { message: 'Cuenta eliminada exitosamente' };
   }
 }

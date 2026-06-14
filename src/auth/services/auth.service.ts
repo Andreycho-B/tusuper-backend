@@ -1,4 +1,9 @@
-import { Injectable, UnauthorizedException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  UnauthorizedException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../../users/services/users/users.service';
 import * as bcrypt from 'bcrypt';
@@ -34,11 +39,20 @@ export class AuthService {
     try {
       user = await this.usersService.findByEmail(email);
     } catch (error: unknown) {
+      const isHttpException =
+        error instanceof UnauthorizedException ||
+        error instanceof NotFoundException ||
+        error instanceof BadRequestException;
       this.logger.error(
         'validateUser failed',
         error instanceof Error ? error.stack : String(error),
       );
-      throw new UnauthorizedException('Invalid credentials');
+      if (isHttpException) {
+        throw new UnauthorizedException('Invalid credentials');
+      }
+      throw new InternalServerErrorException(
+        'Authentication service temporarily unavailable',
+      );
     }
 
     if (!user) {

@@ -383,6 +383,11 @@ export class OrdersService {
         )
         .catch(() => {});
 
+      // Notificar al staff si fue cancelado
+      if (enrichedOrder.status === OrderStatus.CANCELLED) {
+        this.notificationsService.notifyOrderCancelled(enrichedOrder);
+      }
+
       return enrichedOrder;
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();

@@ -36,7 +36,7 @@ import type { AuthenticatedRequest } from '../../common/interfaces/authenticated
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: true,
-  sameSite: 'lax' as const,
+  sameSite: 'none' as const,
   path: '/',
   maxAge: 86400_000,
 };
@@ -62,7 +62,7 @@ export class AuthController {
     res.cookie('token', '', {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'prod',
-      sameSite: 'lax',
+      sameSite: 'none',
       path: '/',
       maxAge: 0,
     });

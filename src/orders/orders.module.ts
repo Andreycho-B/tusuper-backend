@@ -7,12 +7,14 @@ import { OrdersController } from './orders.controller';
 import { OrdersService } from './orders.service';
 import { InventoryModule } from '../inventory/inventory.module';
 import { NotificationsModule } from '../notifications/notifications.module';
+import { PushNotificationsModule } from '../push-notifications/push-notifications.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Order, OrderItem, Product]),
     InventoryModule,
     NotificationsModule,
+    PushNotificationsModule,
   ],
   controllers: [OrdersController],
   providers: [OrdersService],

@@ -455,6 +455,10 @@ export class OrdersService {
       await queryRunner.manager.save(Order, order);
 
       await queryRunner.commitTransaction();
+
+      // Notificar cancelacion al staff fuera de la transaccion
+      const enrichedOrder = await this.findOne(order.id);
+      this.notificationsService.notifyOrderCancelled(enrichedOrder);
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
       const msg = error instanceof Error ? error.message : String(error);

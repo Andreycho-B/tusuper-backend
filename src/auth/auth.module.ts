@@ -16,23 +16,29 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
 import { TokenBlacklist } from './entities/token-blacklist.entity';
+import { RefreshToken } from './entities/refresh-token.entity';
 import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, Role, TokenBlacklist]),
+    TypeOrmModule.forFeature([User, Role, TokenBlacklist, RefreshToken]),
     UsersModule,
     MailModule,
     PassportModule.register({ session: false }),
     JwtModule.registerAsync({
       inject: [config.KEY],
-      useFactory: (configType: ConfigType<typeof config>) => ({
-        secret: configType.jwt.secret,
-        signOptions: {
-          expiresIn: configType.jwt.expiresIn,
-          algorithm: 'HS256',
-        },
-      }),
+      useFactory: (configType: ConfigType<typeof config>) => {
+        const rsaPrivateKey = configType.jwt.rsaPrivateKey
+          ? Buffer.from(configType.jwt.rsaPrivateKey, 'base64').toString('utf-8')
+          : undefined;
+        return {
+          secret: rsaPrivateKey || configType.jwt.secret,
+          signOptions: {
+            expiresIn: 900, // 15 minutos para access token
+            algorithm: rsaPrivateKey ? ('RS256' as const) : ('HS256' as const),
+          },
+        };
+      },
     }),
   ],
   providers: [

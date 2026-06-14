@@ -9,6 +9,7 @@ import {
   UseGuards,
   Request,
   Res,
+  UnauthorizedException,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import {
@@ -33,12 +34,11 @@ import { GoogleAuthGuard } from '../guards/google-auth.guard';
 import { validateFrontendUrl } from '../constants';
 import type { AuthenticatedRequest } from '../../common/interfaces/authenticated-request.interface';
 
-const COOKIE_OPTIONS = {
+const COOKIE_BASE = {
   httpOnly: true,
   secure: true,
   sameSite: 'none' as const,
   path: '/',
-  maxAge: 86400_000,
 };
 
 @ApiTags('Autenticacion')
@@ -50,22 +50,23 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
-  private setTokenCookie(res: Response, token: string): void {
+  private setAuthCookies(res: Response, accessToken: string, refreshToken: string): void {
     const isProduction = process.env.NODE_ENV === 'prod';
-    res.cookie('token', token, {
-      ...COOKIE_OPTIONS,
+    res.cookie('token', accessToken, {
+      ...COOKIE_BASE,
       secure: isProduction,
+      maxAge: 900_000, // 15 min
+    });
+    res.cookie('refresh_token', refreshToken, {
+      ...COOKIE_BASE,
+      secure: isProduction,
+      maxAge: 7 * 24 * 60 * 60_000, // 7 dias
     });
   }
 
-  private clearTokenCookie(res: Response): void {
-    res.cookie('token', '', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'prod',
-      sameSite: 'none',
-      path: '/',
-      maxAge: 0,
-    });
+  private clearAuthCookies(res: Response): void {
+    res.cookie('token', '', { ...COOKIE_BASE, secure: process.env.NODE_ENV === 'prod', maxAge: 0 });
+    res.cookie('refresh_token', '', { ...COOKIE_BASE, secure: process.env.NODE_ENV === 'prod', maxAge: 0 });
   }
 
   @Throttle({ default: { limit: 10, ttl: 60000 } })
@@ -83,7 +84,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.googleLogin(req);
-    this.setTokenCookie(res, result.access_token);
+    this.setAuthCookies(res, result.access_token, result.refresh_token);
     const frontendUrl = validateFrontendUrl(this.configService);
     res.redirect(
       `${frontendUrl}/auth/social-callback#token=${result.access_token}`,
@@ -97,8 +98,8 @@ export class AuthController {
   @ApiBody({ type: LoginDto })
   async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
     const user = await this.authService.validateUser(body.email, body.password);
-    const result = this.authService.login(user);
-    this.setTokenCookie(res, result.access_token);
+    const result = await this.authService.login(user);
+    this.setAuthCookies(res, result.access_token, result.refresh_token);
     return result;
   }
 
@@ -108,7 +109,7 @@ export class AuthController {
   @ApiBody({ type: RegisterDto })
   async register(@Body() body: RegisterDto, @Res({ passthrough: true }) res: Response) {
     const result = await this.authService.register(body);
-    this.setTokenCookie(res, result.access_token);
+    this.setAuthCookies(res, result.access_token, result.refresh_token);
     return result;
   }
 
@@ -149,7 +150,7 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.checkStatus(req.user.userId);
-    this.setTokenCookie(res, result.access_token);
+    this.setAuthCookies(res, result.access_token, result.refresh_token);
     return result;
   }
 
@@ -159,14 +160,29 @@ export class AuthController {
   @ApiBearerAuth()
   @ApiOperation({ summary: 'Cerrar sesion y revocar token' })
   async logout(
-    @Request() req: AuthenticatedRequest,
+    @Request() req: AuthenticatedRequest & { cookies: Record<string, string> },
     @Res({ passthrough: true }) res: Response,
   ) {
     const { jti, exp } = req.user as any;
-    if (jti) {
-      await this.authService.logout(jti, exp);
-    }
-    this.clearTokenCookie(res);
+    const refreshToken = req.cookies?.['refresh_token'];
+    await this.authService.logout(jti, exp, refreshToken);
+    this.clearAuthCookies(res);
     return { message: 'Sesion cerrada exitosamente' };
+  }
+
+  @Post('refresh')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Refrescar access token usando refresh token' })
+  async refresh(
+    @Request() req: { cookies: Record<string, string> },
+    @Res({ passthrough: true }) res: Response,
+  ) {
+    const refreshToken = req.cookies?.['refresh_token'];
+    if (!refreshToken) {
+      throw new UnauthorizedException('No refresh token provided');
+    }
+    const result = await this.authService.refresh(refreshToken);
+    this.setAuthCookies(res, result.access_token, result.refresh_token);
+    return result;
   }
 }

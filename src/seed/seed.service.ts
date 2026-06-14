@@ -101,6 +101,10 @@ export class SeedService {
     adminEmail: string,
     adminPassword: string,
   ): Promise<NonNullable<SeedResult['bootstrap']>> {
+    // Limpiar modulos obsoletos (dashboard y notifications no tienen ruta en frontend)
+    await this.moduleRepo.delete({ name: 'dashboard' as never });
+    await this.moduleRepo.delete({ name: 'notifications' as never });
+
     // ── MODULOS ─
     const moduleNames = [
       { name: 'users', description: 'Gestion de usuarios' },
@@ -110,8 +114,6 @@ export class SeedService {
       { name: 'category', description: 'Gestion de categorias' },
       { name: 'provider', description: 'Gestion de proveedores' },
       { name: 'orders', description: 'Gestion de pedidos' },
-      { name: 'dashboard', description: 'Panel de estadisticas' },
-      { name: 'notifications', description: 'Notificaciones' },
     ];
 
     const savedModules: ModuleEntity[] = [];
@@ -130,7 +132,7 @@ export class SeedService {
     const allModules = await this.moduleRepo.find();
     const adminModules = allModules;
     const staffModules = allModules.filter((m) =>
-      ['product', 'category', 'provider', 'orders', 'dashboard', 'notifications'].includes(
+      ['product', 'category', 'provider', 'orders'].includes(
         m.name,
       ),
     );

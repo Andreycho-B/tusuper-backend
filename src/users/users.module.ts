@@ -17,7 +17,7 @@ import { CloudinaryModule } from '../cloudinary/cloudinary.module';
 @Module({
   imports: [TypeOrmModule.forFeature([User]), RolesModule, CloudinaryModule],
 
-  controllers: [UsersController, ProfileController],
+  controllers: [ProfileController, UsersController],
 
   providers: [UsersService],
 

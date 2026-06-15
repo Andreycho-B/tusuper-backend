@@ -34,7 +34,7 @@ import { MailModule } from '../mail/mail.module';
         return {
           secret: rsaPrivateKey || configType.jwt.secret,
           signOptions: {
-            expiresIn: 900, // 15 minutos para access token
+            expiresIn: configType.jwt.expiresIn,
             algorithm: rsaPrivateKey ? ('RS256' as const) : ('HS256' as const),
           },
         };

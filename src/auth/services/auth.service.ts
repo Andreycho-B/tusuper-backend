@@ -3,8 +3,10 @@ import {
   UnauthorizedException,
   Logger,
   NotFoundException,
+  Inject,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import type { ConfigType } from '@nestjs/config';
 import { UsersService } from '../../users/services/users/users.service';
 import * as bcrypt from 'bcrypt';
 import * as crypto from 'crypto';
@@ -21,12 +23,12 @@ import {
 import { GoogleAuthRequest } from '../interfaces/google-user.interface';
 import { TokenBlacklist } from '../entities/token-blacklist.entity';
 import { RefreshToken } from '../entities/refresh-token.entity';
+import config from '../../config';
 
 @Injectable()
 export class AuthService {
   private readonly logger = new Logger(AuthService.name);
 
-  private readonly ACCESS_TTL = 900; // 15 minutos
   private readonly REFRESH_TTL = 7 * 24 * 60 * 60; // 7 dias
 
   constructor(
@@ -38,6 +40,8 @@ export class AuthService {
     private readonly blacklistRepo: Repository<TokenBlacklist>,
     @InjectRepository(RefreshToken)
     private readonly refreshTokenRepo: Repository<RefreshToken>,
+    @Inject(config.KEY)
+    private readonly configService: ConfigType<typeof config>,
   ) {}
 
   async validateUser(email: string, password: string) {
@@ -143,7 +147,7 @@ export class AuthService {
       jti,
     };
 
-    const accessToken = this.jwtService.sign(payload, { expiresIn: this.ACCESS_TTL });
+    const accessToken = this.jwtService.sign(payload, { expiresIn: this.configService.jwt.expiresIn });
     const refreshToken = await this.generateRefreshToken(user.id);
 
     return { access_token: accessToken, refresh_token: refreshToken, user };

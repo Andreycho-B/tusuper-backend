@@ -52,10 +52,11 @@ export class AuthController {
 
   private setAuthCookies(res: Response, accessToken: string, refreshToken: string): void {
     const isProduction = process.env.NODE_ENV === 'prod';
+    const accessTtl = this.configService.get<number>('config.jwt.expiresIn', 900);
     res.cookie('token', accessToken, {
       ...COOKIE_BASE,
       secure: isProduction,
-      maxAge: 900_000, // 15 min
+      maxAge: accessTtl * 1000, // match JWT_EXPIRES_IN
     });
     res.cookie('refresh_token', refreshToken, {
       ...COOKIE_BASE,
@@ -174,10 +175,12 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refrescar access token usando refresh token' })
   async refresh(
-    @Request() req: { cookies: Record<string, string> },
+    @Request() req: { cookies: Record<string, string>; body: Record<string, string>; headers: Record<string, string> },
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = req.cookies?.['refresh_token'];
+    const refreshToken = req.body?.refresh_token
+      || req.cookies?.['refresh_token']
+      || req.headers['x-refresh-token'] as string | undefined;
     if (!refreshToken) {
       throw new UnauthorizedException('No refresh token provided');
     }

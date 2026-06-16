@@ -11,11 +11,7 @@ import { Server, Socket } from 'socket.io';
 import { JwtService } from '@nestjs/jwt';
 import { Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-
-interface JwtPayload {
-  sub: number;
-  roles: string[];
-}
+import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
 
 @WebSocketGateway({
   cors: {

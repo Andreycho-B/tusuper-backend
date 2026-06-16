@@ -72,17 +72,14 @@ export class PushNotificationsService {
       icon: '/branding/tusuper-logo-new.png',
     };
 
-    const dataPayload = {
+    // Include url in initial object to satisfy TypeScript
+    const dataPayload: Record<string, unknown> = {
       ...(data || {}),
       onActionClick: {
         default: { operation: 'openWindow' },
       },
+      url: data?.orderId ? `/account/orders/${data.orderId}` : undefined,
     };
-
-    // If data has orderId, add url for navigation
-    if (data?.orderId) {
-      dataPayload.url = `/account/orders/${data.orderId}`;
-    }
 
     const payload = JSON.stringify({
       notification: notificationPayload,

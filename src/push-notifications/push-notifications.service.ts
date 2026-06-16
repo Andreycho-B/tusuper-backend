@@ -64,7 +64,30 @@ export class PushNotificationsService {
 
     this.logger.log(`Sending push to user ${userId}: "${title}" (${subs.length} devices)`);
 
-    const payload = JSON.stringify({ title, body, data, icon: '/branding/tusuper-logo-new.png' });
+    // Format required by @angular/service-worker (ngsw-worker.js):
+    // { notification: { title, body, icon }, data: { ... } }
+    const notificationPayload = {
+      title,
+      body,
+      icon: '/branding/tusuper-logo-new.png',
+    };
+
+    const dataPayload = {
+      ...(data || {}),
+      onActionClick: {
+        default: { operation: 'openWindow' },
+      },
+    };
+
+    // If data has orderId, add url for navigation
+    if (data?.orderId) {
+      dataPayload.url = `/account/orders/${data.orderId}`;
+    }
+
+    const payload = JSON.stringify({
+      notification: notificationPayload,
+      data: dataPayload,
+    });
 
     for (const sub of subs) {
       try {

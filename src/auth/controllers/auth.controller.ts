@@ -52,22 +52,25 @@ export class AuthController {
 
   private setAuthCookies(res: Response, accessToken: string, refreshToken: string): void {
     const isProduction = process.env.NODE_ENV === 'prod';
-    const accessTtl = this.configService.get<number>('config.jwt.expiresIn', 900);
+    // Access token cookie: 1 hour with sliding refresh (resets on each check-status/refresh)
+    const accessTtlMs = 60 * 60 * 1000; // 1h
     res.cookie('token', accessToken, {
       ...COOKIE_BASE,
       secure: isProduction,
-      maxAge: accessTtl * 1000, // match JWT_EXPIRES_IN
+      maxAge: accessTtlMs,
     });
+    // Refresh token cookie: 7 days
     res.cookie('refresh_token', refreshToken, {
       ...COOKIE_BASE,
       secure: isProduction,
-      maxAge: 7 * 24 * 60 * 60_000, // 7 dias
+      maxAge: 7 * 24 * 60 * 60_000,
     });
   }
 
   private clearAuthCookies(res: Response): void {
-    res.cookie('token', '', { ...COOKIE_BASE, secure: process.env.NODE_ENV === 'prod', maxAge: 0 });
-    res.cookie('refresh_token', '', { ...COOKIE_BASE, secure: process.env.NODE_ENV === 'prod', maxAge: 0 });
+    const isProduction = process.env.NODE_ENV === 'prod';
+    res.cookie('token', '', { ...COOKIE_BASE, secure: isProduction, maxAge: 0 });
+    res.cookie('refresh_token', '', { ...COOKIE_BASE, secure: isProduction, maxAge: 0 });
   }
 
   @Throttle({ default: { limit: 10, ttl: 60000 } })

@@ -371,7 +371,9 @@ export class OrdersService {
           `Tu pedido #${enrichedOrder.id} fue actualizado a "${statusLabel}". Toca para ver.`,
           { orderId: enrichedOrder.id, status: enrichedOrder.status },
         )
-        .catch(() => {});
+        .catch((err) => {
+          this.logger.error('Push notification failed', err instanceof Error ? err.stack : String(err));
+        });
 
       // Notificar al staff si fue cancelado
       if (enrichedOrder.status === OrderStatus.CANCELLED) {

@@ -72,12 +72,8 @@ export class PushNotificationsService {
       icon: '/branding/tusuper-logo-new.png',
     };
 
-    // Include url in initial object to satisfy TypeScript
     const dataPayload: Record<string, unknown> = {
       ...(data || {}),
-      onActionClick: {
-        default: { operation: 'openWindow' },
-      },
       url: data?.orderId ? `/account/orders/${data.orderId}` : undefined,
     };
 
@@ -86,8 +82,11 @@ export class PushNotificationsService {
       data: dataPayload,
     });
 
+    this.logger.debug(`Push payload: ${payload}`);
+
     for (const sub of subs) {
       try {
+        this.logger.debug(`Sending push to endpoint: ${sub.endpoint}`);
         await webpush.sendNotification(
           {
             endpoint: sub.endpoint,
@@ -98,8 +97,10 @@ export class PushNotificationsService {
           },
           payload,
         );
+        this.logger.log(`Push sent successfully to user ${userId}`);
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : String(err);
+        this.logger.error(`Push failed for user ${userId}: ${msg}`);
         if (
           msg.includes('404') ||
           msg.includes('410') ||
@@ -107,8 +108,7 @@ export class PushNotificationsService {
           msg.includes('unsubscribed')
         ) {
           await this.subRepo.delete({ id: sub.id });
-        } else {
-          this.logger.warn(`Push failed for user ${userId}: ${msg}`);
+          this.logger.log(`Deleted expired subscription for user ${userId}`);
         }
       }
     }

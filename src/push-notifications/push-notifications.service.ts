@@ -38,6 +38,19 @@ export class PushNotificationsService {
     });
     if (existing) return;
 
+    // Remove stale subscriptions for this user (different endpoint).
+    // iOS PWAs generate a new endpoint when the service worker updates
+    // or the app is reinstalled, causing duplicate notifications if
+    // old subscriptions are not cleaned up.
+    const deleted = await this.subRepo.delete({
+      userId,
+    } as any);
+    if (deleted.affected && deleted.affected > 0) {
+      this.logger.log(
+        `Cleaned ${deleted.affected} stale push subscription(s) for user ${userId}`,
+      );
+    }
+
     const sub = this.subRepo.create();
     sub.userId = userId;
     sub.endpoint = subscription.endpoint;

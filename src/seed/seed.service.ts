@@ -359,6 +359,13 @@ export class SeedService {
         if (!existing) {
           await queryRunner.manager.save(Product, prodData);
           productsInserted++;
+        } else if (
+          prodData.imageUrl &&
+          existing.imageUrl !== prodData.imageUrl
+        ) {
+          existing.imageUrl = prodData.imageUrl as string;
+          await queryRunner.manager.save(Product, existing);
+          productsInserted++;
         }
       }
 

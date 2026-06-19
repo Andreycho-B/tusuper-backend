@@ -80,4 +80,23 @@ export class SeedController {
       body.adminPassword,
     );
   }
+
+  @Post('upsert')
+  @ApiOperation({
+    summary: 'Safe upsert: adds missing data without deleting existing',
+    description:
+      'Inserts categories, providers, and products that do not already exist (by name). ' +
+      'Safe to run in production — never truncates. Requires x-seed-secret header.',
+  })
+  @ApiResponse({ status: 200, description: 'Upsert completed' })
+  @ApiResponse({ status: 401, description: 'Invalid seed secret' })
+  async upsertInventory(
+    @Headers('x-seed-secret') seedSecret: string,
+  ): Promise<SeedResult> {
+    const expectedSecret = process.env.SEED_SECRET;
+    if (!expectedSecret || seedSecret !== expectedSecret) {
+      throw new ForbiddenException('Seed secret invalido');
+    }
+    return this.seedService.upsertInventory();
+  }
 }

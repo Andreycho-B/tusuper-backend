@@ -546,7 +546,7 @@ const productEntries: ProductSeedEntry[] = [
     categoryIndex: 6,
     providerIndex: 5,
     imageUrl:
-      'https://placehold.co/400x400/0d1117/00d4aa?text=Aguardiente%0AAntioque%C3%B1o',
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1781879592/tusuper_products/tusuper_products/aguardiente_antioque_o_375ml.webp',
   },
   {
     name: 'Aguardiente Blanco de Valle 750ml',
@@ -557,7 +557,7 @@ const productEntries: ProductSeedEntry[] = [
     categoryIndex: 6,
     providerIndex: 5,
     imageUrl:
-      'https://placehold.co/400x400/0d1117/00d4aa?text=Aguardiente%0ABlanco%20Valle',
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1781879777/tusuper_products/tusuper_products/aguardiente_blanco_de_valle_750ml.webp',
   },
   {
     name: 'Ron Medellín Añejo 8 años 750ml',
@@ -568,7 +568,7 @@ const productEntries: ProductSeedEntry[] = [
     categoryIndex: 6,
     providerIndex: 5,
     imageUrl:
-      'https://placehold.co/400x400/0d1117/c87533?text=Ron%0AMedell%C3%ADn',
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1781879594/tusuper_products/tusuper_products/ron_medell_n_a_ejo_8_a_os_750ml.webp',
   },
   {
     name: 'Ron Medellín Dorado 375ml',
@@ -579,7 +579,7 @@ const productEntries: ProductSeedEntry[] = [
     categoryIndex: 6,
     providerIndex: 5,
     imageUrl:
-      'https://placehold.co/400x400/0d1117/c87533?text=Ron%0ADorado',
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1781879844/tusuper_products/tusuper_products/ron_medell_n_dorado_375ml.webp',
   },
   {
     name: 'Cristal Aguardiente 375ml',
@@ -590,7 +590,7 @@ const productEntries: ProductSeedEntry[] = [
     categoryIndex: 6,
     providerIndex: 5,
     imageUrl:
-      'https://placehold.co/400x400/0d1117/88ccff?text=Cristal%0AAguardiente',
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1781879596/tusuper_products/tusuper_products/cristal_aguardiente_375ml.webp',
   },
 
   // Internacionales
@@ -603,7 +603,7 @@ const productEntries: ProductSeedEntry[] = [
     categoryIndex: 6,
     providerIndex: 5,
     imageUrl:
-      'https://placehold.co/400x400/0d1117/4488ff?text=Absolut%0AVodka',
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1781879598/tusuper_products/tusuper_products/absolut_vodka_750ml.webp',
   },
   {
     name: 'Johnnie Walker Red Label 750ml',
@@ -614,7 +614,7 @@ const productEntries: ProductSeedEntry[] = [
     categoryIndex: 6,
     providerIndex: 5,
     imageUrl:
-      'https://placehold.co/400x400/0d1117/cc2200?text=Johnnie%0AWalker%0ARed',
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1781879599/tusuper_products/tusuper_products/johnnie_walker_red_label_750ml.webp',
   },
   {
     name: 'Bacardí Carta Blanca 750ml',
@@ -625,7 +625,7 @@ const productEntries: ProductSeedEntry[] = [
     categoryIndex: 6,
     providerIndex: 5,
     imageUrl:
-      'https://placehold.co/400x400/0d1117/ffffff?text=Bacard%C3%AD%0ACarta%0ABlanca',
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1781879600/tusuper_products/tusuper_products/bacard_carta_blanca_750ml.webp',
   },
   {
     name: 'Smirnoff Vodka No. 21 750ml',
@@ -636,7 +636,7 @@ const productEntries: ProductSeedEntry[] = [
     categoryIndex: 6,
     providerIndex: 5,
     imageUrl:
-      'https://placehold.co/400x400/0d1117/ee0000?text=Smirnoff%0AVodka',
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1781879601/tusuper_products/tusuper_products/smirnoff_vodka_no_21_750ml.webp',
   },
   {
     name: 'Old Parr 12 años 750ml',
@@ -647,7 +647,7 @@ const productEntries: ProductSeedEntry[] = [
     categoryIndex: 6,
     providerIndex: 5,
     imageUrl:
-      'https://placehold.co/400x400/0d1117/8b6914?text=Old%0AParr%0A12%20a%C3%B1os',
+      'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1781879602/tusuper_products/tusuper_products/old_parr_12_a_os_750ml.webp',
   },
 ];
 

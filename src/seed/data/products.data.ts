@@ -23,6 +23,7 @@ interface ProductSeedEntry {
  * 3 → Frutas/Verduras  → providerIndex 2 (Fruver del Valle)
  * 4 → Bebidas          → providerIndex 3 (La Económica)
  * 5 → Aseo y Hogar     → providerIndex 3 (La Económica)
+ * 6 → Licores           → providerIndex 5 (Distribuidora de Licores Colombia)
  */
 const productEntries: ProductSeedEntry[] = [
   // ── Lácteos (cat:0, prov:0) ──────────────────────────────────────────
@@ -532,6 +533,121 @@ const productEntries: ProductSeedEntry[] = [
     providerIndex: 3,
     imageUrl:
       'https://res.cloudinary.com/dtwvwzbxn/image/upload/v1779396333/tusuper_products/lfmlxpfjj7txn517ixca.webp',
+  },
+
+  // ── Licores (cat:6, prov:5) ─────────────────────────────────────────────
+  // Nacionales
+  {
+    name: 'Aguardiente Antioqueño 375ml',
+    description: 'Aguardiente antioqueño tradicional, destilado de caña de azúcar, 375ml',
+    price: 28000,
+    stock: 48,
+    isActive: true,
+    categoryIndex: 6,
+    providerIndex: 5,
+    imageUrl:
+      'https://placehold.co/400x400/0d1117/00d4aa?text=Aguardiente%0AAntioque%C3%B1o',
+  },
+  {
+    name: 'Aguardiente Blanco de Valle 750ml',
+    description: 'Aguardiente tradicional del Valle del Cauca, sabor suave, 750ml',
+    price: 35000,
+    stock: 36,
+    isActive: true,
+    categoryIndex: 6,
+    providerIndex: 5,
+    imageUrl:
+      'https://placehold.co/400x400/0d1117/00d4aa?text=Aguardiente%0ABlanco%20Valle',
+  },
+  {
+    name: 'Ron Medellín Añejo 8 años 750ml',
+    description: 'Ron colombiano añejado 8 años en barriles de roble, 750ml',
+    price: 42000,
+    stock: 30,
+    isActive: true,
+    categoryIndex: 6,
+    providerIndex: 5,
+    imageUrl:
+      'https://placehold.co/400x400/0d1117/c87533?text=Ron%0AMedell%C3%ADn',
+  },
+  {
+    name: 'Ron Medellín Dorado 375ml',
+    description: 'Ron colombiano dorado tradicional, ideal para cócteles, 375ml',
+    price: 22000,
+    stock: 42,
+    isActive: true,
+    categoryIndex: 6,
+    providerIndex: 5,
+    imageUrl:
+      'https://placehold.co/400x400/0d1117/c87533?text=Ron%0ADorado',
+  },
+  {
+    name: 'Cristal Aguardiente 375ml',
+    description: 'Aguardiente cristalino suave, destilado artesanal, 375ml',
+    price: 25000,
+    stock: 38,
+    isActive: true,
+    categoryIndex: 6,
+    providerIndex: 5,
+    imageUrl:
+      'https://placehold.co/400x400/0d1117/88ccff?text=Cristal%0AAguardiente',
+  },
+
+  // Internacionales
+  {
+    name: 'Absolut Vodka 750ml',
+    description: 'Vodka sueco destilado de centeno, botella icónica, 750ml',
+    price: 75000,
+    stock: 25,
+    isActive: true,
+    categoryIndex: 6,
+    providerIndex: 5,
+    imageUrl:
+      'https://placehold.co/400x400/0d1117/4488ff?text=Absolut%0AVodka',
+  },
+  {
+    name: 'Johnnie Walker Red Label 750ml',
+    description: 'Whisky escocés blend, sabor ahumado intenso, 750ml',
+    price: 85000,
+    stock: 22,
+    isActive: true,
+    categoryIndex: 6,
+    providerIndex: 5,
+    imageUrl:
+      'https://placehold.co/400x400/0d1117/cc2200?text=Johnnie%0AWalker%0ARed',
+  },
+  {
+    name: 'Bacardí Carta Blanca 750ml',
+    description: 'Ron blanco cubano suave, ideal para mojitos y cócteles, 750ml',
+    price: 68000,
+    stock: 28,
+    isActive: true,
+    categoryIndex: 6,
+    providerIndex: 5,
+    imageUrl:
+      'https://placehold.co/400x400/0d1117/ffffff?text=Bacard%C3%AD%0ACarta%0ABlanca',
+  },
+  {
+    name: 'Smirnoff Vodka No. 21 750ml',
+    description: 'Vodka triple destilado, el más vendido del mundo, 750ml',
+    price: 58000,
+    stock: 35,
+    isActive: true,
+    categoryIndex: 6,
+    providerIndex: 5,
+    imageUrl:
+      'https://placehold.co/400x400/0d1117/ee0000?text=Smirnoff%0AVodka',
+  },
+  {
+    name: 'Old Parr 12 años 750ml',
+    description: 'Whisky escocés añejado 12 años, sabor robusto y elegante, 750ml',
+    price: 95000,
+    stock: 18,
+    isActive: true,
+    categoryIndex: 6,
+    providerIndex: 5,
+    imageUrl:
+      'https://placehold.co/400x400/0d1117/8b6914?text=Old%0AParr%0A12%20a%C3%B1os',
   },
 ];
 

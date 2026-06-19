@@ -39,4 +39,10 @@ export const categoriesData: CategorySeedData[] = [
       'Detergentes, jabones, desinfectantes y productos de limpieza del hogar',
     isActive: true,
   },
+  {
+    name: 'Licores',
+    description:
+      'Aguardientes, rones, whisky, vodka, ginebra y licores nacionales e internacionales',
+    isActive: true,
+  },
 ];

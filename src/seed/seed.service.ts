@@ -249,4 +249,78 @@ export class SeedService {
       await queryRunner.release();
     }
   }
+
+  /**
+   * Safe upsert: adds missing categories, providers, and products
+   * without deleting existing data. Skips items that already exist (by name).
+   */
+  async upsertInventory(): Promise<SeedResult> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      let categoriesInserted = 0;
+      let providersInserted = 0;
+      let productsInserted = 0;
+
+      // ── UPSERT CATEGORIES (skip existing by name) ──
+      const savedCategories: Category[] = [];
+      for (const catData of categoriesData) {
+        let existing = await queryRunner.manager.findOne(Category, {
+          where: { name: catData.name },
+        });
+        if (!existing) {
+          existing = await queryRunner.manager.save(Category, catData as DeepPartial<Category>);
+          categoriesInserted++;
+        }
+        savedCategories.push(existing);
+      }
+
+      // ── UPSERT PROVIDERS (skip existing by name) ──
+      const savedProviders: Provider[] = [];
+      for (const provData of providersData) {
+        let existing = await queryRunner.manager.findOne(Provider, {
+          where: { name: provData.name },
+        });
+        if (!existing) {
+          existing = await queryRunner.manager.save(Provider, provData as DeepPartial<Provider>);
+          providersInserted++;
+        }
+        savedProviders.push(existing);
+      }
+
+      // ── UPSERT PRODUCTS (skip existing by name) ──
+      const productsToSeed = buildProductsData(savedCategories, savedProviders);
+      for (const prodData of productsToSeed) {
+        const existing = await queryRunner.manager.findOne(Product, {
+          where: { name: prodData.name! },
+        });
+        if (!existing) {
+          await queryRunner.manager.save(Product, prodData);
+          productsInserted++;
+        }
+      }
+
+      await queryRunner.commitTransaction();
+
+      return {
+        message: 'Upsert completado - sin borrar datos existentes',
+        categoriesInserted,
+        providersInserted,
+        productsInserted,
+      };
+    } catch (error: unknown) {
+      await queryRunner.rollbackTransaction();
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Error desconocido en el upsert';
+      throw new InternalServerErrorException(
+        `Upsert fallo y se revirtio la transaccion: ${message}`,
+      );
+    } finally {
+      await queryRunner.release();
+    }
+  }
 }

@@ -99,4 +99,23 @@ export class SeedController {
     }
     return this.seedService.upsertInventory();
   }
+
+  @Post('products-images')
+  @ApiOperation({
+    summary: 'Update product images from seed data',
+    description:
+      'Updates imageUrl for existing products by name. ' +
+      'Safe to run in production — only touches imageUrl column. Requires x-seed-secret header.',
+  })
+  @ApiResponse({ status: 200, description: 'Product images updated' })
+  @ApiResponse({ status: 401, description: 'Invalid seed secret' })
+  async updateProductImages(
+    @Headers('x-seed-secret') seedSecret: string,
+  ): Promise<SeedResult> {
+    const expectedSecret = process.env.SEED_SECRET;
+    if (!expectedSecret || seedSecret !== expectedSecret) {
+      throw new ForbiddenException('Seed secret invalido');
+    }
+    return this.seedService.updateProductImages();
+  }
 }

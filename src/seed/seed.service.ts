@@ -251,6 +251,66 @@ export class SeedService {
   }
 
   /**
+   * Updates imageUrl for products that already exist (by name).
+   * Safe to run in production — only touches imageUrl column.
+   */
+  async updateProductImages(): Promise<SeedResult> {
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const productsData = buildProductsData(
+        await this.categoryRepo.find(),
+        await this.providerRepo.find(),
+      );
+
+      let updated = 0;
+      let skipped = 0;
+
+      for (const prodData of productsData) {
+        if (!prodData.name || !prodData.imageUrl) {
+          skipped++;
+          continue;
+        }
+
+        const result = await queryRunner.manager
+          .createQueryBuilder()
+          .update(Product)
+          .set({ imageUrl: prodData.imageUrl as string })
+          .where('name = :name', { name: prodData.name })
+          .execute();
+
+        if (result.affected && result.affected > 0) {
+          updated++;
+        } else {
+          skipped++;
+        }
+      }
+
+      await queryRunner.commitTransaction();
+
+      return {
+        message: 'Product images actualizados',
+        categoriesInserted: 0,
+        providersInserted: 0,
+        productsInserted: updated,
+      };
+    } catch (error: unknown) {
+      await queryRunner.rollbackTransaction();
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Error actualizando imagenes de productos';
+      throw new InternalServerErrorException(
+        `Update imagenes fallo: ${message}`,
+      );
+    } finally {
+      await queryRunner.release();
+    }
+  }
+
+  /**
    * Safe upsert: adds missing categories, providers, and products
    * without deleting existing data. Skips items that already exist (by name).
    */

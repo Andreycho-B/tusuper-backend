@@ -41,4 +41,11 @@ export const providersData: ProviderSeedData[] = [
     address: 'Zona Industrial, Bogotá, Colombia',
     isActive: true,
   },
+  {
+    name: 'Distribuidora de Licores Colombia',
+    phone: '3152345678',
+    email: 'ventas@licorescolombia.com.co',
+    address: 'Carrera 50 No. 20-35, Medellín, Antioquia',
+    isActive: true,
+  },
 ];

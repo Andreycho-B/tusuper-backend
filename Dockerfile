@@ -16,7 +16,7 @@ WORKDIR /app
 COPY package*.json ./
 RUN npm install --omit=dev && npm install ts-node tsconfig-paths
 
-COPY --from=build /app/dist ./dist
+COPY --from=build /app/dist/src ./dist
 
 EXPOSE 3000
 

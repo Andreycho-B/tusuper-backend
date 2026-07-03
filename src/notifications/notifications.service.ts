@@ -4,6 +4,7 @@ import { Order } from '../orders/entities/order.entity';
 import {
   NewOrderPayload,
   OrderStatusPayload,
+  OrderRatedPayload,
 } from './interfaces/notification-payloads.interface';
 
 @Injectable()
@@ -52,6 +53,23 @@ export class NotificationsService {
     // Emitir también a staff para que vean cambios en tiempo real
     this.gateway.server.to('admin-room').emit('order-status-changed', payload);
     this.gateway.server.to('tendero-room').emit('order-status-changed', payload);
+  }
+
+  notifyOrderRated(order: Order): void {
+    if (!this.gateway.server) {
+      this.logger.warn(`Gateway server not initialized. Skipping rating notification for order ${order.id}.`);
+      return;
+    }
+
+    const payload: OrderRatedPayload = {
+      orderId: order.id,
+      rating: order.customerRating ?? 0,
+      feedback: order.customerFeedback,
+      confirmedAt: order.deliveryConfirmedAt?.toISOString() ?? new Date().toISOString(),
+    };
+
+    this.gateway.server.to('admin-room').emit('order-rated', payload);
+    this.gateway.server.to('tendero-room').emit('order-rated', payload);
   }
 
   notifyOrderCancelled(order: Order): void {

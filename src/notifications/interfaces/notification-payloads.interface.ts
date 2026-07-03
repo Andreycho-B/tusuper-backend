@@ -12,3 +12,10 @@ export interface OrderStatusPayload {
   newStatus: OrderStatus;
   updatedAt: Date;
 }
+
+export interface OrderRatedPayload {
+  orderId: number;
+  rating: number;
+  feedback: string | null;
+  confirmedAt: string;
+}

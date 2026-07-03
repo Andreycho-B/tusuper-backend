@@ -15,6 +15,7 @@ export interface OrderStatusPayload {
 
 export interface OrderRatedPayload {
   orderId: number;
+  customerName: string;
   rating: number;
   feedback: string | null;
   confirmedAt: string;

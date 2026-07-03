@@ -75,6 +75,15 @@ export class Order {
   @Column({ name: 'stock_deducted', type: 'boolean', default: false })
   stockDeducted: boolean;
 
+  @Column({ name: 'customer_rating', type: 'smallint', nullable: true })
+  customerRating: number | null;
+
+  @Column({ name: 'customer_feedback', type: 'text', nullable: true })
+  customerFeedback: string | null;
+
+  @Column({ name: 'delivery_confirmed_at', type: 'timestamp', nullable: true })
+  deliveryConfirmedAt: Date | null;
+
   @OneToMany(() => OrderItem, (item) => item.order, { cascade: true })
   items: OrderItem[];
 

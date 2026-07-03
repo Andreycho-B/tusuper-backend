@@ -22,6 +22,7 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { CheckoutDto } from './dto/checkout.dto';
 import { OrderFilterDto } from './dto/order-filter.dto';
 import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
+import { ConfirmDeliveryDto } from './dto/confirm-delivery.dto';
 import { OrdersService } from './orders.service';
 import { Order } from './entities/order.entity';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
@@ -117,6 +118,30 @@ export class OrdersController {
       throw new ForbiddenException('No tienes permiso para ver este pedido');
     }
     return order;
+  }
+
+  @Post(':id/confirm-delivery')
+  @ApiOperation({
+    summary: 'Confirm delivery receipt and rate experience (customer only)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Delivery confirmed and rating submitted.',
+    type: Order,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid transition or already rated.' })
+  @ApiResponse({ status: 403, description: 'Forbidden — not the order owner.' })
+  confirmDelivery(
+    @Param('id', ParseIntPipe) id: number,
+    @Req() req: AuthenticatedRequest,
+    @Body() dto: ConfirmDeliveryDto,
+  ): Promise<Order> {
+    return this.ordersService.confirmDelivery(
+      id,
+      req.user.userId,
+      dto.rating,
+      dto.feedback,
+    );
   }
 
   @Patch(':id/status')

@@ -1,0 +1,107 @@
+- generic [ref=e120]:
+  - navigation [ref=e122]:
+    - generic [ref=e124]:
+      - link "Logo TuSuper TuSuper Comercio local" [ref=e125] [cursor=pointer]:
+        - /url: /home
+        - img "Logo TuSuper" [ref=e127]
+        - generic [ref=e128]:
+          - generic [ref=e129]: TuSuper
+          - generic [ref=e130]: Comercio local
+      - generic [ref=e131]:
+        - generic [ref=e132]:
+          - generic [ref=e133]: PRINCIPAL
+          - navigation [ref=e134]:
+            - link "home Inicio" [ref=e135] [cursor=pointer]:
+              - /url: /home
+              - generic [ref=e136]: home
+              - generic [ref=e137]: Inicio
+            - link "group Usuarios" [active] [ref=e138] [cursor=pointer]:
+              - /url: /users
+              - generic [ref=e139]: group
+              - generic [ref=e140]: Usuarios
+            - link "shield Roles" [ref=e141] [cursor=pointer]:
+              - /url: /roles
+              - generic [ref=e142]: shield
+              - generic [ref=e143]: Roles
+            - link "view_module Módulos" [ref=e144] [cursor=pointer]:
+              - /url: /modules
+              - generic [ref=e145]: view_module
+              - generic [ref=e146]: Módulos
+            - link "inventory_2 Productos" [ref=e147] [cursor=pointer]:
+              - /url: /product
+              - generic [ref=e148]: inventory_2
+              - generic [ref=e149]: Productos
+            - link "category Categorías" [ref=e150] [cursor=pointer]:
+              - /url: /category
+              - generic [ref=e151]: category
+              - generic [ref=e152]: Categorías
+            - link "local_shipping Proveedores" [ref=e153] [cursor=pointer]:
+              - /url: /provider
+              - generic [ref=e154]: local_shipping
+              - generic [ref=e155]: Proveedores
+            - link "receipt_long Pedidos" [ref=e156] [cursor=pointer]:
+              - /url: /orders
+              - generic [ref=e157]: receipt_long
+              - generic [ref=e158]: Pedidos
+            - link "folder dashboard" [ref=e159] [cursor=pointer]:
+              - /url: /dashboard
+              - generic [ref=e160]: folder
+              - generic [ref=e161]: dashboard
+            - link "folder notifications" [ref=e162] [cursor=pointer]:
+              - /url: /notifications
+              - generic [ref=e163]: folder
+              - generic [ref=e164]: notifications
+        - generic [ref=e165]:
+          - generic [ref=e166]: CUENTA
+          - navigation [ref=e167]:
+            - link "account_circle Mi perfil" [ref=e168] [cursor=pointer]:
+              - /url: /profile
+              - generic [ref=e169]: account_circle
+              - generic [ref=e170]: Mi perfil
+            - generic [ref=e171] [cursor=pointer]:
+              - generic [ref=e172]: logout
+              - generic [ref=e173]: Cerrar sesión
+  - generic [ref=e175]:
+    - generic [ref=e177]:
+      - button "Ver notificaciones" [ref=e179] [cursor=pointer]:
+        - img [ref=e180]: notifications_none
+      - generic [ref=e183] [cursor=pointer]:
+        - generic [ref=e184]: A
+        - generic [ref=e185]: Admin TuSuper admin@tusuper.com
+    - main [ref=e186]:
+      - generic [ref=e278]:
+        - generic [ref=e279]:
+          - img [ref=e281]: group
+          - generic [ref=e282]:
+            - heading "Gestión de Usuarios" [level=1] [ref=e283]
+            - paragraph [ref=e284]: Administra cuentas, roles y estado de los usuarios de la plataforma.
+          - button "Nuevo Usuario" [ref=e286]:
+            - img [ref=e287]: person_add
+            - generic [ref=e288]: Nuevo Usuario
+        - generic [ref=e294]:
+          - generic [ref=e295]: Buscar usuarios
+          - img [ref=e297]: search
+          - textbox "Buscar usuarios" [ref=e299]:
+            - /placeholder: Nombre o email...
+        - generic [ref=e301]:
+          - progressbar [ref=e302]:
+            - img [ref=e304]
+            - generic [ref=e307]:
+              - img [ref=e309]
+              - img [ref=e312]
+              - img [ref=e315]
+          - generic [ref=e317]: Cargando usuarios…
+        - group "Seleccionar página" [ref=e318]:
+          - generic [ref=e320]:
+            - generic [ref=e321]:
+              - generic [ref=e322]: "Items per page:"
+              - combobox "Items per page:" [ref=e327] [cursor=pointer]:
+                - generic [ref=e328]:
+                  - generic [ref=e330]: "10"
+                  - img [ref=e333]
+            - generic [ref=e336]:
+              - status [ref=e337]: 0 of 0
+              - button "Previous page" [disabled] [ref=e338]:
+                - img [ref=e339]
+              - button "Next page" [disabled] [ref=e343]:
+                - img [ref=e344]

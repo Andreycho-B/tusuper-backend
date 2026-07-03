@@ -1,0 +1,55 @@
+- generic [ref=e97]:
+  - navigation [ref=e99]:
+    - generic [ref=e101]:
+      - link "Logo TuSuper" [ref=e102] [cursor=pointer]:
+        - /url: /home
+        - img "Logo TuSuper" [ref=e104]
+      - generic [ref=e105]:
+        - navigation [ref=e107]:
+          - link "home Inicio" [ref=e108] [cursor=pointer]:
+            - /url: /home
+            - generic [ref=e109]: home
+            - generic: Inicio
+          - link "inventory_2 Productos" [ref=e110] [cursor=pointer]:
+            - /url: /admin/products
+            - generic [ref=e111]: inventory_2
+            - generic: Productos
+          - link "category Categorías" [ref=e112] [cursor=pointer]:
+            - /url: /category
+            - generic [ref=e113]: category
+            - generic: Categorías
+          - link "local_shipping Proveedores" [ref=e114] [cursor=pointer]:
+            - /url: /provider
+            - generic [ref=e115]: local_shipping
+            - generic: Proveedores
+          - link "receipt_long Pedidos" [ref=e116] [cursor=pointer]:
+            - /url: /orders
+            - generic [ref=e117]: receipt_long
+            - generic: Pedidos
+        - navigation [ref=e119]:
+          - link "person Mi perfil" [ref=e120] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=e121]: person
+            - generic: Mi perfil
+          - generic [ref=e122] [cursor=pointer]:
+            - generic [ref=e123]: logout
+            - generic: Cerrar sesión
+  - generic [ref=e125]:
+    - generic [ref=e127]:
+      - button "Ver notificaciones" [ref=e129] [cursor=pointer]:
+        - img [ref=e130]: notifications_none
+      - img "juan" [ref=e134] [cursor=pointer]
+    - main [ref=e135]:
+      - generic [ref=e139]:
+        - generic [ref=e141]:
+          - heading "Panel de Control" [level=1] [ref=e142]
+          - paragraph [ref=e143]:
+            - text: juan,
+            - strong [ref=e144]: tendero
+            - text: · Indicadores en tiempo real
+        - progressbar [ref=e146]:
+          - img [ref=e148]
+          - generic [ref=e151]:
+            - img [ref=e153]
+            - img [ref=e156]
+            - img [ref=e159]

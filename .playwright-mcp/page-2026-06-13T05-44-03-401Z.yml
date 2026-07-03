@@ -1,0 +1,138 @@
+- generic [ref=e120]:
+  - navigation [ref=e122]:
+    - generic [ref=e124]:
+      - link "Logo TuSuper TuSuper Comercio local" [ref=e125] [cursor=pointer]:
+        - /url: /home
+        - img "Logo TuSuper" [ref=e127]
+        - generic [ref=e128]:
+          - generic [ref=e129]: TuSuper
+          - generic [ref=e130]: Comercio local
+      - generic [ref=e131]:
+        - generic [ref=e132]:
+          - generic [ref=e133]: PRINCIPAL
+          - navigation [ref=e134]:
+            - link "home Inicio" [ref=e135] [cursor=pointer]:
+              - /url: /home
+              - generic [ref=e136]: home
+              - generic [ref=e137]: Inicio
+            - link "group Usuarios" [ref=e138] [cursor=pointer]:
+              - /url: /users
+              - generic [ref=e139]: group
+              - generic [ref=e140]: Usuarios
+            - link "shield Roles" [ref=e141] [cursor=pointer]:
+              - /url: /roles
+              - generic [ref=e142]: shield
+              - generic [ref=e143]: Roles
+            - link "view_module Módulos" [ref=e144] [cursor=pointer]:
+              - /url: /modules
+              - generic [ref=e145]: view_module
+              - generic [ref=e146]: Módulos
+            - link "inventory_2 Productos" [ref=e147] [cursor=pointer]:
+              - /url: /product
+              - generic [ref=e148]: inventory_2
+              - generic [ref=e149]: Productos
+            - link "category Categorías" [ref=e150] [cursor=pointer]:
+              - /url: /category
+              - generic [ref=e151]: category
+              - generic [ref=e152]: Categorías
+            - link "local_shipping Proveedores" [ref=e153] [cursor=pointer]:
+              - /url: /provider
+              - generic [ref=e154]: local_shipping
+              - generic [ref=e155]: Proveedores
+            - link "receipt_long Pedidos" [ref=e156] [cursor=pointer]:
+              - /url: /orders
+              - generic [ref=e157]: receipt_long
+              - generic [ref=e158]: Pedidos
+            - link "folder dashboard" [ref=e159] [cursor=pointer]:
+              - /url: /dashboard
+              - generic [ref=e160]: folder
+              - generic [ref=e161]: dashboard
+            - link "folder notifications" [ref=e162] [cursor=pointer]:
+              - /url: /notifications
+              - generic [ref=e163]: folder
+              - generic [ref=e164]: notifications
+        - generic [ref=e165]:
+          - generic [ref=e166]: CUENTA
+          - navigation [ref=e167]:
+            - link "account_circle Mi perfil" [ref=e168] [cursor=pointer]:
+              - /url: /profile
+              - generic [ref=e169]: account_circle
+              - generic [ref=e170]: Mi perfil
+            - generic [ref=e171] [cursor=pointer]:
+              - generic [ref=e172]: logout
+              - generic [ref=e173]: Cerrar sesión
+  - generic [ref=e175]:
+    - generic [ref=e177]:
+      - button "Ver notificaciones" [ref=e179] [cursor=pointer]:
+        - img [ref=e180]: notifications_none
+      - generic [ref=e183] [cursor=pointer]:
+        - generic [ref=e184]: A
+        - generic [ref=e185]: Admin TuSuper admin@tusuper.com
+    - main [ref=e186]:
+      - generic [ref=e188]:
+        - generic [ref=e189]:
+          - generic [ref=e190]: A
+          - generic [ref=e191]:
+            - heading "Panel de Control, Admin ⚙️" [level=1] [ref=e192]
+            - paragraph [ref=e193]: Indicadores de gestión y analíticas en tiempo real.
+        - generic [ref=e194]:
+          - generic [ref=e195]:
+            - generic [ref=e196]:
+              - generic [ref=e197]: Usuarios Registrados
+              - img [ref=e199]: people
+            - generic [ref=e200]: "3"
+            - generic [ref=e202]: Cuentas activas en DB
+          - generic [ref=e203]:
+            - generic [ref=e204]:
+              - generic [ref=e205]: Total Productos
+              - img [ref=e207]: inventory_2
+            - generic [ref=e208]: "45"
+            - generic [ref=e210]: Ítems activos en catálogo
+          - generic [ref=e211]:
+            - generic [ref=e212]:
+              - generic [ref=e213]: Bajo Stock
+              - img [ref=e215]: warning
+            - generic [ref=e216]: "0"
+            - generic [ref=e218]: Menos de 5 unidades en almacén
+        - generic [ref=e219]:
+          - heading "Flujo de Ventas (Últimos 7 días)" [level=3] [ref=e221]
+          - heading "Distribución por Categorías" [level=3] [ref=e225]
+        - generic [ref=e228]:
+          - generic [ref=e229]: "Acciones Rápidas:"
+          - generic [ref=e230]:
+            - link "Users" [ref=e231] [cursor=pointer]:
+              - /url: /users
+              - img [ref=e232]: people
+              - generic [ref=e233]: Users
+            - link "Roles" [ref=e236] [cursor=pointer]:
+              - /url: /roles
+              - img [ref=e237]: admin_panel_settings
+              - generic [ref=e238]: Roles
+            - link "Modules" [ref=e241] [cursor=pointer]:
+              - /url: /modules
+              - img [ref=e242]: widgets
+              - generic [ref=e243]: Modules
+            - link "Product" [ref=e246] [cursor=pointer]:
+              - /url: /product
+              - img [ref=e247]: inventory_2
+              - generic [ref=e248]: Product
+            - link "Category" [ref=e251] [cursor=pointer]:
+              - /url: /category
+              - img [ref=e252]: category
+              - generic [ref=e253]: Category
+            - link "Provider" [ref=e256] [cursor=pointer]:
+              - /url: /provider
+              - img [ref=e257]: local_shipping
+              - generic [ref=e258]: Provider
+            - link "Orders" [ref=e261] [cursor=pointer]:
+              - /url: /orders
+              - img [ref=e262]: receipt_long
+              - generic [ref=e263]: Orders
+            - link "Dashboard" [ref=e266] [cursor=pointer]:
+              - /url: /dashboard
+              - img [ref=e267]: extension
+              - generic [ref=e268]: Dashboard
+            - link "Notifications" [ref=e271] [cursor=pointer]:
+              - /url: /notifications
+              - img [ref=e272]: extension
+              - generic [ref=e273]: Notifications

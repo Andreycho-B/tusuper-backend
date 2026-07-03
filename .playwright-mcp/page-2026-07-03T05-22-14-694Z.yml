@@ -1,0 +1,381 @@
+- generic [ref=f2e15]:
+  - navigation [ref=f2e17]:
+    - generic [ref=f2e19]:
+      - link "Logo TuSuper" [ref=f2e20] [cursor=pointer]:
+        - /url: /home
+        - img "Logo TuSuper" [ref=f2e22]
+      - generic [ref=f2e23]:
+        - navigation [ref=f2e25]:
+          - link "home Inicio" [ref=f2e26] [cursor=pointer]:
+            - /url: /home
+            - generic [ref=f2e27]: home
+            - generic: Inicio
+          - link "inventory_2 Productos" [ref=f2e28] [cursor=pointer]:
+            - /url: /admin/products
+            - generic [ref=f2e29]: inventory_2
+            - generic: Productos
+          - link "category Categorías" [ref=f2e30] [cursor=pointer]:
+            - /url: /category
+            - generic [ref=f2e31]: category
+            - generic: Categorías
+          - link "local_shipping Proveedores" [ref=f2e32] [cursor=pointer]:
+            - /url: /provider
+            - generic [ref=f2e33]: local_shipping
+            - generic: Proveedores
+          - link "receipt_long Pedidos" [ref=f2e34] [cursor=pointer]:
+            - /url: /orders
+            - generic [ref=f2e35]: receipt_long
+            - generic: Pedidos
+        - navigation [ref=f2e37]:
+          - link "person Mi perfil" [ref=f2e38] [cursor=pointer]:
+            - /url: /profile
+            - generic [ref=f2e39]: person
+            - generic: Mi perfil
+          - generic [ref=f2e40] [cursor=pointer]:
+            - generic [ref=f2e41]: logout
+            - generic: Cerrar sesión
+  - generic [ref=f2e43]:
+    - generic [ref=f2e45]:
+      - button "Ver notificaciones" [ref=f2e47] [cursor=pointer]:
+        - img [ref=f2e48]: notifications_active
+        - generic: "1"
+      - img "juan" [ref=f2e52] [cursor=pointer]
+    - main [ref=f2e53]:
+      - generic [ref=f2e55]:
+        - generic [ref=f2e56]:
+          - generic [ref=f2e57]:
+            - img [ref=f2e59]: receipt_long
+            - generic [ref=f2e60]:
+              - heading "Gestión de Ventas" [level=2] [ref=f2e61]
+              - paragraph [ref=f2e62]: Monitorea y despacha los pedidos de los clientes en tiempo real.
+          - generic [ref=f2e63]:
+            - generic [ref=f2e66]:
+              - generic [ref=f2e67]: Buscar por ID o cliente
+              - img [ref=f2e69]: search
+              - textbox "Buscar por ID o cliente" [ref=f2e71]:
+                - /placeholder: Buscar pedido...
+            - generic [ref=f2e74]:
+              - generic [ref=f2e75]: Desde
+              - textbox "Desde" [ref=f2e77]
+            - generic [ref=f2e80]:
+              - generic [ref=f2e81]: Hasta
+              - textbox "Hasta" [ref=f2e83]
+            - button "Limpiar" [ref=f2e84] [cursor=pointer]:
+              - img [ref=f2e85]: clear_all
+              - generic [ref=f2e86]: Limpiar
+          - generic [ref=f2e89]:
+            - tablist [ref=f2e92]:
+              - generic [ref=f2e93]:
+                - tab "Todos" [selected] [ref=f2e94] [cursor=pointer]:
+                  - generic [ref=f2e96]: Todos
+                - tab "Pendientes" [ref=f2e97] [cursor=pointer]:
+                  - generic [ref=f2e99]: Pendientes
+                - tab "Preparando" [ref=f2e100] [cursor=pointer]:
+                  - generic [ref=f2e102]: Preparando
+                - tab "Listos para despacho" [ref=f2e103] [cursor=pointer]:
+                  - generic [ref=f2e105]: Listos para despacho
+                - tab "Despachados" [ref=f2e106] [cursor=pointer]:
+                  - generic [ref=f2e108]: Despachados
+                - tab "Entregados" [ref=f2e109] [cursor=pointer]:
+                  - generic [ref=f2e111]: Entregados
+                - tab "Cancelados" [ref=f2e112] [cursor=pointer]:
+                  - generic [ref=f2e114]: Cancelados
+            - generic [ref=f2e115]:
+              - tabpanel "Todos" [ref=f2e116]:
+                - generic [ref=f2e117]:
+                  - generic [ref=f2e118]:
+                    - article [ref=f2e119]:
+                      - generic [ref=f2e120]:
+                        - generic [ref=f2e122]: "#73"
+                        - generic [ref=f2e123]:
+                          - img [ref=f2e124]: schedule
+                          - text: 03/07 00:18
+                      - generic [ref=f2e125]:
+                        - generic [ref=f2e126]:
+                          - img [ref=f2e127]: person
+                          - text: Test 9
+                        - generic [ref=f2e128]:
+                          - img [ref=f2e129]: location_on
+                          - text: Jajajajdbdbdkalkfj
+                      - generic [ref=f2e130]:
+                        - generic [ref=f2e131]: $ 8.500
+                        - generic [ref=f2e132]: Pendiente
+                      - generic [ref=f2e133]:
+                        - button "Preparando" [ref=f2e134] [cursor=pointer]:
+                          - img [ref=f2e135]: cooking
+                          - generic [ref=f2e136]: Preparando
+                        - button "Cancelar" [ref=f2e139] [cursor=pointer]:
+                          - img [ref=f2e140]: cancel
+                          - generic [ref=f2e141]: Cancelar
+                        - button "Ver detalle" [active] [ref=f2e144] [cursor=pointer]:
+                          - img [ref=f2e145]: visibility
+                          - generic [ref=f2e146]: Ver detalle
+                    - article [ref=f2e149]:
+                      - generic [ref=f2e150]:
+                        - generic [ref=f2e152]: "#72"
+                        - generic [ref=f2e153]:
+                          - img [ref=f2e154]: schedule
+                          - text: 03/07 00:07
+                      - generic [ref=f2e155]:
+                        - generic [ref=f2e156]:
+                          - img [ref=f2e157]: person
+                          - text: Daniel Escobar
+                        - generic [ref=f2e158]:
+                          - img [ref=f2e159]: location_on
+                          - text: dsfasddsfsd
+                      - generic [ref=f2e160]:
+                        - generic [ref=f2e161]: $ 9.500
+                        - generic [ref=f2e162]: Entregado
+                      - button "Ver detalle" [ref=f2e164] [cursor=pointer]:
+                        - img [ref=f2e165]: visibility
+                        - generic [ref=f2e166]: Ver detalle
+                    - article [ref=f2e169]:
+                      - generic [ref=f2e170]:
+                        - generic [ref=f2e172]: "#71"
+                        - generic [ref=f2e173]:
+                          - img [ref=f2e174]: schedule
+                          - text: 03/07 00:02
+                      - generic [ref=f2e175]:
+                        - generic [ref=f2e176]:
+                          - img [ref=f2e177]: person
+                          - text: Test 9
+                        - generic [ref=f2e178]:
+                          - img [ref=f2e179]: location_on
+                          - text: Jsjskdjdbfbdksk
+                      - generic [ref=f2e180]:
+                        - generic [ref=f2e181]: $ 8.500
+                        - generic [ref=f2e182]: Entregado
+                      - button "Ver detalle" [ref=f2e184] [cursor=pointer]:
+                        - img [ref=f2e185]: visibility
+                        - generic [ref=f2e186]: Ver detalle
+                    - article [ref=f2e189]:
+                      - generic [ref=f2e190]:
+                        - generic [ref=f2e192]: "#70"
+                        - generic [ref=f2e193]:
+                          - img [ref=f2e194]: schedule
+                          - text: 02/07 23:40
+                      - generic [ref=f2e195]:
+                        - generic [ref=f2e196]:
+                          - img [ref=f2e197]: person
+                          - text: Test 9
+                        - generic [ref=f2e198]:
+                          - img [ref=f2e199]: location_on
+                          - text: Hsjsjdbfkdlssj
+                      - generic [ref=f2e200]:
+                        - generic [ref=f2e201]: $ 2.800
+                        - generic [ref=f2e202]: Cancelado
+                      - button "Ver detalle" [ref=f2e204] [cursor=pointer]:
+                        - img [ref=f2e205]: visibility
+                        - generic [ref=f2e206]: Ver detalle
+                    - article [ref=f2e209]:
+                      - generic [ref=f2e210]:
+                        - generic [ref=f2e212]: "#69"
+                        - generic [ref=f2e213]:
+                          - img [ref=f2e214]: schedule
+                          - text: 02/07 22:29
+                      - generic [ref=f2e215]:
+                        - generic [ref=f2e216]:
+                          - img [ref=f2e217]: person
+                          - text: Test 9
+                        - generic [ref=f2e218]:
+                          - img [ref=f2e219]: location_on
+                          - text: Hsjdjdkdkdkdk
+                      - generic [ref=f2e220]:
+                        - generic [ref=f2e221]: $ 4.200
+                        - generic [ref=f2e222]: Entregado
+                      - button "Ver detalle" [ref=f2e224] [cursor=pointer]:
+                        - img [ref=f2e225]: visibility
+                        - generic [ref=f2e226]: Ver detalle
+                    - article [ref=f2e229]:
+                      - generic [ref=f2e230]:
+                        - generic [ref=f2e232]: "#68"
+                        - generic [ref=f2e233]:
+                          - img [ref=f2e234]: schedule
+                          - text: 02/07 21:47
+                      - generic [ref=f2e235]:
+                        - generic [ref=f2e236]:
+                          - img [ref=f2e237]: person
+                          - text: Test 9
+                        - generic [ref=f2e238]:
+                          - img [ref=f2e239]: location_on
+                          - text: Jdkdkdksjz
+                      - generic [ref=f2e240]:
+                        - generic [ref=f2e241]: $ 4.200
+                        - generic [ref=f2e242]: Cancelado
+                      - button "Ver detalle" [ref=f2e244] [cursor=pointer]:
+                        - img [ref=f2e245]: visibility
+                        - generic [ref=f2e246]: Ver detalle
+                    - article [ref=f2e249]:
+                      - generic [ref=f2e250]:
+                        - generic [ref=f2e252]: "#67"
+                        - generic [ref=f2e253]:
+                          - img [ref=f2e254]: schedule
+                          - text: 02/07 21:45
+                      - generic [ref=f2e255]:
+                        - generic [ref=f2e256]:
+                          - img [ref=f2e257]: person
+                          - text: Test 9
+                        - generic [ref=f2e258]:
+                          - img [ref=f2e259]: location_on
+                          - text: "Calle 123 #4-5"
+                      - generic [ref=f2e260]:
+                        - generic [ref=f2e261]: $ 31.100
+                        - generic [ref=f2e262]: Cancelado
+                      - button "Ver detalle" [ref=f2e264] [cursor=pointer]:
+                        - img [ref=f2e265]: visibility
+                        - generic [ref=f2e266]: Ver detalle
+                    - article [ref=f2e269]:
+                      - generic [ref=f2e270]:
+                        - generic [ref=f2e272]: "#66"
+                        - generic [ref=f2e273]:
+                          - img [ref=f2e274]: schedule
+                          - text: 02/07 14:30
+                      - generic [ref=f2e275]:
+                        - generic [ref=f2e276]:
+                          - img [ref=f2e277]: person
+                          - text: Brayan Perez
+                        - generic [ref=f2e278]:
+                          - img [ref=f2e279]: location_on
+                          - text: Camaksk
+                      - generic [ref=f2e280]:
+                        - generic [ref=f2e281]: $ 669.400
+                        - generic [ref=f2e282]: Cancelado
+                      - button "Ver detalle" [ref=f2e284] [cursor=pointer]:
+                        - img [ref=f2e285]: visibility
+                        - generic [ref=f2e286]: Ver detalle
+                    - article [ref=f2e289]:
+                      - generic [ref=f2e290]:
+                        - generic [ref=f2e292]: "#65"
+                        - generic [ref=f2e293]:
+                          - img [ref=f2e294]: schedule
+                          - text: 21/06 11:27
+                      - generic [ref=f2e295]:
+                        - generic [ref=f2e296]:
+                          - img [ref=f2e297]: person
+                          - text: felipe saavedra
+                        - generic [ref=f2e298]:
+                          - img [ref=f2e299]: location_on
+                          - text: Casa lau
+                      - generic [ref=f2e300]:
+                        - generic [ref=f2e301]: $ 388.700
+                        - generic [ref=f2e302]: Cancelado
+                      - button "Ver detalle" [ref=f2e304] [cursor=pointer]:
+                        - img [ref=f2e305]: visibility
+                        - generic [ref=f2e306]: Ver detalle
+                    - article [ref=f2e309]:
+                      - generic [ref=f2e310]:
+                        - generic [ref=f2e312]: "#64"
+                        - generic [ref=f2e313]:
+                          - img [ref=f2e314]: schedule
+                          - text: 17/06 20:22
+                      - generic [ref=f2e315]:
+                        - generic [ref=f2e316]:
+                          - img [ref=f2e317]: person
+                          - text: felipe saavedra
+                        - generic [ref=f2e318]:
+                          - img [ref=f2e319]: location_on
+                          - text: Casa Pablo
+                      - generic [ref=f2e320]:
+                        - generic [ref=f2e321]: $ 37.700
+                        - generic [ref=f2e322]: Cancelado
+                      - button "Ver detalle" [ref=f2e324] [cursor=pointer]:
+                        - img [ref=f2e325]: visibility
+                        - generic [ref=f2e326]: Ver detalle
+                  - group [ref=f2e329]:
+                    - generic [ref=f2e331]:
+                      - generic [ref=f2e332]:
+                        - generic [ref=f2e333]: "Items per page:"
+                        - combobox "Items per page:" [ref=f2e338] [cursor=pointer]:
+                          - generic [ref=f2e339]:
+                            - generic [ref=f2e341]: "10"
+                            - img [ref=f2e344]
+                      - generic [ref=f2e347]:
+                        - status [ref=f2e348]: 1 – 10 of 73
+                        - button "First page" [disabled] [ref=f2e349]:
+                          - img [ref=f2e350]
+                        - button "Previous page" [disabled] [ref=f2e354]:
+                          - img [ref=f2e355]
+                        - button "Next page" [ref=f2e359] [cursor=pointer]:
+                          - img [ref=f2e360]
+                        - button "Last page" [ref=f2e364] [cursor=pointer]:
+                          - img [ref=f2e365]
+              - tabpanel [ref=f2e369]
+              - tabpanel [ref=f2e370]
+              - tabpanel [ref=f2e371]
+              - tabpanel [ref=f2e372]
+              - tabpanel [ref=f2e373]
+              - tabpanel [ref=f2e374]
+        - 'dialog "Detalle del pedido #73" [ref=f2e377]':
+          - generic [ref=f2e378]:
+            - button "Volver" [ref=f2e379] [cursor=pointer]:
+              - img [ref=f2e380]: arrow_back
+              - generic [ref=f2e381]: Volver
+            - generic [ref=f2e384]:
+              - 'heading "Pedido #73" [level=2] [ref=f2e385]'
+              - generic [ref=f2e386]: Pendiente
+            - button "Cerrar" [ref=f2e387] [cursor=pointer]:
+              - img [ref=f2e388]: close
+          - generic [ref=f2e391]:
+            - generic [ref=f2e392]:
+              - generic [ref=f2e393]:
+                - img [ref=f2e394]: sync_alt
+                - generic [ref=f2e395]: Estado del pedido
+              - generic [ref=f2e396]:
+                - generic [ref=f2e399] [cursor=pointer]:
+                  - generic [ref=f2e400]: Cambiar estado
+                  - combobox "Cambiar estado" [ref=f2e402]:
+                    - generic [ref=f2e403]:
+                      - generic [ref=f2e405]: Pendiente
+                      - img [ref=f2e408]
+                - button "Cancelar pedido" [ref=f2e411] [cursor=pointer]:
+                  - img [ref=f2e412]: cancel
+                  - generic [ref=f2e413]: Cancelar pedido
+            - generic [ref=f2e416]:
+              - generic [ref=f2e417]:
+                - img [ref=f2e418]: person
+                - generic [ref=f2e419]: Cliente
+              - generic [ref=f2e420]:
+                - generic [ref=f2e421]:
+                  - generic [ref=f2e422]: Nombre
+                  - generic [ref=f2e423]: Test 9
+                - generic [ref=f2e424]:
+                  - generic [ref=f2e425]: Correo
+                  - generic [ref=f2e426]: test9@gmail.com
+                - generic [ref=f2e427]:
+                  - generic [ref=f2e428]: Teléfono
+                  - generic [ref=f2e429]: "3242454548"
+            - generic [ref=f2e430]:
+              - generic [ref=f2e431]:
+                - img [ref=f2e432]: local_shipping
+                - generic [ref=f2e433]: Entrega
+              - generic [ref=f2e434]:
+                - generic [ref=f2e435]:
+                  - generic [ref=f2e436]: Dirección
+                  - generic [ref=f2e437]: Jajajajdbdbdkalkfj
+                - generic [ref=f2e438]:
+                  - generic [ref=f2e439]: Método de pago
+                  - generic [ref=f2e440]: EFECTIVO
+                - generic [ref=f2e441]:
+                  - generic [ref=f2e442]: Estado del pago
+                  - generic [ref=f2e443]: PENDING
+                - generic [ref=f2e444]:
+                  - generic [ref=f2e445]: Paga con
+                  - generic [ref=f2e446]: $ 20.000
+            - generic [ref=f2e447]:
+              - generic [ref=f2e448]:
+                - img [ref=f2e449]: shopping_cart
+                - generic [ref=f2e450]: Artículos (1)
+              - generic [ref=f2e452]:
+                - generic [ref=f2e454]:
+                  - generic [ref=f2e455]: Mantequilla Colanta 250g
+                  - generic [ref=f2e456]:
+                    - generic [ref=f2e457]: 1 ×
+                    - generic [ref=f2e458]: $ 8.500
+                - generic [ref=f2e459]: $ 8.500
+            - generic [ref=f2e460]:
+              - generic [ref=f2e461]:
+                - generic [ref=f2e462]: Envío
+                - generic [ref=f2e463]: $ 6.600
+              - generic [ref=f2e464]:
+                - generic [ref=f2e465]: Total
+                - generic [ref=f2e466]: $ 8.500

@@ -48,6 +48,10 @@ export class NotificationsService {
     this.gateway.server
       .to(`user-room-${userId}`)
       .emit('order-status-changed', payload);
+
+    // Emitir también a staff para que vean cambios en tiempo real
+    this.gateway.server.to('admin-room').emit('order-status-changed', payload);
+    this.gateway.server.to('tendero-room').emit('order-status-changed', payload);
   }
 
   notifyOrderCancelled(order: Order): void {

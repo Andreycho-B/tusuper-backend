@@ -398,6 +398,71 @@ export class OrdersService {
     }
   }
 
+  async confirmDelivery(
+    orderId: number,
+    userId: number,
+    rating: number,
+    feedback?: string,
+  ): Promise<Order> {
+    const order = await this.orderRepository.findOne({
+      where: { id: orderId },
+      relations: ['customer'],
+    });
+
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${orderId} not found`);
+    }
+
+    if (order.customerId !== userId) {
+      throw new ForbiddenException('No tienes permiso para confirmar este pedido');
+    }
+
+    if (order.status !== OrderStatus.DISPATCHED && order.status !== OrderStatus.DELIVERED) {
+      throw new BadRequestException(
+        'Solo puedes confirmar pedidos que estén en camino o entregados',
+      );
+    }
+
+    if (order.customerRating !== null) {
+      throw new BadRequestException('Ya has calificado este pedido anteriormente');
+    }
+
+    order.customerRating = rating;
+    order.customerFeedback = feedback ?? null;
+    order.deliveryConfirmedAt = new Date();
+
+    if (order.status === OrderStatus.DISPATCHED) {
+      order.status = OrderStatus.DELIVERED;
+    }
+
+    await this.orderRepository.save(order);
+
+    const enrichedOrder = await this.findOne(order.id);
+
+    this.notificationsService.notifyOrderStatusChanged(
+      enrichedOrder,
+      enrichedOrder.customerId,
+    );
+
+    this.notificationsService.notifyOrderRated(enrichedOrder);
+
+    this.pushNotificationsService
+      .sendToUser(
+        enrichedOrder.customerId,
+        '⭐ ¡Gracias por tu opinión!',
+        `Has calificado tu pedido #${enrichedOrder.id} con ${rating}/5. ¡Gracias por tu feedback!`,
+        { orderId: enrichedOrder.id, status: enrichedOrder.status },
+      )
+      .catch((err) => {
+        this.logger.error(
+          'Push notification failed for rating confirmation',
+          err instanceof Error ? err.stack : String(err),
+        );
+      });
+
+    return enrichedOrder;
+  }
+
   async findOne(id: number): Promise<Order> {
     const order = await this.orderRepository.findOne({
       where: { id },

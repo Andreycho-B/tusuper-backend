@@ -63,6 +63,7 @@ export class NotificationsService {
 
     const payload: OrderRatedPayload = {
       orderId: order.id,
+      customerName: `${order.customer?.firstName ?? 'Unknown'} ${order.customer?.lastName ?? ''}`,
       rating: order.customerRating ?? 0,
       feedback: order.customerFeedback,
       confirmedAt: order.deliveryConfirmedAt?.toISOString() ?? new Date().toISOString(),

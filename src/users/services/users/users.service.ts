@@ -206,6 +206,18 @@ export class UsersService {
     return this.userRepo.save(user);
   }
 
+  async toggleStatus(userId: number): Promise<User> {
+    const user = await this.userRepo.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException(`Usuario #${userId} no encontrado`);
+    }
+
+    user.isActive = !user.isActive;
+
+    return this.userRepo.save(user);
+  }
+
   async updateAvatar(userId: number, avatarUrl: string): Promise<User> {
     const user = await this.findOne(userId);
     user.avatarUrl = avatarUrl;

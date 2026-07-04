@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
   Put,
   Query,
@@ -78,6 +79,16 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
   ): Promise<User> {
     return this.usersService.update(userId, updateUserDto);
+  }
+
+  @Patch(':userId/toggle-status')
+  @ApiOperation({ summary: 'Activar/desactivar un usuario' })
+  @ApiResponse({ status: 200, description: 'Estado del usuario cambiado exitosamente' })
+  @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
+  toggleStatus(
+    @Param('userId', ParseIntPipe) userId: number,
+  ): Promise<User> {
+    return this.usersService.toggleStatus(userId);
   }
 
   @Delete(':userId')

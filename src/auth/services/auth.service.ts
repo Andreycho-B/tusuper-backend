@@ -69,6 +69,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    if (!user.isActive) {
+      throw new UnauthorizedException(
+        'Cuenta deshabilitada por seguridad. Contacte a jktusuper@gmail.com',
+      );
+    }
+
     if (user.lockedUntil && user.lockedUntil > new Date()) {
       throw new UnauthorizedException(
         'Account temporarily locked. Try again later.',
@@ -179,7 +185,9 @@ export class AuthService {
 
     const user = await this.usersService.findOne(entity.userId);
     if (!user.isActive) {
-      throw new UnauthorizedException('User is inactive');
+      throw new UnauthorizedException(
+        'Cuenta deshabilitada por seguridad. Contacte a jktusuper@gmail.com',
+      );
     }
 
     return this.login(user as UserModel);
@@ -214,7 +222,9 @@ export class AuthService {
     const user = await this.usersService.findOne(userId);
 
     if (!user.isActive) {
-      throw new UnauthorizedException('User is inactive');
+      throw new UnauthorizedException(
+        'Cuenta deshabilitada por seguridad. Contacte a jktusuper@gmail.com',
+      );
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unused-vars

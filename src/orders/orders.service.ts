@@ -128,6 +128,10 @@ export class OrdersService {
       if (error instanceof HttpException) {
         throw error;
       }
+      this.logger.error(
+        'Error processing checkout',
+        error instanceof Error ? error.stack : String(error),
+      );
       throw new InternalServerErrorException(
         'Error processing checkout transaction',
       );
@@ -228,6 +232,10 @@ export class OrdersService {
       if (error instanceof HttpException) {
         throw error;
       }
+      this.logger.error(
+        'Error creating order',
+        error instanceof Error ? error.stack : String(error),
+      );
       throw new InternalServerErrorException(
         'Error processing order transaction',
       );

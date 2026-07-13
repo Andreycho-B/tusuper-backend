@@ -83,11 +83,12 @@ export class UsersController {
 
   @Patch(':userId/toggle-status')
   @ApiOperation({ summary: 'Activar/desactivar un usuario' })
-  @ApiResponse({ status: 200, description: 'Estado del usuario cambiado exitosamente' })
+  @ApiResponse({
+    status: 200,
+    description: 'Estado del usuario cambiado exitosamente',
+  })
   @ApiResponse({ status: 404, description: 'Usuario no encontrado' })
-  toggleStatus(
-    @Param('userId', ParseIntPipe) userId: number,
-  ): Promise<User> {
+  toggleStatus(@Param('userId', ParseIntPipe) userId: number): Promise<User> {
     return this.usersService.toggleStatus(userId);
   }
 

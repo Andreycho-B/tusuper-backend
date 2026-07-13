@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Delete,
   Post,
   HttpCode,
   HttpStatus,
@@ -10,12 +9,12 @@ import {
   Request,
   Res,
   UnauthorizedException,
+  Headers,
 } from '@nestjs/common';
 import type { Response } from 'express';
 import {
   ApiTags,
   ApiOperation,
-  ApiResponse,
   ApiBody,
   ApiBearerAuth,
 } from '@nestjs/swagger';
@@ -50,8 +49,20 @@ export class AuthController {
     private readonly configService: ConfigService,
   ) {}
 
-  private setAuthCookies(res: Response, accessToken: string, refreshToken: string): void {
-    const isProduction = process.env.NODE_ENV === 'prod';
+  private parseDpopJwkHeader(header: string): unknown {
+    try {
+      return JSON.parse(Buffer.from(header, 'base64').toString('utf-8'));
+    } catch {
+      return undefined;
+    }
+  }
+
+  private setAuthCookies(
+    res: Response,
+    accessToken: string,
+    refreshToken: string,
+  ): void {
+    const isProduction = process.env.NODE_ENV === 'production';
     // Access token cookie: 1 hour with sliding refresh (resets on each check-status/refresh)
     const accessTtlMs = 60 * 60 * 1000; // 1h
     res.cookie('token', accessToken, {
@@ -68,9 +79,17 @@ export class AuthController {
   }
 
   private clearAuthCookies(res: Response): void {
-    const isProduction = process.env.NODE_ENV === 'prod';
-    res.cookie('token', '', { ...COOKIE_BASE, secure: isProduction, maxAge: 0 });
-    res.cookie('refresh_token', '', { ...COOKIE_BASE, secure: isProduction, maxAge: 0 });
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie('token', '', {
+      ...COOKIE_BASE,
+      secure: isProduction,
+      maxAge: 0,
+    });
+    res.cookie('refresh_token', '', {
+      ...COOKIE_BASE,
+      secure: isProduction,
+      maxAge: 0,
+    });
   }
 
   @Throttle({ default: { limit: 10, ttl: 60000 } })
@@ -90,9 +109,7 @@ export class AuthController {
     const result = await this.authService.googleLogin(req);
     this.setAuthCookies(res, result.access_token, result.refresh_token);
     const frontendUrl = validateFrontendUrl(this.configService);
-    res.redirect(
-      `${frontendUrl}/auth/social-callback#token=${result.access_token}`,
-    );
+    res.redirect(`${frontendUrl}/auth/social-callback`);
   }
 
   @Throttle({ default: { limit: 5, ttl: 60000 } })
@@ -100,9 +117,14 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Iniciar sesion y obtener JWT' })
   @ApiBody({ type: LoginDto })
-  async login(@Body() body: LoginDto, @Res({ passthrough: true }) res: Response) {
+  async login(
+    @Body() body: LoginDto,
+    @Res({ passthrough: true }) res: Response,
+    @Headers('x-dpop-jwk') dpopJwkHeader?: string,
+  ) {
+    const dpopJwk = dpopJwkHeader ? this.parseDpopJwkHeader(dpopJwkHeader) : undefined;
     const user = await this.authService.validateUser(body.email, body.password);
-    const result = await this.authService.login(user);
+    const result = await this.authService.login(user, dpopJwk);
     this.setAuthCookies(res, result.access_token, result.refresh_token);
     return result;
   }
@@ -111,8 +133,13 @@ export class AuthController {
   @Post('register')
   @ApiOperation({ summary: 'Registrar un nuevo usuario' })
   @ApiBody({ type: RegisterDto })
-  async register(@Body() body: RegisterDto, @Res({ passthrough: true }) res: Response) {
-    const result = await this.authService.register(body);
+  async register(
+    @Body() body: RegisterDto,
+    @Res({ passthrough: true }) res: Response,
+    @Headers('x-dpop-jwk') dpopJwkHeader?: string,
+  ) {
+    const dpopJwk = dpopJwkHeader ? this.parseDpopJwkHeader(dpopJwkHeader) : undefined;
+    const result = await this.authService.register(body, dpopJwk);
     this.setAuthCookies(res, result.access_token, result.refresh_token);
     return result;
   }
@@ -154,7 +181,12 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.checkStatus(req.user.userId);
-    this.setAuthCookies(res, result.access_token, result.refresh_token);
+    const isProduction = process.env.NODE_ENV === 'production';
+    res.cookie('token', result.access_token, {
+      ...COOKIE_BASE,
+      secure: isProduction,
+      maxAge: 60 * 60 * 1000,
+    });
     return result;
   }
 
@@ -178,12 +210,18 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refrescar access token usando refresh token' })
   async refresh(
-    @Request() req: { cookies: Record<string, string>; body: Record<string, string>; headers: Record<string, string> },
+    @Request()
+    req: {
+      cookies: Record<string, string>;
+      body: Record<string, string>;
+      headers: Record<string, string>;
+    },
     @Res({ passthrough: true }) res: Response,
   ) {
-    const refreshToken = req.body?.refresh_token
-      || req.cookies?.['refresh_token']
-      || req.headers['x-refresh-token'] as string | undefined;
+    const refreshToken =
+      req.body?.refresh_token ||
+      req.cookies?.['refresh_token'] ||
+      (req.headers['x-refresh-token'] as string | undefined);
     if (!refreshToken) {
       throw new UnauthorizedException('No refresh token provided');
     }

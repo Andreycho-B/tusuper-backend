@@ -67,6 +67,9 @@ export class User {
   @Column({ type: 'timestamp', nullable: true })
   lockedUntil: Date | null;
 
+  @Column({ type: 'text', nullable: true })
+  dpopPublicKey: string | null;
+
   @ManyToMany(() => Role, (role) => role.users)
   @JoinTable({
     name: 'user_roles',

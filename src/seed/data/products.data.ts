@@ -539,7 +539,8 @@ const productEntries: ProductSeedEntry[] = [
   // Nacionales
   {
     name: 'Aguardiente Antioqueño 375ml',
-    description: 'Aguardiente antioqueño tradicional, destilado de caña de azúcar, 375ml',
+    description:
+      'Aguardiente antioqueño tradicional, destilado de caña de azúcar, 375ml',
     price: 28000,
     stock: 48,
     isActive: true,
@@ -550,7 +551,8 @@ const productEntries: ProductSeedEntry[] = [
   },
   {
     name: 'Aguardiente Blanco de Valle 750ml',
-    description: 'Aguardiente tradicional del Valle del Cauca, sabor suave, 750ml',
+    description:
+      'Aguardiente tradicional del Valle del Cauca, sabor suave, 750ml',
     price: 35000,
     stock: 36,
     isActive: true,
@@ -572,7 +574,8 @@ const productEntries: ProductSeedEntry[] = [
   },
   {
     name: 'Ron Medellín Dorado 375ml',
-    description: 'Ron colombiano dorado tradicional, ideal para cócteles, 375ml',
+    description:
+      'Ron colombiano dorado tradicional, ideal para cócteles, 375ml',
     price: 22000,
     stock: 42,
     isActive: true,
@@ -618,7 +621,8 @@ const productEntries: ProductSeedEntry[] = [
   },
   {
     name: 'Bacardí Carta Blanca 750ml',
-    description: 'Ron blanco cubano suave, ideal para mojitos y cócteles, 750ml',
+    description:
+      'Ron blanco cubano suave, ideal para mojitos y cócteles, 750ml',
     price: 68000,
     stock: 28,
     isActive: true,
@@ -640,7 +644,8 @@ const productEntries: ProductSeedEntry[] = [
   },
   {
     name: 'Old Parr 12 años 750ml',
-    description: 'Whisky escocés añejado 12 años, sabor robusto y elegante, 750ml',
+    description:
+      'Whisky escocés añejado 12 años, sabor robusto y elegante, 750ml',
     price: 95000,
     stock: 18,
     isActive: true,

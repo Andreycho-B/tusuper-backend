@@ -165,6 +165,7 @@ export class OrdersService {
       for (const itemDto of sortedItems) {
         const product = await queryRunner.manager.findOne(Product, {
           where: { id: itemDto.productId },
+          lock: { mode: 'pessimistic_write' },
         });
 
         if (!product) {
@@ -192,6 +193,9 @@ export class OrdersService {
         orderItems.push(orderItem);
       }
 
+      const deliveryFee = createOrderDto.deliveryFee || 0;
+      totalAmount += deliveryFee;
+
       const order = this.orderRepository.create({
         customerId,
         paymentMethod: createOrderDto.paymentMethod,
@@ -200,7 +204,7 @@ export class OrdersService {
         contactPhone: createOrderDto.contactPhone,
         cashChangeRequested: createOrderDto.cashChangeRequested,
         totalAmount,
-        deliveryFee: createOrderDto.deliveryFee || 0,
+        deliveryFee,
         items: orderItems,
       });
 
@@ -372,7 +376,10 @@ export class OrdersService {
           { orderId: enrichedOrder.id, status: enrichedOrder.status },
         )
         .catch((err) => {
-          this.logger.error('Push notification failed', err instanceof Error ? err.stack : String(err));
+          this.logger.error(
+            'Push notification failed',
+            err instanceof Error ? err.stack : String(err),
+          );
         });
 
       // Notificar al staff si fue cancelado
@@ -414,17 +421,24 @@ export class OrdersService {
     }
 
     if (order.customerId !== userId) {
-      throw new ForbiddenException('No tienes permiso para confirmar este pedido');
+      throw new ForbiddenException(
+        'No tienes permiso para confirmar este pedido',
+      );
     }
 
-    if (order.status !== OrderStatus.DISPATCHED && order.status !== OrderStatus.DELIVERED) {
+    if (
+      order.status !== OrderStatus.DISPATCHED &&
+      order.status !== OrderStatus.DELIVERED
+    ) {
       throw new BadRequestException(
         'Solo puedes confirmar pedidos que estén en camino o entregados',
       );
     }
 
     if (order.customerRating !== null) {
-      throw new BadRequestException('Ya has calificado este pedido anteriormente');
+      throw new BadRequestException(
+        'Ya has calificado este pedido anteriormente',
+      );
     }
 
     order.customerRating = rating;
@@ -493,8 +507,14 @@ export class OrdersService {
         throw new NotFoundException(`Order with ID ${id} not found`);
       }
 
-      if (order.status === OrderStatus.CANCELLED) {
-        throw new BadRequestException('El pedido ya se encuentra cancelado.');
+      const allowedTransitions = VALID_TRANSITIONS.get(order.status);
+      if (
+        !allowedTransitions ||
+        !allowedTransitions.includes(OrderStatus.CANCELLED)
+      ) {
+        throw new BadRequestException(
+          `No se puede cancelar un pedido en estado ${order.status}.`,
+        );
       }
 
       if (typeof userId === 'number' && order.customerId !== userId) {
@@ -518,8 +538,10 @@ export class OrdersService {
       this.notificationsService.notifyOrderCancelled(enrichedOrder);
     } catch (error: unknown) {
       await queryRunner.rollbackTransaction();
-      const msg = error instanceof Error ? error.message : String(error);
-      this.logger.error(`[OrdersService.remove] id=${id} userId=${userId}`, error instanceof Error ? error.stack : error);
+      this.logger.error(
+        `[OrdersService.remove] id=${id} userId=${userId}`,
+        error instanceof Error ? error.stack : error,
+      );
       if (error instanceof HttpException) {
         throw error;
       }

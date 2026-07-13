@@ -42,7 +42,9 @@ import { PushNotificationsModule } from './push-notifications/push-notifications
         JWT_SECRET: Joi.string().min(32).required(),
         JWT_EXPIRES_IN: Joi.number().default(86400),
         MAIL_HOST: Joi.string().required(),
-        MAIL_PORT: Joi.alternatives().try(Joi.number(), Joi.string()).required(),
+        MAIL_PORT: Joi.alternatives()
+          .try(Joi.number(), Joi.string())
+          .required(),
         MAIL_USER: Joi.string().required(),
         MAIL_PASSWORD: Joi.string().required(),
         MAIL_FROM: Joi.string().required(),

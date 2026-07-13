@@ -24,7 +24,7 @@ export class PasswordResetService {
     if (!user) {
       return {
         message:
-            'Si el correo electrónico existe, recibirás instrucciones para restablecer tu contraseña.',
+          'Si el correo electrónico existe, recibirás instrucciones para restablecer tu contraseña.',
       };
     }
 
@@ -44,7 +44,7 @@ export class PasswordResetService {
 
     return {
       message:
-          'Si el correo electrónico existe, recibirás instrucciones para restablecer tu contraseña.',
+        'Si el correo electrónico existe, recibirás instrucciones para restablecer tu contraseña.',
     };
   }
 

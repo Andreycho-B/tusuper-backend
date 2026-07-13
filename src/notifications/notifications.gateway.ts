@@ -23,7 +23,9 @@ import { JwtPayload } from '../auth/interfaces/jwt-payload.interface';
         callback(null, true);
         return;
       }
-      const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:4200')
+      const allowedOrigins = (
+        process.env.FRONTEND_URL || 'http://localhost:4200'
+      )
         .split(',')
         .map((o) => o.trim());
       if (allowedOrigins.includes(origin)) {
@@ -81,10 +83,7 @@ export class NotificationsGateway
         this.logger.log(`Client ${client.id} joined tendero-room`);
       }
 
-      if (
-        roles.includes('ADMIN') ||
-        roles.includes('TENDERO')
-      ) {
+      if (roles.includes('ADMIN') || roles.includes('TENDERO')) {
         await client.join('staff-room');
         this.logger.log(`Client ${client.id} joined staff-room`);
       }

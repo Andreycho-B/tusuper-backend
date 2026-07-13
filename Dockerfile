@@ -1,17 +1,17 @@
 # ---------- Builder ----------
-FROM node:22-alpine AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
 COPY package*.json ./
-RUN npm ci
+RUN npm install
 COPY . .
 RUN npm run build
 
 # ---------- Production ----------
-FROM node:22-alpine
+FROM node:20-alpine
 WORKDIR /app
 
 COPY package*.json ./
-RUN npm ci --omit=dev && npm cache clean --force
+RUN npm install --omit=dev && npm cache clean --force
 
 COPY --from=builder /app/dist/src ./dist
 COPY --from=builder /app/dist/mail ./dist/mail

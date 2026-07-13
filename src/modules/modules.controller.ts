@@ -1,6 +1,18 @@
-import { Controller, Get, Post, Body, Query, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
+  Param,
+  Query,
+  ParseIntPipe,
+  UseGuards,
+} from '@nestjs/common';
 import { ModulesService } from './modules.service';
 import { CreateModuleDto } from './dtos/create-module.dto';
+import { UpdateModuleDto } from './dtos/update-module.dto';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
 import { ModulesGuard } from '../auth/guards/modules.guard';
@@ -32,5 +44,20 @@ export class ModulesController {
     @Query() pagination: PaginationDto,
   ): Promise<PaginatedResult<ModuleEntity>> {
     return this.modulesService.findAll(pagination);
+  }
+
+  @Patch(':id')
+  @ApiOperation({ summary: 'Update a module' })
+  update(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() dto: UpdateModuleDto,
+  ): Promise<ModuleEntity> {
+    return this.modulesService.update(id, dto);
+  }
+
+  @Delete(':id')
+  @ApiOperation({ summary: 'Delete a module' })
+  remove(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.modulesService.remove(id);
   }
 }

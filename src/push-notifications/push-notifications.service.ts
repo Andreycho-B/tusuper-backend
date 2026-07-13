@@ -17,7 +17,8 @@ export class PushNotificationsService {
     const vapidPublic = this.configService.get<string>('VAPID_PUBLIC_KEY');
     const vapidPrivate = this.configService.get<string>('VAPID_PRIVATE_KEY');
     const mailto =
-      this.configService.get<string>('VAPID_SUBJECT') || 'mailto:admin@tusuper.com';
+      this.configService.get<string>('VAPID_SUBJECT') ||
+      'mailto:admin@tusuper.com';
 
     if (vapidPublic && vapidPrivate) {
       webpush.setVapidDetails(mailto, vapidPublic, vapidPrivate);
@@ -75,7 +76,9 @@ export class PushNotificationsService {
       return;
     }
 
-    this.logger.log(`Sending push to user ${userId}: "${title}" (${subs.length} devices)`);
+    this.logger.log(
+      `Sending push to user ${userId}: "${title}" (${subs.length} devices)`,
+    );
 
     // Format required by @angular/service-worker (ngsw-worker.js):
     // { notification: { title, body, icon }, data: { ... } }

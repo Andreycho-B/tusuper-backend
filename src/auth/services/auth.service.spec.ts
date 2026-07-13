@@ -101,7 +101,7 @@ describe('AuthService', () => {
   let resetService: PasswordResetService;
 
   beforeEach(async () => {
-    jest.resetAllMocks();
+    vi.resetAllMocks();
     mockJwtService.sign.mockReturnValue('signed-jwt-token');
 
     const module: TestingModule = await Test.createTestingModule({
@@ -113,7 +113,10 @@ describe('AuthService', () => {
         { provide: MailService, useValue: mockMailService },
         { provide: getRepositoryToken(User), useValue: mockUserRepo },
         { provide: getRepositoryToken(Role), useValue: mockRoleRepo },
-        { provide: getRepositoryToken(TokenBlacklist), useValue: mockBlacklistRepo },
+        {
+          provide: getRepositoryToken(TokenBlacklist),
+          useValue: mockBlacklistRepo,
+        },
       ],
     }).compile();
 
@@ -271,7 +274,9 @@ describe('AuthService', () => {
       mockUserRepo.findOne.mockResolvedValue(user);
       mockUserRepo.save.mockResolvedValue(user);
 
-      const result = await resetService.forgotPassword({ email: 'juan@test.com' });
+      const result = await resetService.forgotPassword({
+        email: 'juan@test.com',
+      });
 
       expect(result.message).toContain('Si el correo electrónico existe');
       expect(mockMailService.sendPasswordResetEmail).toHaveBeenCalledWith(

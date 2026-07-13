@@ -3,7 +3,6 @@
     y ponerlas disponibles en toda la aplicacion NestJS de forma ordenada y segura.
 */
 import { registerAs } from '@nestjs/config';
-import { resolveDatabaseConfig } from './config/database.config';
 
 export default registerAs('config', () => {
   const databaseUrl = process.env.DATABASE_URL;
@@ -30,7 +29,10 @@ export default registerAs('config', () => {
       rsaPrivateKey: process.env.RSA_PRIVATE_KEY,
       rsaPublicKey: process.env.RSA_PUBLIC_KEY,
       expiresIn: (() => {
-        const value = Number.parseInt(process.env.JWT_EXPIRES_IN ?? '86400', 10);
+        const value = Number.parseInt(
+          process.env.JWT_EXPIRES_IN ?? '86400',
+          10,
+        );
         if (isNaN(value) || value <= 0) {
           throw new Error(
             'JWT_EXPIRES_IN must be a positive integer in seconds',

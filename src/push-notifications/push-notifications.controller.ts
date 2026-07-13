@@ -1,4 +1,11 @@
-import { Body, Controller, Delete, Post, UseGuards, Logger } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Post,
+  UseGuards,
+  Logger,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../auth/guards/auth.guard';
 import { CurrentUser } from '../auth/decorators/current-user.decorator';
@@ -37,7 +44,9 @@ export class PushNotificationsController {
     @CurrentUser('userId') userId: number,
     @Body() dto: SubscribeDto,
   ) {
-    this.logger.log(`Push subscribe request for user ${userId}: ${dto.endpoint}`);
+    this.logger.log(
+      `Push subscribe request for user ${userId}: ${dto.endpoint}`,
+    );
     await this.pushService.subscribe(userId, dto);
     this.logger.log(`Push subscribed successfully for user ${userId}`);
     return { status: 'subscribed' };
@@ -49,7 +58,9 @@ export class PushNotificationsController {
     @CurrentUser('userId') userId: number,
     @Body() dto: UnsubscribeDto,
   ) {
-    this.logger.log(`Push unsubscribe request for user ${userId}: ${dto.endpoint}`);
+    this.logger.log(
+      `Push unsubscribe request for user ${userId}: ${dto.endpoint}`,
+    );
     await this.pushService.unsubscribe(userId, dto.endpoint);
     this.logger.log(`Push unsubscribed successfully for user ${userId}`);
     return { status: 'unsubscribed' };

@@ -1,5 +1,4 @@
 import { Request } from 'express';
-import { JwtPayload } from '../../auth/interfaces/jwt-payload.interface';
 import { Role } from '../../roles/entities/role.entity';
 
 export interface AuthenticatedUser {

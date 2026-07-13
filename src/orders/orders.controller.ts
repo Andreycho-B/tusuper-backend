@@ -129,7 +129,10 @@ export class OrdersController {
     description: 'Delivery confirmed and rating submitted.',
     type: Order,
   })
-  @ApiResponse({ status: 400, description: 'Invalid transition or already rated.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid transition or already rated.',
+  })
   @ApiResponse({ status: 403, description: 'Forbidden — not the order owner.' })
   confirmDelivery(
     @Param('id', ParseIntPipe) id: number,

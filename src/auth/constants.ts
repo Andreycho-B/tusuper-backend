@@ -17,15 +17,13 @@ export function validateFrontendUrl(
       (requestedUrl ?? 'http://localhost:4200');
   }
 
-  const allowedHosts = allowedOrigin
-    .split(',')
-    .map((u) => {
-      try {
-        return new URL(u.trim()).host;
-      } catch {
-        return u.trim();
-      }
-    });
+  const allowedHosts = allowedOrigin.split(',').map((u) => {
+    try {
+      return new URL(u.trim()).host;
+    } catch {
+      return u.trim();
+    }
+  });
 
   if (requestedUrl) {
     try {
@@ -40,7 +38,9 @@ export function validateFrontendUrl(
 
   const firstUrl = allowedOrigin.split(',')[0].trim();
   if (requestedUrl) {
-    logger.warn(`Frontend URL "${requestedUrl}" not in whitelist, defaulting to: ${firstUrl}`);
+    logger.warn(
+      `Frontend URL "${requestedUrl}" not in whitelist, defaulting to: ${firstUrl}`,
+    );
   }
   return firstUrl;
 }

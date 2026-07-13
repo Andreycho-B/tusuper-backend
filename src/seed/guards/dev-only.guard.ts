@@ -1,8 +1,4 @@
-import {
-  CanActivate,
-  ForbiddenException,
-  Injectable,
-} from '@nestjs/common';
+import { CanActivate, ForbiddenException, Injectable } from '@nestjs/common';
 
 @Injectable()
 export class DevOnlyGuard implements CanActivate {

@@ -61,7 +61,9 @@ describe('RolesGuard', () => {
   });
 
   it('should allow access when user has required role', () => {
-    jest.spyOn(reflector, 'getAllAndOverride').mockReturnValue(['ADMIN', 'USER']);
+    jest
+      .spyOn(reflector, 'getAllAndOverride')
+      .mockReturnValue(['ADMIN', 'USER']);
     const context = {
       switchToHttp: () => ({
         getRequest: () => ({

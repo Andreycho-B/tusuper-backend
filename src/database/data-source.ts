@@ -26,9 +26,7 @@ export const AppDataSource = new DataSource(
     ? {
         ...baseOptions,
         url: configuration.dataBase.url,
-        ssl: configuration.dataBase.ssl
-          ? { rejectUnauthorized: false }
-          : false,
+        ssl: configuration.dataBase.ssl ? { rejectUnauthorized: false } : false,
       }
     : {
         ...baseOptions,
@@ -37,8 +35,6 @@ export const AppDataSource = new DataSource(
         username: configuration.dataBase.user,
         password: configuration.dataBase.password,
         database: configuration.dataBase.name,
-        ssl: configuration.dataBase.ssl
-          ? { rejectUnauthorized: false }
-          : false,
+        ssl: configuration.dataBase.ssl ? { rejectUnauthorized: false } : false,
       },
 );

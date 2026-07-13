@@ -5,7 +5,6 @@ import {
   IsEnum,
   IsInt,
   IsOptional,
-  IsString,
   Min,
 } from 'class-validator';
 import { PaginationDto } from '../../common/dtos/pagination.dto';

@@ -69,10 +69,11 @@ export class OrdersService {
     await queryRunner.startTransaction();
 
     try {
-      const productResult = await queryRunner.manager.findOne(Product, {
-        where: { id: dto.productId },
-        lock: { mode: 'pessimistic_write' },
-      });
+      const productResult = await queryRunner.manager
+        .createQueryBuilder(Product, 'product')
+        .setLock('pessimistic_write')
+        .where('product.id = :id', { id: dto.productId })
+        .getOne();
 
       if (!productResult) {
         throw new NotFoundException(
@@ -167,10 +168,11 @@ export class OrdersService {
       );
 
       for (const itemDto of sortedItems) {
-        const product = await queryRunner.manager.findOne(Product, {
-          where: { id: itemDto.productId },
-          lock: { mode: 'pessimistic_write' },
-        });
+        const product = await queryRunner.manager
+          .createQueryBuilder(Product, 'product')
+          .setLock('pessimistic_write')
+          .where('product.id = :id', { id: itemDto.productId })
+          .getOne();
 
         if (!product) {
           throw new NotFoundException(

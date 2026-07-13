@@ -24,6 +24,9 @@ import { GoogleAuthRequest } from '../interfaces/google-user.interface';
 import { TokenBlacklist } from '../entities/token-blacklist.entity';
 import { RefreshToken } from '../entities/refresh-token.entity';
 import config from '../../config';
+import { computeJwkThumbprint } from '../dpop/dpop.utils';
+import { isDpopJwk } from '../dpop/dpop.types';
+import type { JWK } from 'jose';
 
 @Injectable()
 export class AuthService {
@@ -105,7 +108,7 @@ export class AuthService {
     return result;
   }
 
-  async register(dto: RegisterDto) {
+  async register(dto: RegisterDto, dpopJwk?: unknown) {
     if (dto.password !== dto.confirmPassword) {
       throw new BadRequestException('Las contraseñas no coinciden');
     }
@@ -141,20 +144,38 @@ export class AuthService {
     });
 
     const savedUser = await this.userRepo.save(newUser);
-    return this.login(savedUser as UserModel);
+    return this.login(savedUser as UserModel, dpopJwk);
   }
 
-  async login(user: UserModel) {
+  async login(user: UserModel, dpopJwk?: unknown) {
     const jti = crypto.randomUUID();
-    const payload = {
+
+    let validJwk: JWK | undefined;
+    let cnf: { jkt: string } | undefined;
+    if (dpopJwk && isDpopJwk(dpopJwk)) {
+      validJwk = dpopJwk;
+      cnf = { jkt: computeJwkThumbprint(dpopJwk) };
+    }
+
+    const payload: Record<string, unknown> = {
       sub: user.id,
       email: user.email,
       roles: user.roles?.map((role: Role) => role.name) || [],
       jti,
     };
+    if (cnf) {
+      payload.cnf = cnf;
+    }
 
-    const accessToken = this.jwtService.sign(payload, { expiresIn: this.configService.jwt.expiresIn });
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: this.configService.jwt.expiresIn,
+    });
     const refreshToken = await this.generateRefreshToken(user.id);
+
+    if (validJwk && user.id) {
+      const serialized = JSON.stringify(validJwk);
+      await this.userRepo.update(user.id, { dpopPublicKey: serialized });
+    }
 
     return { access_token: accessToken, refresh_token: refreshToken, user };
   }
@@ -213,12 +234,18 @@ export class AuthService {
 
   async cleanupExpiredTokens(): Promise<void> {
     await this.blacklistRepo
-      .createQueryBuilder().delete().where('expiresAt < :now', { now: new Date() }).execute();
+      .createQueryBuilder()
+      .delete()
+      .where('expiresAt < :now', { now: new Date() })
+      .execute();
     await this.refreshTokenRepo
-      .createQueryBuilder().delete().where('expiresAt < :now', { now: new Date() }).execute();
+      .createQueryBuilder()
+      .delete()
+      .where('expiresAt < :now', { now: new Date() })
+      .execute();
   }
 
-  async checkStatus(userId: number) {
+  async refreshAccessTokenOnly(userId: number) {
     const user = await this.usersService.findOne(userId);
 
     if (!user.isActive) {
@@ -227,10 +254,37 @@ export class AuthService {
       );
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { password: _, ...result } = user;
+    const jti = crypto.randomUUID();
 
-    return this.login(result as UserModel);
+    const payload: Record<string, unknown> = {
+      sub: user.id,
+      email: user.email,
+      roles: user.roles?.map((role: Role) => role.name) || [],
+      jti,
+    };
+
+    if (user.dpopPublicKey) {
+      let jwk: JWK;
+      try {
+        jwk = JSON.parse(user.dpopPublicKey);
+      } catch {
+        throw new InternalServerErrorException('Invalid DPoP public key');
+      }
+      payload.cnf = { jkt: computeJwkThumbprint(jwk) };
+    }
+
+    const accessToken = this.jwtService.sign(payload, {
+      expiresIn: this.configService.jwt.expiresIn,
+    });
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { password: _, ...safeUser } = user;
+
+    return { access_token: accessToken, user: safeUser };
+  }
+
+  async checkStatus(userId: number) {
+    return this.refreshAccessTokenOnly(userId);
   }
 
   async googleLogin(req: GoogleAuthRequest) {

@@ -5,4 +5,5 @@ export interface JwtPayload {
   jti?: string;
   exp?: number;
   iat?: number;
+  cnf?: { jkt: string };
 }

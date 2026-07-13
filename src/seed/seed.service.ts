@@ -1,7 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, DeepPartial, Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -132,16 +129,18 @@ export class SeedService {
     const allModules = await this.moduleRepo.find();
     const adminModules = allModules;
     const staffModules = allModules.filter((m) =>
-      ['product', 'category', 'provider', 'orders'].includes(
-        m.name,
-      ),
+      ['product', 'category', 'provider', 'orders'].includes(m.name),
     );
     const userModules = allModules.filter((m) =>
       ['product', 'orders'].includes(m.name),
     );
 
     const rolesData = [
-      { name: 'ADMIN', description: 'Administrador del sistema', modules: adminModules },
+      {
+        name: 'ADMIN',
+        description: 'Administrador del sistema',
+        modules: adminModules,
+      },
       { name: 'TENDERO', description: 'Tendero', modules: staffModules },
       { name: 'USER', description: 'Usuario cliente', modules: userModules },
     ];
@@ -163,7 +162,7 @@ export class SeedService {
     // ── ADMIN USER ─
     const adminRole = savedRoles.find((r) => r.name === 'ADMIN');
     let adminCreated = false;
-    let existingAdmin = await this.userRepo.findOne({
+    const existingAdmin = await this.userRepo.findOne({
       where: { email: adminEmail },
     });
 
@@ -182,9 +181,7 @@ export class SeedService {
       adminCreated = true;
     } else {
       // Update admin role if it exists but doesn't have admin role
-      const hasAdminRole = existingAdmin.roles?.some(
-        (r) => r.name === 'ADMIN',
-      );
+      const hasAdminRole = existingAdmin.roles?.some((r) => r.name === 'ADMIN');
       if (!hasAdminRole && adminRole) {
         existingAdmin.roles = [...(existingAdmin.roles || []), adminRole];
         await this.userRepo.save(existingAdmin);
@@ -277,7 +274,7 @@ export class SeedService {
         const result = await queryRunner.manager
           .createQueryBuilder()
           .update(Product)
-          .set({ imageUrl: prodData.imageUrl as string })
+          .set({ imageUrl: prodData.imageUrl })
           .where('name = :name', { name: prodData.name })
           .execute();
 
@@ -331,7 +328,10 @@ export class SeedService {
           where: { name: catData.name },
         });
         if (!existing) {
-          existing = await queryRunner.manager.save(Category, catData as DeepPartial<Category>);
+          existing = await queryRunner.manager.save(
+            Category,
+            catData as DeepPartial<Category>,
+          );
           categoriesInserted++;
         }
         savedCategories.push(existing);
@@ -344,7 +344,10 @@ export class SeedService {
           where: { name: provData.name },
         });
         if (!existing) {
-          existing = await queryRunner.manager.save(Provider, provData as DeepPartial<Provider>);
+          existing = await queryRunner.manager.save(
+            Provider,
+            provData as DeepPartial<Provider>,
+          );
           providersInserted++;
         }
         savedProviders.push(existing);
@@ -363,7 +366,7 @@ export class SeedService {
           prodData.imageUrl &&
           existing.imageUrl !== prodData.imageUrl
         ) {
-          existing.imageUrl = prodData.imageUrl as string;
+          existing.imageUrl = prodData.imageUrl;
           await queryRunner.manager.save(Product, existing);
           productsInserted++;
         }

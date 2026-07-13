@@ -16,15 +16,15 @@ services:
     image: postgres:17
     container_name: auth_postgres_stg
     environment:
-      POSTGRES_DB: auth_stg_db
-      POSTGRES_USER: stg_user
-      POSTGRES_PASSWORD: 123456
+      POSTGRES_DB: ${POSTGRES_DB:-auth_stg_db}
+      POSTGRES_USER: ${POSTGRES_USER:-stg_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5433:5432"
+      - "${POSTGRES_HOST_PORT:-127.0.0.1:5433}:5432"
     volumes:
       - postgres_stg_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U stg_user -d auth_stg_db"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-stg_user} -d ${POSTGRES_DB:-auth_stg_db}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -35,8 +35,8 @@ services:
     image: dpage/pgadmin4
     container_name: pgadmin_stg
     environment:
-      PGADMIN_DEFAULT_EMAIL: root@admin.com
-      PGADMIN_DEFAULT_PASSWORD: root
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@admin.com}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     ports:
       - "5051:80"
     networks:

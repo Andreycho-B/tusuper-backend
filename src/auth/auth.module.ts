@@ -12,6 +12,7 @@ import config from '../config';
 import { ModulesGuard } from './guards/modules.guard';
 import { JwtAuthGuard } from './guards/auth.guard';
 import { RolesGuard } from './guards/roles.guard';
+import { DpopGuard } from './guards/dpop.guard';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { Role } from '../roles/entities/role.entity';
@@ -29,7 +30,9 @@ import { MailModule } from '../mail/mail.module';
       inject: [config.KEY],
       useFactory: (configType: ConfigType<typeof config>) => {
         const rsaPrivateKey = configType.jwt.rsaPrivateKey
-          ? Buffer.from(configType.jwt.rsaPrivateKey, 'base64').toString('utf-8')
+          ? Buffer.from(configType.jwt.rsaPrivateKey, 'base64').toString(
+              'utf-8',
+            )
           : undefined;
         return {
           secret: rsaPrivateKey || configType.jwt.secret,
@@ -47,6 +50,7 @@ import { MailModule } from '../mail/mail.module';
     ModulesGuard,
     RolesGuard,
     JwtAuthGuard,
+    DpopGuard,
     JwtStrategy,
     GoogleStrategy,
   ],

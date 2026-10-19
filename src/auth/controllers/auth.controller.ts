@@ -129,6 +129,20 @@ export class AuthController {
     return result;
   }
 
+  @Throttle({ default: { limit: 10, ttl: 60000 } })
+  @Post('guest')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Iniciar sesion como usuario invitado (Demo)' })
+  async guestLogin(
+    @Res({ passthrough: true }) res: Response,
+    @Headers('x-dpop-jwk') dpopJwkHeader?: string,
+  ) {
+    const dpopJwk = dpopJwkHeader ? this.parseDpopJwkHeader(dpopJwkHeader) : undefined;
+    const result = await this.authService.guestLogin(dpopJwk);
+    this.setAuthCookies(res, result.access_token, result.refresh_token);
+    return result;
+  }
+
   @Throttle({ default: { limit: 5, ttl: 60000 } })
   @Post('register')
   @ApiOperation({ summary: 'Registrar un nuevo usuario' })

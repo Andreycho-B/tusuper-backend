@@ -344,6 +344,42 @@ export class AuthService {
     return this.login(user as UserModel);
   }
 
+  async guestLogin(dpopJwk?: unknown) {
+    const guestEmail = 'invitado@tusuper.com';
+
+    let user = await this.userRepo.findOne({
+      where: { email: guestEmail },
+      relations: ['roles'],
+    });
+
+    if (!user) {
+      const userRole = await this.roleRepo.findOne({ where: { name: 'USER' } });
+
+      if (!userRole) {
+        throw new InternalServerErrorException(
+          'Role USER no encontrado - no se puede crear usuario invitado',
+        );
+      }
+
+      user = this.userRepo.create({
+        email: guestEmail,
+        firstName: 'Invitado',
+        lastName: 'Demo',
+        displayName: 'Invitado Demo',
+        isEmailVerified: true,
+        isActive: true,
+        password: null,
+        roles: [userRole],
+      });
+      user = await this.userRepo.save(user);
+    } else if (!user.isActive) {
+      user.isActive = true;
+      await this.userRepo.save(user);
+    }
+
+    return this.login(user as UserModel, dpopJwk);
+  }
+
   private hashResetToken(token: string): string {
     return crypto.createHash('sha256').update(token).digest('hex');
   }

@@ -168,6 +168,16 @@ async function seed() {
         isEmailVerified: true,
         roles: [seededRoles['TENDERO']],
       },
+      {
+        firstName: 'Invitado',
+        lastName: 'Demo',
+        email: 'invitado@tusuper.com',
+        displayName: 'Invitado Demo',
+        password: null,
+        isActive: true,
+        isEmailVerified: true,
+        roles: [seededRoles['USER']],
+      },
     ];
 
     for (const userData of defaultUsers) {

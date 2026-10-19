@@ -109,7 +109,9 @@ export class AuthController {
     const result = await this.authService.googleLogin(req);
     this.setAuthCookies(res, result.access_token, result.refresh_token);
     const frontendUrl = validateFrontendUrl(this.configService);
-    res.redirect(`${frontendUrl}/auth/social-callback`);
+    res.redirect(
+      `${frontendUrl}/auth/social-callback#token=${result.access_token}&refresh_token=${result.refresh_token}`,
+    );
   }
 
   @Throttle({ default: { limit: 5, ttl: 60000 } })

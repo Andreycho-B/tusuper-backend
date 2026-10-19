@@ -11,7 +11,7 @@ import {
   UnauthorizedException,
   Headers,
 } from '@nestjs/common';
-import type { Response } from 'express';
+import type { CookieOptions, Response } from 'express';
 import {
   ApiTags,
   ApiOperation,
@@ -33,13 +33,6 @@ import { GoogleAuthGuard } from '../guards/google-auth.guard';
 import { validateFrontendUrl } from '../constants';
 import type { AuthenticatedRequest } from '../../common/interfaces/authenticated-request.interface';
 
-const COOKIE_BASE = {
-  httpOnly: true,
-  secure: true,
-  sameSite: 'none' as const,
-  path: '/',
-};
-
 @ApiTags('Autenticacion')
 @Controller('auth')
 export class AuthController {
@@ -57,37 +50,44 @@ export class AuthController {
     }
   }
 
+  private getCookieOptions(): CookieOptions {
+    const isProduction =
+      process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'prod';
+    return {
+      httpOnly: true,
+      secure: isProduction,
+      sameSite: isProduction ? ('none' as const) : ('lax' as const),
+      path: '/',
+    };
+  }
+
   private setAuthCookies(
     res: Response,
     accessToken: string,
     refreshToken: string,
   ): void {
-    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOptions = this.getCookieOptions();
     // Access token cookie: 1 hour with sliding refresh (resets on each check-status/refresh)
     const accessTtlMs = 60 * 60 * 1000; // 1h
     res.cookie('token', accessToken, {
-      ...COOKIE_BASE,
-      secure: isProduction,
+      ...cookieOptions,
       maxAge: accessTtlMs,
     });
     // Refresh token cookie: 7 days
     res.cookie('refresh_token', refreshToken, {
-      ...COOKIE_BASE,
-      secure: isProduction,
+      ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60_000,
     });
   }
 
   private clearAuthCookies(res: Response): void {
-    const isProduction = process.env.NODE_ENV === 'production';
+    const cookieOptions = this.getCookieOptions();
     res.cookie('token', '', {
-      ...COOKIE_BASE,
-      secure: isProduction,
+      ...cookieOptions,
       maxAge: 0,
     });
     res.cookie('refresh_token', '', {
-      ...COOKIE_BASE,
-      secure: isProduction,
+      ...cookieOptions,
       maxAge: 0,
     });
   }
@@ -181,10 +181,8 @@ export class AuthController {
     @Res({ passthrough: true }) res: Response,
   ) {
     const result = await this.authService.checkStatus(req.user.userId);
-    const isProduction = process.env.NODE_ENV === 'production';
     res.cookie('token', result.access_token, {
-      ...COOKIE_BASE,
-      secure: isProduction,
+      ...this.getCookieOptions(),
       maxAge: 60 * 60 * 1000,
     });
     return result;
